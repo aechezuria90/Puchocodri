@@ -428,7 +428,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
       <div class="fld"><label>Contraseña actual</label><input type="password" id="claveCActual"></div>
       <div class="fld"><label>Nueva contraseña</label><input type="password" id="claveCNueva"></div>
       <div class="fld"><label>Confirmar</label><input type="password" id="claveCConfirm"></div>
-      <button class="btn btn-g btn-w" id="btnCambiarClaveC">Guardar</button>
+      <button class="btn btn-g btn-w" id="btnCambiarClaveC2">Guardar</button>
     </div>
   </div>
 
@@ -1370,7 +1370,7 @@ async function delW(id){
 
 // ══ PASEOS ══
 document.getElementById('btnNuevoPs').addEventListener('click',abrirPs);
-document.getElementById('btnSavePs').addEventListener('click',savePs);
+document.getElementById('btnSavePs').onclick=function(){savePs();};
 document.getElementById('psPerro').addEventListener('change',autoFill);
 document.getElementById('psWal').addEventListener('change',function(){autoFill();});
 
@@ -1545,6 +1545,17 @@ document.getElementById('btnCambiarClaveC').addEventListener('click',async funct
   await dbPatch('clientes',{password_hash:nva,pass_cambiada:true},'id=eq.'+me.id);
   me.password_hash=nva;me.pass_cambiada=true;
   document.getElementById('claveCActual').value='';document.getElementById('claveCNueva').value='';document.getElementById('claveCConfirm').value='';
+  toast('✅ Contraseña actualizada');
+});
+document.getElementById('btnCambiarClaveC2').addEventListener('click',async function(){
+  var act=document.getElementById('claveCActual').value;
+  var nva=document.getElementById('claveCNueva').value;
+  var con=document.getElementById('claveCConfirm').value;
+  if(me.password_hash!==act){toast('⚠️ Contraseña actual incorrecta');return;}
+  if(nva.length<6){toast('⚠️ Mínimo 6 caracteres');return;}
+  if(nva!==con){toast('⚠️ Las contraseñas no coinciden');return;}
+  await dbPatch('clientes',{password_hash:nva,pass_cambiada:true},'id=eq.'+me.id);
+  me.password_hash=nva;me.pass_cambiada=true;
   toast('✅ Contraseña actualizada');
 });
 
