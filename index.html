@@ -1448,16 +1448,23 @@ async function savePs(){
   var estado=document.getElementById('psEst').value;
   var tc=+document.getElementById('psTc').value;
   var tw=+document.getElementById('psTw').value;
-  await dbPost('paseos',{empresa_id:EMPRESA_ID,perro_id:pid,paseador_id:wid,fecha:fecha,
-    estado:estado,observaciones:document.getElementById('psObs').value.trim(),
-    tarifa_cliente:tc,tarifa_paseador:tw});
+  var esExtra=false;
   if(estado==='realizado'){
     var perros=await dbGet('perros','id=eq.'+pid);
     if(perros.length&&perros[0].modalidad_pago==='paquete'){
-      await dbPatch('perros',{pack_usados:(perros[0].pack_usados||0)+1},'id=eq.'+pid);
+      var rest=(perros[0].pack_total||0)-(perros[0].pack_usados||0);
+      if(rest>0){
+        await dbPatch('perros',{pack_usados:(perros[0].pack_usados||0)+1},'id=eq.'+pid);
+      } else {
+        esExtra=true;
+      }
     }
   }
-  cerrar('ps'); rPaseos(); rDash(); toast('✅ Paseo registrado');
+  await dbPost('paseos',{empresa_id:EMPRESA_ID,perro_id:pid,paseador_id:wid,fecha:fecha,
+    estado:estado,observaciones:document.getElementById('psObs').value.trim(),
+    tarifa_cliente:tc,tarifa_paseador:tw,es_extra:esExtra});
+  cerrar('ps'); rPaseos(); rDash();
+  toast(esExtra?'✅ Paseo extra registrado — quedará pendiente de cobro':'✅ Paseo registrado');
 }
 async function delPs(id){
   if(!confirm('¿Eliminar paseo?'))return;
@@ -1486,23 +1493,29 @@ async function marcar(){
   if(!perros.length)return;
   var p=perros[0];
   var estado=document.getElementById('mpEst').value;
-  // Leer tarifa desde perro_paseadores
-  var tw=0;
   var walker=await dbGet('usuarios','id=eq.'+me.id+'&select=es_pucho');
   var esPucho=walker.length&&walker[0].es_pucho&&empId===me.empresa_id;
+  var tw=0;
   if(!esPucho){
     try {
       var pp=await dbGet('perro_paseadores','perro_id=eq.'+pid+'&paseador_id=eq.'+me.id);
       tw=pp.length&&pp[0].tarifa_paseador?pp[0].tarifa_paseador:0;
     } catch(e){}
   }
+  var esExtra=false;
+  if(estado==='realizado'&&p.modalidad_pago==='paquete'){
+    var rest=(p.pack_total||0)-(p.pack_usados||0);
+    if(rest>0){
+      await dbPatch('perros',{pack_usados:(p.pack_usados||0)+1},'id=eq.'+pid);
+    } else {
+      esExtra=true;
+    }
+  }
   await dbPost('paseos',{empresa_id:empId,perro_id:pid,paseador_id:me.id,
     fecha:fecha,estado:estado,observaciones:document.getElementById('mpObs').value.trim(),
-    tarifa_cliente:p.tarifa,tarifa_paseador:tw});
-  if(estado==='realizado'&&p.modalidad_pago==='paquete'){
-    await dbPatch('perros',{pack_usados:(p.pack_usados||0)+1},'id=eq.'+pid);
-  }
-  cerrar('mp'); rMisPerros(); rMiHist(); toast('✅ Guardado');
+    tarifa_cliente:p.tarifa,tarifa_paseador:tw,es_extra:esExtra});
+  cerrar('mp'); rMisPerros(); rMiHist();
+  toast(esExtra?'✅ Paseo extra registrado':'✅ Guardado');
 }
 
 // ══ CAMBIAR CLAVE PASEADOR ══
@@ -1639,12 +1652,21 @@ async function abrirRecargar(pid){
   document.getElementById('paqSub').textContent='🐕 '+p.nombre;
   document.getElementById('paqAgregar').value='';
   var rest=(p.pack_total||0)-(p.pack_usados||0);
+  // Contar paseos extras pendientes
+  var extras=await dbGet('paseos','perro_id=eq.'+pid+'&es_extra=eq.true&estado=eq.realizado');
+  var montoExtra=extras.reduce(function(s,e){return s+e.tarifa_cliente;},0);
   document.getElementById('paqStatus').innerHTML=
     '<div style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:var(--g);margin-bottom:7px">Estado del paquete</div>'+
     '<div style="display:flex;justify-content:space-between;font-size:.83rem;margin-bottom:3px"><span style="color:var(--mu)">Total comprado</span><b>'+(p.pack_total||0)+'</b></div>'+
     '<div style="display:flex;justify-content:space-between;font-size:.83rem;margin-bottom:3px"><span style="color:var(--mu)">Realizados</span><b>'+(p.pack_usados||0)+'</b></div>'+
-    '<div style="display:flex;justify-content:space-between;font-size:.83rem"><span style="color:var(--mu)">Restantes</span><b style="color:'+(rest<=0?'var(--red)':'var(--g)')+'">'+rest+(rest<=0?' ⚠️':'')+'</b></div>'+
-    '<div class="paq-bar"><div class="paq-bar-fill'+(rest<=0?' agotado':'')+'" style="width:'+Math.min(p.pack_total?Math.round((p.pack_usados||0)/p.pack_total*100):0,100)+'%"></div></div>';
+    '<div style="display:flex;justify-content:space-between;font-size:.83rem"><span style="color:var(--mu)">Restantes</span><b style="color:'+(rest<=0?'var(--red)':'var(--g)')+'">'+rest+(rest<=0?' ⚠️ Agotado':'')+'</b></div>'+
+    '<div class="paq-bar"><div class="paq-bar-fill'+(rest<=0?' agotado':'')+'" style="width:'+Math.min(p.pack_total?Math.round((p.pack_usados||0)/p.pack_total*100):0,100)+'%"></div></div>'+
+    (extras.length?
+      '<div style="margin-top:10px;padding:10px;background:var(--warnbg);border-radius:var(--r2)">'+
+        '<div style="font-size:.72rem;font-weight:700;color:var(--warn);margin-bottom:4px">➕ Paseos extra realizados</div>'+
+        '<div style="display:flex;justify-content:space-between;font-size:.83rem"><span style="color:var(--mu)">'+extras.length+' paseos fuera del paquete</span><b style="color:var(--warn)">'+fmt(montoExtra)+' pendiente</b></div>'+
+      '</div>':''
+    );
   abrir('paq');
 }
 async function saveRecargar(){
@@ -1928,12 +1950,15 @@ async function rLiq(){
   var extraLiqIds=ueLiq.map(function(x){return x.usuario_id;}).filter(function(id){return !walkersLiqH.find(function(w){return w.id===id;});});
   var walkersLiqE=extraLiqIds.length?await dbGet('usuarios','id=in.('+extraLiqIds.join(',')+')&select=id,nombre'):[];
   var walkers=walkersLiqH.concat(walkersLiqE);
+  var puchoId=me.id;
   var pc={},pw={};
   mp.forEach(function(p){
     var dog=perros.find(function(x){return x.id===p.perro_id;});
     var cid=dog?dog.cliente_id:null;
     if(cid){if(!pc[cid])pc[cid]={t:0,n:0};pc[cid].t+=p.tarifa_cliente;pc[cid].n++;}
-    if(p.paseador_id){if(!pw[p.paseador_id])pw[p.paseador_id]={t:0,n:0};pw[p.paseador_id].t+=p.tarifa_paseador;pw[p.paseador_id].n++;}
+    // Excluir a Pucho de la lista de pagar paseadores — él es dueño
+    var esPuchoEnSuEmpresa=p.paseador_id===puchoId&&EMPRESA_ID===me.empresa_id;
+    if(p.paseador_id&&!esPuchoEnSuEmpresa){if(!pw[p.paseador_id])pw[p.paseador_id]={t:0,n:0};pw[p.paseador_id].t+=p.tarifa_paseador;pw[p.paseador_id].n++;}
   });
   var ce=Object.entries(pc),we=Object.entries(pw);
   document.getElementById('liqClientes').innerHTML=ce.length?ce.map(function(e){
@@ -1952,10 +1977,10 @@ async function rLiq(){
   var tc=ce.reduce(function(s,e){return s+e[1].t;},0);
   var tp=we.reduce(function(s,e){return s+e[1].t;},0);
   // Mi producción personal (paseos hechos por Pucho)
-  var miProd=mp.filter(function(p){return p.paseador_id==='fa92ba9b-9afe-485d-8df3-1f6e0254f0e1';}).reduce(function(s,p){return s+p.tarifa_cliente;},0);
-  var miPaseos=mp.filter(function(p){return p.paseador_id==='fa92ba9b-9afe-485d-8df3-1f6e0254f0e1';}).length;
+  var miProd=mp.filter(function(p){return p.paseador_id===puchoId;}).reduce(function(s,p){return s+p.tarifa_cliente;},0);
+  var miPaseos=mp.filter(function(p){return p.paseador_id===puchoId;}).length;
   // Ganancia de paseadores (margen sobre paseos de otros)
-  var ganPaseadores=mp.filter(function(p){return p.paseador_id!=='fa92ba9b-9afe-485d-8df3-1f6e0254f0e1';}).reduce(function(s,p){return s+(p.tarifa_cliente-p.tarifa_paseador);},0);
+  var ganPaseadores=mp.filter(function(p){return p.paseador_id!==puchoId;}).reduce(function(s,p){return s+(p.tarifa_cliente-p.tarifa_paseador);},0);
   document.getElementById('lqTc').textContent=fmt(tc);
   document.getElementById('lqTp').textContent=fmt(tp);
   document.getElementById('lqGn').textContent=fmt(tc-tp);
@@ -2303,24 +2328,35 @@ async function rMiSaldo(){
       allPaseos=allPaseos.concat(ps.map(function(p){var dog=perros.find(function(x){return x.id===p.perro_id;})||{nombre:'—'};p._dogNombre=dog.nombre;return p;}));
     }
     allPaseos.sort(function(a,b){return a.fecha.localeCompare(b.fecha);});
+    var paseosPack=allPaseos.filter(function(p){return !p.es_extra;});
+    var paseosExtra=allPaseos.filter(function(p){return p.es_extra;});
+    var totalPack=paseosPack.reduce(function(s,p){return s+p.tarifa_cliente;},0);
+    var totalExtra=paseosExtra.reduce(function(s,p){return s+p.tarifa_cliente;},0);
     var total=allPaseos.reduce(function(s,p){return s+p.tarifa_cliente;},0);
     var clienteDB=await dbGet('clientes','id=eq.'+me.id);
     var notif=clienteDB[0]&&clienteDB[0].mes_notif===mes;
+    var tieneExtra=paseosExtra.length>0;
     var sEl=document.getElementById('saldoBox');
     sEl.innerHTML='<div class="saldo-box'+(notif?' pendiente':'')+'">'+
       '<div class="saldo-lbl">Acumulado '+mlbl(mes)+'</div>'+
-      '<div class="saldo-val">'+fmt(total)+'</div>'+
-      '<div style="font-size:.76rem;color:var(--mu);margin-top:4px">'+allPaseos.length+' paseos realizados</div>'+
+      '<div class="saldo-val">'+fmt(totalPack)+'</div>'+
+      '<div style="font-size:.76rem;color:var(--mu);margin-top:4px">'+paseosPack.length+' paseos del paquete</div>'+
+      (tieneExtra?
+        '<div style="margin-top:10px;padding:10px;background:rgba(255,255,255,.2);border-radius:var(--r2)">'+
+          '<div style="font-size:.72rem;font-weight:700;margin-bottom:3px">➕ Paseos extra</div>'+
+          '<div style="font-size:.85rem">'+paseosExtra.length+' paseos adicionales</div>'+
+          '<div style="font-size:1.1rem;font-weight:700;margin-top:3px">'+fmt(totalExtra)+' pendiente de pago</div>'+
+        '</div>':'')+
       (notif?datosBancarios(EMPRESA_ID):'')+
     '</div>';
     var acum=0;
     document.getElementById('saldoDetalle').innerHTML=allPaseos.length?allPaseos.map(function(p){
       acum+=p.tarifa_cliente;
-      return'<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 13px;border-bottom:1px solid var(--bd)">'+
-        '<div><div style="font-size:.85rem;font-weight:500">🐕 '+p._dogNombre+' · '+fmtF(p.fecha)+'</div>'+
+      var esExtra=p.es_extra;
+      return'<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 13px;border-bottom:1px solid var(--bd)'+(esExtra?';background:#fff8ec':'')+'">'+
+        '<div><div style="font-size:.85rem;font-weight:500">🐕 '+p._dogNombre+' · '+fmtF(p.fecha)+(esExtra?' <span style="font-size:.68rem;background:var(--warnbg);color:var(--warn);padding:1px 5px;border-radius:4px;font-weight:700">EXTRA</span>':'')+'</div>'+
         (p.observaciones?'<div style="font-size:.75rem;color:var(--mu);margin-top:1px">💬 '+p.observaciones+'</div>':'')+
-        '</div><div style="text-align:right"><div class="mono">'+fmt(p.tarifa_cliente)+'</div>'+
-        '<div style="font-size:.7rem;color:var(--mu)">Total: '+fmt(acum)+'</div></div></div>';
+        '</div><div style="text-align:right"><div class="mono">'+fmt(p.tarifa_cliente)+'</div></div></div>';
     }).join(''):'<div class="empty"><p>Sin paseos este mes</p></div>';
   } catch(e){document.getElementById('saldoBox').innerHTML='<div class="empty"><p>Error cargando</p></div>';}
 }
