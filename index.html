@@ -656,7 +656,6 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
     <div class="modal-handle"></div>
     <div class="modal-title" id="mpTit">Registrar paseo</div>
     <input type="hidden" id="mpId">
-    <input type="hidden" id="mpEmpId">
     <div class="fld"><label>Fecha</label><input type="date" id="mpFecha"></div>
     <div class="fld"><label>¿Cómo fue?</label>
       <select id="mpEst"><option value="realizado">✅ Realizado</option><option value="cancelado">❌ No se realizó</option></select>
@@ -1070,13 +1069,11 @@ function mostrarSwitchEmpresa(multiEmpresas, user){
       document.getElementById('bnPaseador').style.display='none';
       document.getElementById('bnCliente').style.display='none';
       ir('dash');
-      rDash();
     } else {
       document.getElementById('bnAdmin').style.cssText='display:none';
       document.getElementById('bnPaseador').style.cssText='display:contents';
       document.getElementById('bnCliente').style.display='none';
       ir('misperros');
-      rMisPerros();
     }
     toast('↔️ Cambiado a '+empNombre);
   });
@@ -1085,7 +1082,12 @@ function mostrarSwitchEmpresa(multiEmpresas, user){
 
 function doLogout() {
   detenerPolling();
-  window.location.reload();
+  me=null;
+  EMPRESA_ID='ddb83b48-e599-449f-abc3-1a2f1d3a1138';
+  document.getElementById('login').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('lu').value='';
+  document.getElementById('lp').value='';
 }
 
 // ══ NAV ══
@@ -1441,7 +1443,6 @@ async function abrirMarcar(pid){
   var perros=await dbGet('perros','id=eq.'+pid);
   if(!perros.length)return;
   document.getElementById('mpId').value=pid;
-  document.getElementById('mpEmpId').value=perros[0].empresa_id||EMPRESA_ID;
   document.getElementById('mpTit').textContent='Paseo de '+perros[0].nombre;
   document.getElementById('mpFecha').value=hoy();
   document.getElementById('mpObs').value='';
@@ -1450,7 +1451,6 @@ async function abrirMarcar(pid){
 }
 async function marcar(){
   var pid=document.getElementById('mpId').value;
-  var empId=document.getElementById('mpEmpId').value||EMPRESA_ID;
   var fecha=document.getElementById('mpFecha').value;
   if(!fecha){toast('⚠️ Selecciona la fecha');return;}
   var perros=await dbGet('perros','id=eq.'+pid);
@@ -1458,18 +1458,8 @@ async function marcar(){
   var p=perros[0];
   var estado=document.getElementById('mpEst').value;
   var walker=await dbGet('usuarios','id=eq.'+me.id);
-  // Get tarifa from perro_paseadores first, then fallback
-  var ppRow=await dbGet('perro_paseadores','perro_id=eq.'+pid+'&paseador_id=eq.'+me.id);
-  var tw=0;
-  if(ppRow.length&&ppRow[0].tarifa_paseador){
-    tw=ppRow[0].tarifa_paseador;
-  } else if(walker.length&&walker[0].es_pucho&&empId===EMPRESA_ID){
-    tw=0;
-  } else {
-    var ueWalker=await dbGet('usuario_empresas','usuario_id=eq.'+me.id+'&empresa_id=eq.'+empId);
-    tw=ueWalker.length&&ueWalker[0].tarifa_por_servicio?ueWalker[0].tarifa_por_servicio:(walker[0]?.tarifa_por_servicio||6000);
-  }
-  await dbPost('paseos',{empresa_id:empId,perro_id:pid,paseador_id:me.id,
+  var tw=walker.length&&walker[0].es_pucho?0:(walker[0]?.tarifa_por_servicio||6000);
+  await dbPost('paseos',{empresa_id:EMPRESA_ID,perro_id:pid,paseador_id:me.id,
     fecha:fecha,estado:estado,observaciones:document.getElementById('mpObs').value.trim(),
     tarifa_cliente:p.tarifa,tarifa_paseador:tw});
   if(estado==='realizado'&&p.modalidad_pago==='paquete'){
@@ -1651,20 +1641,13 @@ async function rDash(){
     // Acumulado
     var hoyS=hoy();
     var pHoy=paseos.filter(function(p){return p.fecha&&p.fecha===hoyS&&p.estado==='realizado';});
-    // ganHoy = margen equipo hoy + mi producción personal hoy
-    var ganHoyEquipo=me.es_pucho
-      ? pHoy.filter(function(p){return p.paseador_id!==me.id;}).reduce(function(s,p){return s+(p.tarifa_cliente-p.tarifa_paseador);},0)
-      : pHoy.reduce(function(s,p){return s+(p.tarifa_cliente-p.tarifa_paseador);},0);
-    var ganHoyPersonal=pHoy.filter(function(p){return p.paseador_id===me.id;}).reduce(function(s,p){return s+(me.es_pucho?p.tarifa_cliente:p.tarifa_paseador);},0);
-    var ganHoy=ganHoyEquipo+ganHoyPersonal;
+    var ganHoy=pHoy.reduce(function(s,p){return s+(p.tarifa_cliente-p.tarifa_paseador);},0);
     var ganMes=pMes.reduce(function(s,p){return s+(p.tarifa_cliente-p.tarifa_paseador);},0);
     var recMes=pMes.reduce(function(s,p){return s+p.tarifa_cliente;},0);
     // My personal production this month
-    // Si es_pucho, su tarifa_paseador=0 entonces usamos tarifa_cliente; si no, tarifa_paseador
-    var miProdMes=pMes.filter(function(p){return p.paseador_id===me.id;}).reduce(function(s,p){return s+(me.es_pucho?p.tarifa_cliente:p.tarifa_paseador);},0);
-    var miPaseosMes=pMes.filter(function(p){return p.paseador_id===me.id;}).length;
-    // Ganancia equipo = margen sobre paseos de OTROS paseadores (no los míos)
-    var ganEquipo=pMes.filter(function(p){return p.paseador_id!==me.id;}).reduce(function(s,p){return s+(p.tarifa_cliente-p.tarifa_paseador);},0);
+    var miProdMes=pMes.filter(function(p){return p.paseador_id==='fa92ba9b-9afe-485d-8df3-1f6e0254f0e1';}).reduce(function(s,p){return s+p.tarifa_cliente;},0);
+    var miPaseosMes=pMes.filter(function(p){return p.paseador_id==='fa92ba9b-9afe-485d-8df3-1f6e0254f0e1';}).length;
+    var ganEquipo=pMes.filter(function(p){return p.paseador_id!=='fa92ba9b-9afe-485d-8df3-1f6e0254f0e1';}).reduce(function(s,p){return s+(p.tarifa_cliente-p.tarifa_paseador);},0);
     // Load cross-company earnings for this admin
     var ganOtraEmpresa=0; var pasOtraEmpresa=0; var otraEmpresaNombre='';
     try {
@@ -1680,7 +1663,7 @@ async function rDash(){
         pasOtraEmpresa=paseosOtra.length;
       }
     } catch(e){}
-    var ganTotal=miProdMes+ganEquipo+ganOtraEmpresa;
+    var ganTotal=ganMes+ganOtraEmpresa;
     document.getElementById('dashAcumulado').innerHTML=
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">'+
       '<div style="background:var(--g3);border-radius:var(--r);padding:11px;border:1.5px solid var(--g)"><div style="font-size:.63rem;font-weight:700;text-transform:uppercase;color:var(--g);margin-bottom:3px">Ganancia hoy</div><div style="font-size:1.4rem;font-weight:700;color:var(--g);font-family:monospace">'+fmt(ganHoy)+'</div></div>'+
@@ -1689,7 +1672,7 @@ async function rDash(){
       '<div style="background:#fff;border-radius:var(--r);padding:13px;border:1.5px solid var(--bd);margin-bottom:8px">'+
         '<div style="font-size:.65rem;font-weight:700;text-transform:uppercase;color:var(--mu);margin-bottom:8px">Desglose del mes</div>'+
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
-          '<div><div style="font-size:.82rem;font-weight:600">⭐ Mi producción personal</div>'+
+          '<div><div style="font-size:.82rem;font-weight:600">⭐ Mi producción — Puchocodri</div>'+
           '<div style="font-size:.72rem;color:var(--mu)">'+miPaseosMes+' paseos realizados por mí</div></div>'+
           '<div style="font-family:monospace;font-weight:700;font-size:.95rem;color:var(--g)">'+fmt(miProdMes)+'</div>'+
         '</div>'+
@@ -1929,13 +1912,11 @@ async function rLiq(){
   }).join(''):'<div class="empty" style="padding:14px"><p>Sin datos</p></div>';
   var tc=ce.reduce(function(s,e){return s+e[1].t;},0);
   var tp=we.reduce(function(s,e){return s+e[1].t;},0);
-  // Mi producción personal (paseos hechos por mí en esta empresa)
-  var miProd=mp.filter(function(p){return p.paseador_id===me.id;}).reduce(function(s,p){return s+(me.es_pucho?p.tarifa_cliente:p.tarifa_paseador);},0);
-  var miPaseos=mp.filter(function(p){return p.paseador_id===me.id;}).length;
+  // Mi producción personal (paseos hechos por Pucho)
+  var miProd=mp.filter(function(p){return p.paseador_id==='fa92ba9b-9afe-485d-8df3-1f6e0254f0e1';}).reduce(function(s,p){return s+p.tarifa_cliente;},0);
+  var miPaseos=mp.filter(function(p){return p.paseador_id==='fa92ba9b-9afe-485d-8df3-1f6e0254f0e1';}).length;
   // Ganancia de paseadores (margen sobre paseos de otros)
-  var ganPaseadores=me.es_pucho
-    ? mp.filter(function(p){return p.paseador_id!==me.id;}).reduce(function(s,p){return s+(p.tarifa_cliente-p.tarifa_paseador);},0)
-    : mp.reduce(function(s,p){return s+(p.tarifa_cliente-p.tarifa_paseador);},0);
+  var ganPaseadores=mp.filter(function(p){return p.paseador_id!=='fa92ba9b-9afe-485d-8df3-1f6e0254f0e1';}).reduce(function(s,p){return s+(p.tarifa_cliente-p.tarifa_paseador);},0);
   document.getElementById('lqTc').textContent=fmt(tc);
   document.getElementById('lqTp').textContent=fmt(tp);
   document.getElementById('lqGn').textContent=fmt(tc-tp);
@@ -2009,42 +1990,21 @@ async function rMisPerros(){
   var list=document.getElementById('listMisPerros');
   list.innerHTML='<div class="loading"><div class="spinner"></div></div>';
   try {
-    // Get all companies this walker belongs to
-    var ueWalker=await dbGet('usuario_empresas','usuario_id=eq.'+me.id);
-    var allEmpIds=[me.empresa_id];
-    ueWalker.forEach(function(x){if(allEmpIds.indexOf(x.empresa_id)<0)allEmpIds.push(x.empresa_id);});
-
-    // Get empresa names
-    var empresasInfo=await dbGet('empresas','id=in.('+allEmpIds.join(',')+')&select=id,nombre');
-
-    // Get all perros assigned to this walker across all companies
+    // Get perros assigned to this walker via perro_paseadores table
     var asignaciones=await dbGet('perro_paseadores','paseador_id=eq.'+me.id);
     var perroIds=asignaciones.map(function(a){return a.perro_id;});
-
-    // Also perros where paseador_principal_id = me.id in any of the companies
-    for(var ei=0;ei<allEmpIds.length;ei++){
-      var pp=await dbGet('perros','empresa_id=eq.'+allEmpIds[ei]+'&paseador_principal_id=eq.'+me.id+'&select=id');
-      pp.forEach(function(p){if(perroIds.indexOf(p.id)<0)perroIds.push(p.id);});
-    }
-
+    // Also include perros where paseador_principal_id = me.id (backward compat)
+    var perrosPrincipal=await dbGet('perros','empresa_id=eq.'+EMPRESA_ID+'&paseador_principal_id=eq.'+me.id+'&select=id');
+    perrosPrincipal.forEach(function(p){if(perroIds.indexOf(p.id)<0)perroIds.push(p.id);});
     var perros=[];
     if(perroIds.length){
-      perros=await dbGet('perros','id=in.('+perroIds.join(',')+')'+'&select=*');
+      perros=await dbGet('perros','id=in.('+perroIds.join(',')+')&empresa_id=eq.'+EMPRESA_ID);
     }
-
-    // Get all clients from all companies
-    var clientes=[];
-    for(var ci=0;ci<allEmpIds.length;ci++){
-      var cls=await dbGet('clientes','empresa_id=eq.'+allEmpIds[ci]+'&select=id,nombre,apellido,telefono1,telefono2');
-      clientes=clientes.concat(cls);
-    }
-
+    var clientes=await dbGet('clientes','empresa_id=eq.'+EMPRESA_ID+'&select=id,nombre,apellido');
     if(!perros.length){list.innerHTML='<div class="empty"><div class="empty-ico">🐕</div><p>Sin mascotas asignadas</p></div>';return;}
     list.innerHTML=perros.map(function(p){
       var cl=clientes.find(function(x){return x.id===p.cliente_id;})||{nombre:'—',apellido:'',telefono1:'',telefono2:''};
-      var emp=empresasInfo.find(function(x){return x.id===p.empresa_id;})||{nombre:''};
       var badges='';
-      if(p.empresa_id!==EMPRESA_ID)badges+='<span class="bdg bdg-b" style="margin-right:3px">🏢 '+emp.nombre+'</span>';
       if(p.chip)badges+='<span class="bdg bdg-b" style="margin-right:3px">📡 Chip</span>';
       if(p.alergias)badges+='<span class="bdg bdg-o" style="margin-right:3px">⚠️ Alergia</span>';
       if(p.reactivo_machos)badges+='<span class="bdg bdg-x" style="margin-right:3px">⚡ Reactivo machos</span>';
@@ -2066,7 +2026,7 @@ async function rMisPerros(){
           '<div>📞 '+cl.nombre+' '+cl.apellido+': '+(cl.telefono1||'—')+(cl.telefono2?' / '+cl.telefono2:'')+'</div>'+
           (p.vet_nombre?'<div style="margin-top:2px">🏥 '+p.vet_nombre+(p.vet_telefono?' · '+p.vet_telefono:'')+'</div>':'')+
         '</div>'+
-        '<button class="btn btn-g btn-w" data-act="mp" data-id="'+p.id+'" data-emp="'+p.empresa_id+'">📝 Registrar paseo de hoy</button>'+
+        '<button class="btn btn-g btn-w" data-act="mp" data-id="'+p.id+'">📝 Registrar paseo de hoy</button>'+
       '</div>';
     }).join('');
   } catch(e){list.innerHTML='<div class="empty"><p>Error</p></div>';}
@@ -2077,7 +2037,7 @@ async function rMiHist(){
   list.innerHTML='<div class="loading"><div class="spinner"></div></div>';
   try {
     var mes=hoyMes();
-    // Load paseos from all companies this walker belongs to
+    // Cargar paseos de TODAS las empresas donde trabaja este paseador
     var ueW=await dbGet('usuario_empresas','usuario_id=eq.'+me.id);
     var allEmpIds=[me.empresa_id];
     ueW.forEach(function(x){if(allEmpIds.indexOf(x.empresa_id)<0)allEmpIds.push(x.empresa_id);});
@@ -2091,20 +2051,52 @@ async function rMiHist(){
     }
     todosLosPaseos.sort(function(a,b){return b.fecha.localeCompare(a.fecha);});
     var pMes=todosLosPaseos.filter(function(p){return p.fecha&&p.fecha.startsWith(mes)&&p.estado==='realizado';});
+    // Calcular ganancia correctamente por empresa:
+    // - Si soy Pucho en MI empresa (tarifa_paseador=0): ganancia = tarifa_cliente (soy dueño)
+    // - En otras empresas: ganancia = tarifa_paseador (soy empleado)
     var acumMes=pMes.reduce(function(s,p){
-      // Si el paseo es de Puchocodri y soy es_pucho, uso tarifa_cliente; si no, tarifa_paseador
-      var usarCliente=me.es_pucho&&p.empresa_id===me.empresa_id;
-      return s+(usarCliente?p.tarifa_cliente:p.tarifa_paseador);
+      var esMiEmpresaYPucho=me.es_pucho&&p.empresa_id===me.empresa_id;
+      return s+(esMiEmpresaYPucho?p.tarifa_cliente:p.tarifa_paseador);
     },0);
-    var acumHeader='<div style="background:var(--g3);border-radius:var(--r);padding:13px;margin-bottom:12px;border:1.5px solid var(--g)">'+
-      '<div style="font-size:.65rem;font-weight:700;text-transform:uppercase;color:var(--g);margin-bottom:4px">Mi acumulado '+mlbl(mes)+'</div>'+
-      '<div style="font-size:1.6rem;font-weight:700;color:var(--g);font-family:monospace">'+fmt(acumMes)+'</div>'+
-      '<div style="font-size:.72rem;color:var(--mu);margin-top:2px">'+pMes.length+' paseos realizados este mes</div>'+
-    '</div>';
+    // Desglose por empresa si hay más de una
+    var empBreakdown={};
+    pMes.forEach(function(p){
+      var esMiEmpresaYPucho=me.es_pucho&&p.empresa_id===me.empresa_id;
+      var gan=esMiEmpresaYPucho?p.tarifa_cliente:p.tarifa_paseador;
+      if(!empBreakdown[p.empresa_id])empBreakdown[p.empresa_id]={gan:0,n:0};
+      empBreakdown[p.empresa_id].gan+=gan;
+      empBreakdown[p.empresa_id].n++;
+    });
+    var empNombresHist={};
+    var empIdsHist=Object.keys(empBreakdown);
+    if(empIdsHist.length>1){
+      var empInfoH=await dbGet('empresas','id=in.('+empIdsHist.join(',')+')&select=id,nombre');
+      empInfoH.forEach(function(e){empNombresHist[e.id]=e.nombre;});
+    }
+    var breakdownHtml='';
+    if(empIdsHist.length>1){
+      breakdownHtml='<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.25)">';
+      empIdsHist.forEach(function(eid){
+        var d=empBreakdown[eid];
+        breakdownHtml+='<div style="display:flex;justify-content:space-between;font-size:.74rem;margin-bottom:2px">'+
+          '<span style="color:rgba(255,255,255,.8)">🏢 '+(empNombresHist[eid]||'Empresa')+' · '+d.n+' paseos</span>'+
+          '<span style="font-family:monospace;font-weight:700;color:#fff">'+fmt(d.gan)+'</span></div>';
+      });
+      breakdownHtml+='</div>';
+    }
+    var acumHeader=
+      '<div style="background:var(--g);border-radius:var(--r);padding:13px;margin-bottom:12px">'+
+        '<div style="font-size:.65rem;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,.75);margin-bottom:4px">Mi producción personal — '+mlbl(mes)+'</div>'+
+        '<div style="font-size:1.6rem;font-weight:700;color:#fff;font-family:monospace">'+fmt(acumMes)+'</div>'+
+        '<div style="font-size:.72rem;color:rgba(255,255,255,.8);margin-top:2px">'+pMes.length+' paseos realizados este mes</div>'+
+        breakdownHtml+
+      '</div>';
     list.innerHTML=acumHeader+(todosLosPaseos.length?todosLosPaseos.map(function(p){
       var dog=todosLosPerros.find(function(x){return x.id===p.perro_id;})||{nombre:'—'};
+      var esMiEmpresaYPucho=me.es_pucho&&p.empresa_id===me.empresa_id;
+      var gan=p.estado==='realizado'?(esMiEmpresaYPucho?p.tarifa_cliente:p.tarifa_paseador):0;
       return'<div class="hist-item"><div class="hist-top"><div class="hist-perro">🐕 '+dog.nombre+'</div>'+bdg(p.estado)+'</div>'+
-        '<div style="font-size:.72rem;color:var(--mu)">'+fmtF(p.fecha)+'</div>'+
+        '<div style="font-size:.72rem;color:var(--mu)">'+fmtF(p.fecha)+(gan?' · <span style="font-family:monospace;font-weight:600;color:var(--g)">'+fmt(gan)+'</span>':'')+'</div>'+
         (p.observaciones?'<div style="font-size:.78rem;color:var(--mu);margin-top:3px">💬 '+p.observaciones+'</div>':'')+
       '</div>';
     }).join(''):'<div class="empty"><div class="empty-ico">📋</div><p>Sin historial</p></div>');
@@ -2622,31 +2614,29 @@ async function rMiSaldoMes(mes){
 async function abrirAsignarMulti(pid){
   document.getElementById('amPerroId').value=pid;
   try {
-    var perros=await dbGet('perros','id=eq.'+pid+'&select=id,nombre,tarifa');
+    var perros=await dbGet('perros','id=eq.'+pid+'&select=id,nombre');
     document.getElementById('asignarMultiSub').textContent='🐕 '+(perros[0]?.nombre||'—');
-    var walkersH=await dbGet('usuarios','empresa_id=eq.'+EMPRESA_ID+'&activo=eq.true&select=id,nombre,es_pucho,tarifa_por_servicio,es_admin');
+    var walkersH=await dbGet('usuarios','empresa_id=eq.'+EMPRESA_ID+'&activo=eq.true&select=id,nombre,es_pucho,tarifa_por_servicio');
     var ue2=await dbGet('usuario_empresas','empresa_id=eq.'+EMPRESA_ID);
     var extraIds2=ue2.map(function(x){return x.usuario_id;}).filter(function(id){return !walkersH.find(function(w){return w.id===id;});});
-    var walkersE=extraIds2.length?await dbGet('usuarios','id=in.('+extraIds2.join(',')+')&select=id,nombre,es_pucho,tarifa_por_servicio,es_admin'):[];
+    var walkersE=extraIds2.length?await dbGet('usuarios','id=in.('+extraIds2.join(',')+')&activo=eq.true&select=id,nombre,es_pucho,tarifa_por_servicio'):[];
     var walkers=walkersH.concat(walkersE).sort(function(a,b){return a.nombre.localeCompare(b.nombre);});
-    if(!walkers.length){document.getElementById('amWalkerList').innerHTML='<div style="color:var(--mu);font-size:.85rem;padding:8px">No hay paseadores activos</div>';abrir('asignar-multi');return;}
     var asignados=await dbGet('perro_paseadores','perro_id=eq.'+pid);
     var asignadosIds=asignados.map(function(a){return a.paseador_id;});
+    // Also check paseador_principal_id
     if(perros[0]?.paseador_principal_id&&asignadosIds.indexOf(perros[0].paseador_principal_id)<0){
       asignadosIds.push(perros[0].paseador_principal_id);
     }
     document.getElementById('amWalkerList').innerHTML=walkers.map(function(w){
       var checked=asignadosIds.indexOf(w.id)>=0;
-      var asig=asignados.find(function(a){return a.paseador_id===w.id;});
-      var tarifaVal=asig&&asig.tarifa_paseador?asig.tarifa_paseador:(w.tarifa_por_servicio||6000);
       return'<label style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--bg);border-radius:var(--r2);border:1.5px solid '+(checked?'var(--g)':'var(--bd)')+';cursor:pointer">'+
         '<input type="checkbox" data-wid="'+w.id+'" '+(checked?'checked':'')+' style="width:18px;height:18px;flex-shrink:0;accent-color:var(--g)">'+
-        '<span style="font-size:.9rem;font-weight:'+(checked?'600':'400')+';flex:1">'+
+        '<span style="font-size:.9rem;font-weight:'+(checked?'600':'400')+'">'+
           (w.es_pucho?'⭐ ':'')+w.nombre+
         '</span>'+
-        '<input type="number" data-tarifa-wid="'+w.id+'" value="'+tarifaVal+'" placeholder="Tarifa" style="width:80px;padding:5px 7px;border:1.5px solid var(--bd);border-radius:var(--r2);font-size:.82rem;text-align:right" onclick="event.stopPropagation()">'+
       '</label>';
     }).join('');
+    // Wire checkbox styling
     document.querySelectorAll('#amWalkerList input[type=checkbox]').forEach(function(cb){
       cb.addEventListener('change',function(){
         var lbl=cb.closest('label');
@@ -2662,18 +2652,19 @@ document.getElementById('btnSaveAsignarMulti').addEventListener('click',async fu
   var pid=document.getElementById('amPerroId').value;
   if(!pid)return;
   try {
+    // Get selected walkers
     var selected=[];
     document.querySelectorAll('#amWalkerList input[type=checkbox]:checked').forEach(function(cb){
-      var wid=cb.getAttribute('data-wid');
-      var tarifaInput=document.querySelector('[data-tarifa-wid="'+wid+'"]');
-      var tarifa=tarifaInput?parseInt(tarifaInput.value)||0:0;
-      selected.push({wid:wid,tarifa:tarifa});
+      selected.push(cb.getAttribute('data-wid'));
     });
+    // Delete existing assignments
     await dbDelete('perro_paseadores','perro_id=eq.'+pid);
+    // Insert new ones
     for(var i=0;i<selected.length;i++){
-      await dbPost('perro_paseadores',{perro_id:pid,paseador_id:selected[i].wid,empresa_id:EMPRESA_ID,tarifa_paseador:selected[i].tarifa});
+      await dbPost('perro_paseadores',{perro_id:pid,paseador_id:selected[i],empresa_id:EMPRESA_ID});
     }
-    var principal=selected.length?selected[0].wid:null;
+    // Update paseador_principal_id with first selected
+    var principal=selected.length?selected[0]:null;
     await dbPatch('perros',{paseador_principal_id:principal},'id=eq.'+pid);
     cerrar('asignar-multi');
     rClientes();
@@ -2739,25 +2730,11 @@ function datosBancarios(empresaId){
 }
 
 
-// ══ GOOGLE DRIVE VIEW URL ══
-// Convierte cualquier URL de Google Drive a un link de visualización embebible.
-// Si la URL no es de Drive, la devuelve sin cambios.
-function driveViewUrl(url){
-  if(!url) return url;
-  // Formato: https://drive.google.com/file/d/FILE_ID/view
-  var m = url.match(/drive\.google\.com\/file\/d\/([^/\?]+)/);
-  if(m) return 'https://drive.google.com/file/d/'+m[1]+'/view';
-  // Formato: https://drive.google.com/open?id=FILE_ID
-  var m2 = url.match(/drive\.google\.com\/open\?id=([^&]+)/);
-  if(m2) return 'https://drive.google.com/file/d/'+m2[1]+'/view';
-  return url;
-}
-
 // ══ CLOUDINARY UPLOAD ══
 function subirArchivo(callback, tipo){
   var widget = cloudinary.createUploadWidget({
     cloudName: 'dtjmqxob7',
-    uploadPreset: tipo==='pdf'?'puchocodri_unsigned':'ml_default',
+    uploadPreset: 'puchocodri_unsigned',
     sources: ['local', 'camera'],
     resourceType: tipo==='pdf'?'raw':'image',
     clientAllowedFormats: tipo==='pdf'?['pdf']:['jpg','jpeg','png','webp'],
@@ -2798,7 +2775,7 @@ async function rMiPerfilW(){
     document.getElementById('wpCertFecha').value=w.certificado_antecedentes_fecha||'';
     document.getElementById('wpCertUrl').value=w.certificado_antecedentes_url||'';
     if(w.certificado_antecedentes_url){
-      document.getElementById('wpCertPreview').innerHTML='<a href="https://docs.google.com/viewer?url='+encodeURIComponent(w.certificado_antecedentes_url)+'" target="_blank" class="btn btn-o btn-sm" style="text-decoration:none">📄 Ver certificado actual</a>';
+      document.getElementById('wpCertPreview').innerHTML='<a href="'+w.certificado_antecedentes_url+'" target="_blank" class="btn btn-o btn-sm" style="text-decoration:none">📄 Ver certificado actual</a>';
     }
   } catch(e){}
 }
@@ -2813,33 +2790,11 @@ document.getElementById('btnSubirSelfie').addEventListener('click',function(){
 });
 
 document.getElementById('btnSubirCert').addEventListener('click',function(){
-  var input=document.createElement('input');
-  input.type='file';
-  input.accept='application/pdf';
-  input.onchange=async function(){
-    var file=input.files[0];
-    if(!file)return;
-    if(file.size>5*1024*1024){toast('❌ El PDF no puede superar 5MB');return;}
-    var btn=document.getElementById('btnSubirCert');
-    btn.textContent='⏳ Subiendo...';
-    btn.disabled=true;
-    try{
-      var fileName=me.id+'_'+Date.now()+'.pdf';
-      var res=await fetch(SUPA_URL+'/storage/v1/object/certificados/'+fileName,{
-        method:'POST',
-        headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/pdf','x-upsert':'true'},
-        body:file
-      });
-      if(!res.ok)throw new Error('Error subiendo');
-      var url=SUPA_URL+'/storage/v1/object/public/certificados/'+fileName;
-      document.getElementById('wpCertUrl').value=url;
-      document.getElementById('wpCertPreview').innerHTML='<a href="'+url+'" target="_blank" class="btn btn-o btn-sm" style="text-decoration:none">📄 Certificado subido ✅</a>';
-      toast('✅ Certificado subido');
-    }catch(e){toast('❌ Error al subir el PDF');}
-    btn.textContent='📄 Subir certificado PDF';
-    btn.disabled=false;
-  };
-  input.click();
+  subirArchivo(function(url){
+    document.getElementById('wpCertUrl').value=url;
+    document.getElementById('wpCertPreview').innerHTML='<a href="'+url+'" target="_blank" class="btn btn-o btn-sm" style="text-decoration:none">📄 Certificado subido ✅</a>';
+    toast('✅ Certificado subido');
+  },'pdf');
 });
 
 document.getElementById('btnSubirFotoW').addEventListener('click',function(){
@@ -2917,7 +2872,7 @@ async function rMisPerrosCConPaseador(){
             (hasCert?
               '<div style="display:flex;align-items:center;justify-content:space-between">'+
                 '<span class="bdg '+(certOk?'bdg-g':'bdg-x')+'">'+(certOk?'✅ Antecedentes vigentes':'❌ Antecedentes vencidos')+'</span>'+
-                (w.certificado_antecedentes_url?'<a href="'+w.certificado_antecedentes_url+'" target="_blank" class="btn btn-o btn-xs" style="text-decoration:none;font-size:.72rem">📄 Ver PDF</a>':'')+
+                (w.certificado_antecedentes_url?'<a href="'+w.certificado_antecedentes_url.replace('res.cloudinary.com','api2.cloudinary.com').replace('/raw/upload/','/raw/upload/fl_attachment/')+'" target="_blank" class="btn btn-o btn-xs" style="text-decoration:none;font-size:.72rem">📄 Ver PDF</a>':'')+
               '</div>':
               '<span class="bdg bdg-x">📄 Sin certificado cargado</span>'
             )+
