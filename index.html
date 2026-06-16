@@ -639,7 +639,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
       <div><label>Fecha</label><input type="date" id="psFecha"></div>
       <div><label>Estado</label><select id="psEst"><option value="realizado">✓ Realizado</option><option value="pendiente">⏳ Pendiente</option><option value="cancelado">✕ Cancelado</option></select></div>
     </div></div>
-    <div class="fld"><label>Tarifa cliente</label><input type="number" id="psTc" readonly style="background:#f2f2f0"></div>
+    <div class="fld"><label>Tarifa cliente</label><input type="number" id="psTc" style="background:#f2f2f0"></div>
     <input type="hidden" id="psTw">
     <div id="psInfoTarifa" style="background:var(--g3);border-radius:var(--r2);padding:9px 12px;font-size:.8rem;color:var(--g);margin-bottom:13px;display:none"></div>
     <div class="fld"><label>Observaciones</label><textarea id="psObs"></textarea></div>
@@ -1441,30 +1441,32 @@ async function autoFill(){
   } else { packInfo.innerHTML=''; }
 }
 async function savePs(){
-  var pid=document.getElementById('psPerro').value;
-  var wid=document.getElementById('psWal').value;
-  var fecha=document.getElementById('psFecha').value;
-  if(!pid||!wid||!fecha){toast('⚠️ Completa todos los campos');return;}
-  var estado=document.getElementById('psEst').value;
-  var tc=+document.getElementById('psTc').value;
-  var tw=+document.getElementById('psTw').value;
-  var esExtra=false;
-  if(estado==='realizado'){
-    var perros=await dbGet('perros','id=eq.'+pid);
-    if(perros.length&&perros[0].modalidad_pago==='paquete'){
-      var rest=(perros[0].pack_total||0)-(perros[0].pack_usados||0);
-      if(rest>0){
-        await dbPatch('perros',{pack_usados:(perros[0].pack_usados||0)+1},'id=eq.'+pid);
-      } else {
-        esExtra=true;
+  try {
+    var pid=document.getElementById('psPerro').value;
+    var wid=document.getElementById('psWal').value;
+    var fecha=document.getElementById('psFecha').value;
+    if(!pid||!wid||!fecha){toast('⚠️ Completa todos los campos');return;}
+    var estado=document.getElementById('psEst').value;
+    var tc=+document.getElementById('psTc').value||0;
+    var tw=+document.getElementById('psTw').value||0;
+    var esExtra=false;
+    if(estado==='realizado'){
+      var perrosChk=await dbGet('perros','id=eq.'+pid);
+      if(perrosChk.length&&perrosChk[0].modalidad_pago==='paquete'){
+        var rest=(perrosChk[0].pack_total||0)-(perrosChk[0].pack_usados||0);
+        if(rest>0){
+          await dbPatch('perros',{pack_usados:(perrosChk[0].pack_usados||0)+1},'id=eq.'+pid);
+        } else {
+          esExtra=true;
+        }
       }
     }
-  }
-  await dbPost('paseos',{empresa_id:EMPRESA_ID,perro_id:pid,paseador_id:wid,fecha:fecha,
-    estado:estado,observaciones:document.getElementById('psObs').value.trim(),
-    tarifa_cliente:tc,tarifa_paseador:tw,es_extra:esExtra});
-  cerrar('ps'); rPaseos(); rDash();
-  toast(esExtra?'✅ Paseo extra registrado — quedará pendiente de cobro':'✅ Paseo registrado');
+    await dbPost('paseos',{empresa_id:EMPRESA_ID,perro_id:pid,paseador_id:wid,fecha:fecha,
+      estado:estado,observaciones:document.getElementById('psObs').value.trim(),
+      tarifa_cliente:tc,tarifa_paseador:tw,es_extra:esExtra});
+    cerrar('ps'); rPaseos(); rDash();
+    toast(esExtra?'✅ Paseo extra registrado':'✅ Paseo registrado');
+  } catch(e){toast('❌ Error: '+e.message);}
 }
 async function delPs(id){
   if(!confirm('¿Eliminar paseo?'))return;
