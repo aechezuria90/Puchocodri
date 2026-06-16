@@ -1,0 +1,3115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Puchocodri</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--g:#3d7a52;--g2:#2d5c3d;--g3:#e8f4ec;--bg:#f7f7f5;--bd:#e0e0db;--red:#c0392b;--redbg:#fdf0ef;--tx:#1a1a1a;--mu:#888;--r:12px;--r2:8px;--warn:#b56c1a;--warnbg:#fef3e8}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;padding-bottom:70px}
+
+/* LOGIN */
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#1c1c1e;padding:20px}
+.lbox{background:#fff;border-radius:18px;padding:32px 24px;width:100%;max-width:400px}
+.lbox .logo{font-size:2rem;margin-bottom:4px}
+.lbox h1{font-size:1.35rem;font-weight:700;margin-bottom:2px}
+.lbox .sub{color:var(--mu);font-size:.82rem;margin-bottom:24px}
+
+/* FORMS */
+.fld{margin-bottom:13px}
+.fld label{display:block;font-size:.7rem;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+.fld input,.fld select,.fld textarea{width:100%;padding:11px 13px;border:1.5px solid var(--bd);border-radius:var(--r2);font-family:inherit;font-size:.92rem;background:#fff;color:var(--tx)}
+.fld input:focus,.fld select:focus,.fld textarea:focus{outline:none;border-color:var(--g)}
+.fld textarea{resize:vertical;min-height:70px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt-row{display:flex;gap:8px}
+.opt-btn{flex:1;padding:9px 6px;border:1.5px solid var(--bd);border-radius:var(--r2);background:#fff;font-family:inherit;font-size:.82rem;cursor:pointer;text-align:center}
+.opt-btn.on{border-color:var(--g);background:var(--g3);color:var(--g);font-weight:600}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:11px 16px;border-radius:var(--r2);font-family:inherit;font-size:.88rem;font-weight:600;cursor:pointer;border:none;min-height:44px}
+.btn-g{background:var(--g);color:#fff}.btn-g:active{background:var(--g2)}
+.btn-o{background:#fff;border:1.5px solid var(--bd);color:var(--tx)}
+.btn-r{background:var(--redbg);color:var(--red);border:1.5px solid #f5c6c2}
+.btn-warn{background:var(--warnbg);color:var(--warn);border:1.5px solid #f0d5a8}
+.btn-w{width:100%}
+.btn-sm{padding:7px 12px;font-size:.8rem;min-height:36px}
+.btn-xs{padding:5px 9px;font-size:.75rem;min-height:30px}
+
+/* APP */
+#app{display:none}
+.topbar{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--bd);padding:11px 14px;display:flex;align-items:center;justify-content:space-between}
+.topbar-title{font-size:.98rem;font-weight:700}
+.topbar-right{display:flex;align-items:center;gap:7px}
+.av{width:30px;height:30px;border-radius:50%;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem}
+
+/* BOTTOM NAV */
+.botnav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--bd);display:flex;z-index:50}
+.bn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 2px;cursor:pointer;color:var(--mu);font-size:.58rem;font-weight:500;gap:2px;min-height:52px}
+.bn .ico{font-size:1.2rem;line-height:1}
+.bn.on{color:var(--g)}
+
+/* PAGES */
+.pg{display:none;padding:14px}
+.pg.on{display:block}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sec-title{font-size:1rem;font-weight:700}
+.sec-sub{font-size:.76rem;color:var(--mu);margin-top:1px}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat{background:#fff;border-radius:var(--r);padding:13px;border:1.5px solid var(--bd)}
+.stat-lbl{font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--mu);margin-bottom:4px}
+.stat-val{font-size:1.7rem;font-weight:700;color:var(--g);line-height:1}
+.stat-sub{font-size:.7rem;color:var(--mu);margin-top:2px}
+
+/* CARD */
+.card{background:#fff;border-radius:var(--r);border:1.5px solid var(--bd);overflow:hidden;margin-bottom:12px}
+.card-hdr{padding:11px 13px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:.87rem;font-weight:700}
+
+/* LIST */
+.list-item{display:flex;align-items:flex-start;justify-content:space-between;padding:11px 13px;border-bottom:1px solid var(--bd)}
+.list-item:last-child{border-bottom:none}
+.li-ico{width:36px;height:36px;border-radius:50%;background:var(--g3);display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0;margin-right:9px}
+.li-body{flex:1;min-width:0}
+.li-title{font-weight:600;font-size:.86rem}
+.li-sub{font-size:.74rem;color:var(--mu);margin-top:2px;line-height:1.4}
+.li-actions{display:flex;gap:5px;flex-shrink:0;margin-left:7px}
+
+/* BADGE */
+.bdg{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:.69rem;font-weight:600;white-space:nowrap}
+.bdg-g{background:#e8f5ed;color:#2a7a42}.bdg-o{background:#fef3e8;color:#b56c1a}
+.bdg-x{background:#f0f0f0;color:#666}.bdg-b{background:#e8f0fe;color:#2c5fa8}
+.mono{font-family:monospace;font-size:.82rem}
+
+/* PERRO CARD */
+.perro-card{background:#fff;border-radius:var(--r);border:1.5px solid var(--bd);padding:13px;margin-bottom:10px}
+.perro-top{display:flex;align-items:center;gap:10px;margin-bottom:11px}
+.perro-av{width:42px;height:42px;border-radius:50%;background:var(--g3);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+
+/* MODAL */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.ov.on{display:flex}
+.modal{background:#fff;border-radius:18px 18px 0 0;padding:18px 16px 28px;width:100%;max-height:92vh;overflow-y:auto}
+.modal-handle{width:34px;height:4px;background:var(--bd);border-radius:2px;margin:0 auto 16px}
+.modal-title{font-size:.98rem;font-weight:700;margin-bottom:3px}
+.modal-sub{font-size:.78rem;color:var(--mu);margin-bottom:16px}
+.modal-footer{display:flex;gap:9px;margin-top:18px;position:sticky;bottom:0;background:#fff;padding-top:10px}
+.modal-footer .btn{flex:1}
+.sec-div{margin:16px 0 12px;border-top:1px solid var(--bd);padding-top:14px}
+.sec-div-lbl{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin-bottom:10px}
+.dog-block{background:var(--bg);border-radius:var(--r);padding:12px;margin-bottom:10px;border:1.5px solid var(--bd)}
+.dog-block-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+
+/* LIQ */
+.liq-row{display:flex;justify-content:space-between;align-items:center;padding:10px 13px;border-bottom:1px solid var(--bd)}
+.liq-row:last-child{border-bottom:none}
+.liq-name{font-size:.86rem;font-weight:500}
+.liq-cnt{font-size:.72rem;color:var(--mu)}
+.liq-amt{font-family:monospace;font-size:.9rem;font-weight:700;color:var(--g)}
+.liq-total{background:#fff;border-radius:var(--r);border:1.5px solid var(--bd);padding:13px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.liq-total-lbl{font-size:.76rem;color:var(--mu);font-weight:600;text-transform:uppercase}
+.liq-total-val{font-family:monospace;font-size:1.2rem;font-weight:700;color:var(--g)}
+.liq-total-val.dark{color:var(--tx)}
+.mes-sel{width:100%;padding:10px 13px;border:1.5px solid var(--bd);border-radius:var(--r2);font-family:inherit;font-size:.88rem;background:#fff;margin-bottom:13px}
+
+/* SOL CARDS */
+.sol-card{background:#fff;border-radius:var(--r);border:1.5px solid var(--bd);padding:13px;margin-bottom:10px}
+.sol-card.nueva{border-left:4px solid var(--g)}
+.sol-card.confirmada{border-left:4px solid #2a7a42;background:#f6fdf8}
+.sol-card.propuesta{border-left:4px solid var(--warn)}
+
+/* HISTORIAL */
+.hist-item{padding:11px 13px;border-bottom:1px solid var(--bd)}
+.hist-item:last-child{border-bottom:none}
+.hist-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.hist-perro{font-weight:600;font-size:.86rem}
+
+/* ALERTA */
+.alerta-banner{background:#fff3cd;border:1.5px solid #ffc107;border-radius:var(--r);padding:11px 13px;margin-bottom:11px;display:flex;gap:9px}
+.alerta-title{font-weight:700;font-size:.84rem;color:#856404}
+.alerta-sub{font-size:.76rem;color:#856404;margin-top:1px}
+
+/* EMPTY */
+.empty{padding:32px 16px;text-align:center;color:var(--mu)}
+.empty-ico{font-size:2rem;margin-bottom:7px}
+.empty p{font-size:.86rem;margin-bottom:13px}
+
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--mu);font-size:.9rem;gap:10px}
+.spinner{width:20px;height:20px;border:2px solid var(--bd);border-top-color:var(--g);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* TOAST */
+#toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%) translateY(10px);z-index:300;background:#1c1c1e;color:#fff;padding:9px 18px;border-radius:24px;font-size:.83rem;font-weight:500;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* CAL */
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cal-mes{font-weight:700;font-size:.9rem}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px}
+.cal-dia-lbl{text-align:center;font-size:.62rem;font-weight:700;color:var(--mu);padding:2px 0}
+.cal-dia{text-align:center;padding:6px 2px;border-radius:6px;font-size:.78rem;min-height:30px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px}
+.cal-dia.paseo{background:var(--g);color:#fff;font-weight:700;cursor:pointer}
+.cal-dia.cancelado{background:var(--redbg);color:var(--red)}
+.cal-dia.hoy{border:2px solid var(--g)}
+.cal-dia.vacio{color:var(--bd)}
+.cal-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.7)}
+
+/* SALDO */
+.saldo-box{background:#fff;border-radius:var(--r);border:2px solid var(--g);padding:16px;margin-bottom:14px;text-align:center}
+.saldo-lbl{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--mu);margin-bottom:6px}
+.saldo-val{font-size:2.2rem;font-weight:700;color:var(--g);font-family:monospace}
+.saldo-box.pendiente{border-color:var(--warn);background:var(--warnbg)}
+.saldo-box.pendiente .saldo-val{color:var(--warn)}
+
+/* PACK BAR */
+.paq-bar{height:8px;background:var(--bd);border-radius:4px;margin-top:6px;overflow:hidden}
+.paq-bar-fill{height:100%;background:var(--g);border-radius:4px}
+.paq-bar-fill.agotado{background:var(--red)}
+.bn-badge{position:relative}.bn-badge::after{content:attr(data-count);position:absolute;top:2px;right:50%;transform:translateX(50%);background:var(--red);color:#fff;font-size:.55rem;font-weight:700;min-width:14px;height:14px;border-radius:7px;display:flex;align-items:center;justify-content:center;padding:0 3px;pointer-events:none}
+</style>
+<script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#3d7a52">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Puchocodri">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="lbox">
+    <div class="logo">🐾</div>
+    <h1>Puchocodri</h1>
+    <p class="sub">Educación canina con respeto</p>
+    <div class="fld"><label>Email</label><input type="email" id="lu" placeholder="correo@ejemplo.com" autocomplete="email"></div>
+    <div class="fld"><label>Contraseña</label><input type="password" id="lp" placeholder="••••••••"></div>
+    <div id="loginError" style="color:var(--red);font-size:.8rem;margin-bottom:10px;display:none"></div>
+    <button class="btn btn-g btn-w" id="btnLogin">Ingresar</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-title" id="topTitle">🐾 Puchocodri</div>
+    <div class="topbar-right">
+      <span style="font-size:.78rem;color:var(--mu)" id="topName"></span>
+      <div class="av" id="topAv">P</div>
+      <button class="btn btn-o btn-sm" id="btnLogout">Salir</button>
+    </div>
+  </div>
+
+  <!-- ADMIN PAGES -->
+  <div class="pg on" id="pg-dash">
+    <div id="alertasBanner"></div>
+    <div class="stats">
+      <div class="stat"><div class="stat-lbl">Clientes</div><div class="stat-val" id="stC">—</div><div class="stat-sub">registrados</div></div>
+      <div class="stat"><div class="stat-lbl">Perros</div><div class="stat-val" id="stP">—</div><div class="stat-sub">en sistema</div></div>
+      <div class="stat"><div class="stat-lbl">Paseadores</div><div class="stat-val" id="stW">—</div><div class="stat-sub">activos</div></div>
+      <div class="stat"><div class="stat-lbl">Paseos mes</div><div class="stat-val" id="stPm">—</div><div class="stat-sub">realizados</div></div>
+    </div>
+    <div class="card" style="padding:13px;margin-bottom:12px">
+      <div id="dashAcumulado"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">📋 Últimos paseos</div></div>
+      <div id="dashPaseos"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+  </div>
+
+  <div class="pg" id="pg-clientes">
+    <div class="sec-hdr">
+      <div><div class="sec-title">Clientes y perros</div></div>
+      <button class="btn btn-g btn-sm" id="btnNuevoC">+ Nuevo</button>
+    </div>
+    <div id="listClientes"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
+    <div class="empty" id="emC" style="display:none"><div class="empty-ico">👥</div><p>Sin clientes aún</p><button class="btn btn-g" id="btnNuevoC2">+ Crear cliente</button></div>
+  </div>
+
+  <div class="pg" id="pg-paseadores">
+    <div class="sec-hdr">
+      <div><div class="sec-title">Paseadores</div></div>
+      <button class="btn btn-g btn-sm" id="btnNuevoW">+ Nuevo</button>
+    </div>
+    <div class="card">
+      <div id="listWalkers"><div class="loading"><div class="spinner"></div></div></div>
+      <div class="empty" id="emW" style="display:none"><div class="empty-ico">🚶</div><p>Sin paseadores</p></div>
+    </div>
+  </div>
+
+  <div class="pg" id="pg-miclave-admin">
+    <div class="sec-hdr"><div><div class="sec-title">Mi cuenta</div></div></div>
+    <div class="card" style="padding:16px">
+      <div class="sec-div-lbl" style="margin-bottom:12px">Cambiar mi contraseña</div>
+      <div class="fld"><label>Contraseña actual</label><input type="password" id="adminClaveActual"></div>
+      <div class="fld"><label>Nueva contraseña</label><input type="password" id="adminClaveNueva"></div>
+      <div class="fld"><label>Confirmar</label><input type="password" id="adminClaveConfirm"></div>
+      <button class="btn btn-g btn-w" id="btnCambiarClaveAdmin">Guardar nueva contraseña</button>
+    </div>
+  </div>
+
+  <div class="pg" id="pg-paseos">
+    <div class="sec-hdr">
+      <div><div class="sec-title">Paseos</div></div>
+      <button class="btn btn-g btn-sm" id="btnNuevoPs">+ Registrar</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <select id="paseosMesFiltro" style="flex:1;padding:9px 12px;border:1.5px solid var(--bd);border-radius:var(--r2);font-family:inherit;font-size:.88rem;background:#fff"></select>
+      <select id="paseosPaseadorFiltro" style="flex:1;padding:9px 12px;border:1.5px solid var(--bd);border-radius:var(--r2);font-family:inherit;font-size:.88rem;background:#fff"></select>
+    </div>
+    <div class="card">
+      <div id="listPaseos"><div class="loading"><div class="spinner"></div></div></div>
+      <div class="empty" id="emPs" style="display:none"><div class="empty-ico">✅</div><p>Sin paseos</p></div>
+    </div>
+  </div>
+
+  <div class="pg" id="pg-liq">
+    <div class="sec-hdr"><div><div class="sec-title">💰 Liquidación</div></div></div>
+    <select class="mes-sel" id="liqMes"></select>
+    <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;color:var(--mu);margin-bottom:7px">Cobrar a clientes</div>
+    <div class="card" id="liqClientes"></div>
+    <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;color:var(--mu);margin:12px 0 7px">Pagar a paseadores</div>
+    <div class="card" id="liqWalkers"></div>
+    <div style="margin-top:12px">
+      <div class="liq-total"><div class="liq-total-lbl">Total a cobrar</div><div class="liq-total-val" id="lqTc">$0</div></div>
+      <div class="liq-total"><div class="liq-total-lbl">Total a pagar</div><div class="liq-total-val dark" id="lqTp">$0</div></div>
+      <div class="liq-total"><div class="liq-total-lbl">Ganancia neta</div><div class="liq-total-val" id="lqGn">$0</div></div>
+    </div>
+    <div id="lqBreakdown"></div>
+    <button class="btn btn-warn btn-w" style="margin-top:12px" id="btnCerrarMes">📬 Notificar cobros a clientes</button>
+  </div>
+
+  <div class="pg" id="pg-solicitudes">
+    <div class="sec-hdr"><div><div class="sec-title">Solicitudes</div></div></div>
+    <div id="listSolicitudes"><div class="loading"><div class="spinner"></div></div></div>
+    <div class="empty" id="emSol" style="display:none"><div class="empty-ico">📬</div><p>Sin solicitudes</p></div>
+  </div>
+
+  <!-- PASEADOR PAGES -->
+  <div class="pg" id="pg-misperros">
+    <div class="sec-hdr"><div><div class="sec-title">Mis perros</div><div class="sec-sub">Toca para registrar paseo</div></div></div>
+    <div id="listMisPerros"><div class="loading"><div class="spinner"></div></div></div>
+  </div>
+
+  <div class="pg" id="pg-mihist">
+    <div class="sec-hdr"><div><div class="sec-title">Mi historial</div></div></div>
+    <div class="card"><div id="listMiHist"><div class="loading"><div class="spinner"></div></div></div></div>
+  </div>
+
+  <div class="pg" id="pg-miperfil-w">
+    <div class="sec-hdr"><div><div class="sec-title">Mi ficha</div><div class="sec-sub">Tus datos personales y médicos</div></div></div>
+    <div class="card" style="padding:16px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <div id="wSelfiePreview" style="width:70px;height:70px;border-radius:50%;background:var(--g3);display:flex;align-items:center;justify-content:center;font-size:2rem;overflow:hidden;flex-shrink:0">🚶</div>
+        <div>
+          <div style="font-weight:700" id="wSelfieNombre"></div>
+          <button class="btn btn-o btn-sm" id="btnSubirSelfie" style="margin-top:6px">📷 Subir foto</button>
+        </div>
+      </div>
+      <div class="sec-div-lbl" style="margin-bottom:10px">📋 Datos personales</div>
+      <div class="fld"><div class="row2">
+        <div><label>Nombre</label><input type="text" id="wpNom"></div>
+        <div><label>Apellido</label><input type="text" id="wpApe"></div>
+      </div></div>
+      <div class="fld"><label>RUT</label><input type="text" id="wpRut"></div>
+      <div class="fld"><label>Fecha de nacimiento</label><input type="date" id="wpFnac"></div>
+      <div class="fld"><label>Dirección</label><input type="text" id="wpDir"></div>
+      <div class="fld"><label>Comuna</label><input type="text" id="wpCom"></div>
+      <div class="fld"><label>Teléfono</label><input type="tel" id="wpTel"></div>
+      <div class="sec-div-lbl" style="margin:14px 0 10px">🚨 Contacto de emergencia</div>
+      <div class="fld"><div class="row2">
+        <div><label>Nombre</label><input type="text" id="wpEmNom"></div>
+        <div><label>Teléfono</label><input type="tel" id="wpEmTel"></div>
+      </div></div>
+      <div class="sec-div-lbl" style="margin:14px 0 10px">🏥 Salud</div>
+      <div class="fld"><label>Sistema de salud</label>
+        <select id="wpSalud">
+          <option value="">Sin especificar</option>
+          <option value="Fonasa A">Fonasa A</option>
+          <option value="Fonasa B">Fonasa B</option>
+          <option value="Fonasa C">Fonasa C</option>
+          <option value="Fonasa D">Fonasa D</option>
+          <option value="Isapre">Isapre</option>
+        </select>
+      </div>
+      <div class="fld"><label>Alergias</label><input type="text" id="wpAlergias"></div>
+      <div class="fld"><label>Condiciones médicas</label><input type="text" id="wpCondiciones"></div>
+      <div class="fld"><label>Medicamentos</label><input type="text" id="wpMeds"></div>
+      <div class="sec-div-lbl" style="margin:14px 0 10px">📄 Certificado de antecedentes</div>
+      <div class="fld"><label>Fecha de vencimiento</label><input type="date" id="wpCertFecha"></div>
+      <div id="wpCertPreview" style="margin-bottom:8px"></div>
+      <button class="btn btn-o btn-w" id="btnSubirCert" style="margin-bottom:10px">📄 Subir certificado PDF</button>
+      <input type="hidden" id="wpCertUrl">
+      <button class="btn btn-g btn-w" id="btnSavePerfilW">Guardar mi ficha</button>
+    </div>
+    <div class="card" style="padding:16px">
+      <div class="sec-div-lbl" style="margin-bottom:12px">🔑 Cambiar contraseña</div>
+      <div class="fld"><label>Contraseña actual</label><input type="password" id="claveActual"></div>
+      <div class="fld"><label>Nueva contraseña</label><input type="password" id="claveNueva"></div>
+      <div class="fld"><label>Confirmar</label><input type="password" id="claveConfirm"></div>
+      <button class="btn btn-g btn-w" id="btnCambiarClave">Guardar contraseña</button>
+    </div>
+  </div>
+
+
+
+  <!-- CLIENTE PAGES -->
+  <div class="pg" id="pg-misperros-c">
+    <div class="sec-hdr"><div><div class="sec-title">Mis mascotas</div></div></div>
+    <div id="listMisPerrosC"><div class="loading"><div class="spinner"></div></div></div>
+  </div>
+
+  <div class="pg" id="pg-calendario">
+    <div class="sec-hdr"><div><div class="sec-title">Calendario</div></div></div>
+    <div class="fld"><label>Mascota</label><select id="calPerroSel"></select></div>
+    <div class="card" style="padding:13px">
+      <div class="cal-header">
+        <button class="btn btn-o btn-xs" id="calPrev">‹</button>
+        <div class="cal-mes" id="calMesLbl"></div>
+        <button class="btn btn-o btn-xs" id="calNext">›</button>
+      </div>
+      <div class="cal-grid" id="calDiasLbl"></div>
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+    <div class="card" id="calDetalle" style="display:none">
+      <div class="card-hdr"><div class="card-title" id="calDetalleTit">Detalle</div></div>
+      <div id="calDetalleBody"></div>
+    </div>
+  </div>
+
+  <div class="pg" id="pg-misaldo">
+    <div class="sec-hdr"><div><div class="sec-title">Mi saldo</div></div></div>
+    <div id="saldoBox"></div>
+    <div class="card"><div id="saldoDetalle"></div></div>
+  </div>
+
+  <div class="pg" id="pg-misolicitudes">
+    <div class="sec-hdr">
+      <div><div class="sec-title">Mis solicitudes</div></div>
+      <button class="btn btn-g btn-sm" id="btnNuevaSol">+ Solicitar</button>
+    </div>
+    <div id="listMisSolicitudes"><div class="loading"><div class="spinner"></div></div></div>
+    <div class="empty" id="emMisSol" style="display:none"><div class="empty-ico">📬</div><p>Sin solicitudes</p><button class="btn btn-g" id="btnNuevaSol2">+ Solicitar servicio</button></div>
+  </div>
+
+  <div class="pg" id="pg-miperfil">
+    <div class="sec-hdr"><div><div class="sec-title">Mi perfil</div><div class="sec-sub">Tus datos de contacto</div></div></div>
+    <div class="card" style="padding:16px">
+      <div class="fld"><div class="row2">
+        <div><label>Nombre</label><input type="text" id="mpNom"></div>
+        <div><label>Apellido</label><input type="text" id="mpApe"></div>
+      </div></div>
+      <div class="fld"><label>Teléfono principal</label><input type="tel" id="mpTel1"></div>
+      <div class="fld"><label>Teléfono secundario</label><input type="tel" id="mpTel2"></div>
+      <div class="fld"><label>Dirección</label><input type="text" id="mpDir"></div>
+      <div class="fld"><label>Comuna</label><input type="text" id="mpCom"></div>
+      <button class="btn btn-g btn-w" id="btnSavePerfil">Guardar datos</button>
+    </div>
+    <div class="card" style="padding:16px;margin-top:12px">
+      <div class="sec-div-lbl" style="margin-bottom:12px">Cambiar contraseña</div>
+      <div class="fld"><label>Contraseña actual</label><input type="password" id="claveCActual"></div>
+      <div class="fld"><label>Nueva contraseña</label><input type="password" id="claveCNueva"></div>
+      <div class="fld"><label>Confirmar</label><input type="password" id="claveCConfirm"></div>
+      <button class="btn btn-g btn-w" id="btnCambiarClaveC">Guardar contraseña</button>
+    </div>
+  </div>
+
+  <div class="pg" id="pg-clavec">
+    <div class="sec-hdr"><div><div class="sec-title">Mi cuenta</div></div></div>
+    <div class="card" style="padding:16px">
+      <div class="sec-div-lbl" style="margin-bottom:12px">Cambiar contraseña</div>
+      <div class="fld"><label>Contraseña actual</label><input type="password" id="claveCActual"></div>
+      <div class="fld"><label>Nueva contraseña</label><input type="password" id="claveCNueva"></div>
+      <div class="fld"><label>Confirmar</label><input type="password" id="claveCConfirm"></div>
+      <button class="btn btn-g btn-w" id="btnCambiarClaveC">Guardar</button>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="botnav">
+    <div id="bnAdmin" style="display:contents">
+      <div class="bn on" data-pg="dash"><div class="ico">📊</div>Inicio</div>
+      <div class="bn" data-pg="clientes"><div class="ico">👥</div>Clientes</div>
+      <div class="bn" data-pg="paseadores"><div class="ico">🚶</div>Paseadores</div>
+      <div class="bn" data-pg="paseos"><div class="ico">✅</div>Paseos</div>
+      <div class="bn" data-pg="liq"><div class="ico">💰</div>Cobros</div>
+      <div class="bn" data-pg="solicitudes" id="bnSolAdmin"><div class="ico">📬</div>Solicitudes</div>
+      <div class="bn" data-pg="miclave-admin"><div class="ico">🔑</div>Mi cuenta</div>
+    </div>
+    <div id="bnPaseador" style="display:none">
+      <div class="bn on" data-pg="misperros"><div class="ico">🐕</div>Mis perros</div>
+      <div class="bn" data-pg="mihist"><div class="ico">📋</div>Historial</div>
+      <div class="bn" data-pg="miperfil-w"><div class="ico">👤</div>Mi ficha</div>
+    </div>
+    <div id="bnCliente" style="display:none">
+      <div class="bn on" data-pg="misperros-c"><div class="ico">🐕</div>Mascotas</div>
+      <div class="bn" data-pg="calendario"><div class="ico">📅</div>Calendario</div>
+      <div class="bn" data-pg="misaldo" id="bnSaldo"><div class="ico">💳</div>Saldo</div>
+      <div class="bn" data-pg="misolicitudes" id="bnSolCliente"><div class="ico">📬</div>Solicitudes</div>
+      <div class="bn" data-pg="miperfil"><div class="ico">👤</div>Mi perfil</div>
+    </div>
+  </nav>
+</div>
+
+<!-- MODALES -->
+<div class="ov" id="ov-c">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="titC">Nuevo cliente</div>
+    <div class="modal-sub">Datos del cliente y sus mascotas</div>
+    <input type="hidden" id="cId">
+    <div class="sec-div-lbl">👤 Datos del cliente</div>
+    <div class="fld"><div class="row2">
+      <div><label>Nombre</label><input type="text" id="cNom" placeholder="María"></div>
+      <div><label>Apellido</label><input type="text" id="cApe" placeholder="González"></div>
+    </div></div>
+    <div class="fld"><label>RUT</label><input type="text" id="cRut" placeholder="12.345.678-9"></div>
+    <div class="fld"><div class="row2">
+      <div><label>Teléfono 1</label><input type="tel" id="cTel1"></div>
+      <div><label>Teléfono 2</label><input type="tel" id="cTel2"></div>
+    </div></div>
+    <div class="fld"><label>Email (acceso)</label><input type="email" id="cEmail"></div>
+    <div class="fld"><label>Contraseña cliente</label><input type="text" id="cPass" placeholder="cliente123"></div>
+    <div class="fld"><label>Dirección</label><input type="text" id="cDir"></div>
+    <div class="fld"><label>Comuna</label><input type="text" id="cCom"></div>
+    <div class="fld"><label>Tipo de pago</label>
+      <select id="cPago"><option value="fin_de_mes">Fin de mes</option><option value="paquete">Paquete</option></select>
+    </div>
+    <div class="sec-div">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="sec-div-lbl" style="margin-bottom:0">🐕 Mascotas</div>
+        <button class="btn btn-o btn-sm" id="btnAddDog">+ Agregar</button>
+      </div>
+      <div id="dogsContainer"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-o" data-close="c">Cancelar</button>
+      <button class="btn btn-g" id="btnSaveC">
+        <span id="btnSaveCTxt">Guardar todo</span>
+        <div id="btnSaveCSpinner" style="display:none" class="spinner" style="width:16px;height:16px;border-width:2px"></div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<template id="dogTpl">
+  <div class="dog-block">
+    <div class="dog-block-hdr">
+      <div style="font-weight:700;font-size:.86rem">🐕 Mascota</div>
+      <button type="button" class="btn btn-r btn-xs" data-rm>Quitar</button>
+    </div>
+    <div class="fld"><div class="row2">
+      <div><label>Nombre</label><input type="text" class="dn" placeholder="Rocky"></div>
+      <div><label>Raza</label><input type="text" class="dr" placeholder="Labrador"></div>
+    </div></div>
+    <div class="fld"><div class="row2">
+      <div><label>Nacimiento</label><input type="date" class="dnac"></div>
+      <div><label>Pack / Tarifa</label>
+        <select class="dt">
+          <option value="9000">Pack Regular — $9.000</option>
+          <option value="10000">Pack Flexible — $10.000</option>
+          <option value="12000">Fin de semana — $12.000</option>
+          <option value="12000p">Paseo puntual — $12.000</option>
+          <option value="14000">Puntual feriado — $14.000</option>
+          <option value="custom">Precio personalizado</option>
+        </select>
+      </div>
+    </div></div>
+    <div class="fld dog-custom-price" style="display:none"><label>Precio personalizado</label><input type="number" class="dcustom" placeholder="Ej: 8500"></div>
+    <div class="fld"><label>Modalidad de pago</label>
+      <div class="opt-row">
+        <button type="button" class="opt-btn dog-mes on">📅 Fin de mes</button>
+        <button type="button" class="opt-btn dog-pack">📦 Paquete</button>
+      </div>
+    </div>
+    <div class="fld dog-pack-det" style="display:none"><label>Paseos en el paquete</label><input type="number" class="dpacktotal" placeholder="Ej: 20" min="1"></div>
+    <div class="fld"><label>¿Tiene chip?</label>
+      <div class="opt-row">
+        <button type="button" class="opt-btn dchip-si">✅ Sí</button>
+        <button type="button" class="opt-btn dchip-no on">❌ No</button>
+      </div>
+    </div>
+    <div class="fld"><label>¿Tiene alergias?</label>
+      <div class="opt-row">
+        <button type="button" class="opt-btn dalrg-si">⚠️ Sí</button>
+        <button type="button" class="opt-btn dalrg-no on">✅ No</button>
+      </div>
+    </div>
+    <div class="fld dalrg-det" style="display:none"><label>Describir alergias</label><textarea class="dalrg-txt"></textarea></div>
+    <div class="fld"><label>Notas / comportamiento</label><textarea class="dnotas" placeholder="Tímida con extraños..."></textarea></div>
+    <div class="sec-div-lbl" style="margin:10px 0 8px">🏥 Veterinario</div>
+    <div class="fld"><div class="row2">
+      <div><label>Nombre vet.</label><input type="text" class="dvetnom"></div>
+      <div><label>Tel. vet.</label><input type="tel" class="dvettel"></div>
+    </div></div>
+  </div>
+</template>
+
+<div class="ov" id="ov-asignar">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Asignar paseador</div>
+    <div class="modal-sub" id="asignarSub"></div>
+    <input type="hidden" id="asignarPid">
+    <div class="fld"><label>Paseador</label><select id="asignarWal"></select></div>
+    <div class="modal-footer">
+      <button class="btn btn-o" data-close="asignar">Cancelar</button>
+      <button class="btn btn-g" id="btnSaveAsignar">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="ov-w">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="titW">Nuevo paseador</div>
+    <div class="modal-sub">Ficha completa del paseador</div>
+    <input type="hidden" id="wId">
+    
+    <div class="sec-div-lbl" style="margin-bottom:10px">👤 Datos de acceso</div>
+    <div class="fld"><div class="row2">
+      <div><label>Nombre</label><input type="text" id="wN"></div>
+      <div><label>Apellido</label><input type="text" id="wApe"></div>
+    </div></div>
+    <div class="fld"><label>Teléfono</label><input type="tel" id="wT"></div>
+    <div class="fld"><label>Email (acceso)</label><input type="email" id="wE"></div>
+    <div class="fld"><label>Contraseña</label><input type="text" id="wP"></div>
+    <div class="fld"><label>Tarifa por servicio</label><input type="number" id="wTa" value="6000"></div>
+
+    <div class="sec-div-lbl" style="margin:14px 0 10px">📋 Datos personales</div>
+    <div class="fld"><label>RUT</label><input type="text" id="wRut" placeholder="12.345.678-9"></div>
+    <div class="fld"><label>Fecha de nacimiento</label><input type="date" id="wFnac"></div>
+    <div class="fld"><label>Dirección</label><input type="text" id="wDir"></div>
+    <div class="fld"><label>Comuna</label><input type="text" id="wCom"></div>
+
+    <div class="sec-div-lbl" style="margin:14px 0 10px">🚨 Contacto de emergencia</div>
+    <div class="fld"><div class="row2">
+      <div><label>Nombre</label><input type="text" id="wEmNom"></div>
+      <div><label>Teléfono</label><input type="tel" id="wEmTel"></div>
+    </div></div>
+
+    <div class="sec-div-lbl" style="margin:14px 0 10px">🏥 Salud</div>
+    <div class="fld"><label>Sistema de salud</label>
+      <select id="wSalud">
+        <option value="">Sin especificar</option>
+        <option value="Fonasa A">Fonasa A</option>
+        <option value="Fonasa B">Fonasa B</option>
+        <option value="Fonasa C">Fonasa C</option>
+        <option value="Fonasa D">Fonasa D</option>
+        <option value="Isapre">Isapre</option>
+      </select>
+    </div>
+    <div class="fld"><label>Alergias</label><input type="text" id="wAlergias" placeholder="Ej: alérgico al polvo"></div>
+    <div class="fld"><label>Condiciones médicas</label><input type="text" id="wCondiciones" placeholder="Ej: asma leve"></div>
+    <div class="fld"><label>Medicamentos</label><input type="text" id="wMeds" placeholder="Ej: inhalador"></div>
+
+    <div class="sec-div-lbl" style="margin:14px 0 10px">📄 Certificado de antecedentes</div>
+    <div class="fld"><label>Fecha de vencimiento</label><input type="date" id="wCertFecha"></div>
+    <div class="fld"><label>Link del certificado (PDF)</label><input type="url" id="wCertUrl" placeholder="https://drive.google.com/..."></div>
+
+    <div class="sec-div-lbl" style="margin:14px 0 10px">🤳 Foto de perfil</div>
+    <div id="wFotoPreview" style="margin-bottom:10px"></div>
+    <div class="fld"><label>Link de la foto</label><input type="url" id="wFotoUrl" placeholder="https://..."></div>
+    <button type="button" class="btn btn-o btn-w" id="btnSubirFotoW">📷 Subir foto desde el celular</button>
+
+    <div class="fld" style="margin-top:12px"><label>Notas del admin</label><textarea id="wNotas" placeholder="Solo visible para admins..."></textarea></div>
+
+    <div class="modal-footer">
+      <button class="btn btn-o" data-close="w">Cancelar</button>
+      <button class="btn btn-g" id="btnSaveW">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="ov-ps">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Registrar paseo</div>
+    <div class="fld"><label>Perro</label><select id="psPerro"></select></div>
+    <div id="psPackInfo"></div>
+    <div class="fld"><label>Paseador</label><select id="psWal"></select></div>
+    <div class="fld"><div class="row2">
+      <div><label>Fecha</label><input type="date" id="psFecha"></div>
+      <div><label>Estado</label><select id="psEst"><option value="realizado">✓ Realizado</option><option value="pendiente">⏳ Pendiente</option><option value="cancelado">✕ Cancelado</option></select></div>
+    </div></div>
+    <div class="fld"><div class="row2">
+      <div><label>Tarifa cliente</label><input type="number" id="psTc"></div>
+      <div><label>Tarifa paseador</label><input type="number" id="psTw"></div>
+    </div></div>
+    <div class="fld"><label>Observaciones</label><textarea id="psObs"></textarea></div>
+    <div class="modal-footer">
+      <button class="btn btn-o" data-close="ps">Cancelar</button>
+      <button class="btn btn-g" id="btnSavePs">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="ov-mp">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="mpTit">Registrar paseo</div>
+    <input type="hidden" id="mpId">
+    <input type="hidden" id="mpEmpId">
+    <div class="fld"><label>Fecha</label><input type="date" id="mpFecha"></div>
+    <div class="fld"><label>¿Cómo fue?</label>
+      <select id="mpEst"><option value="realizado">✅ Realizado</option><option value="cancelado">❌ No se realizó</option></select>
+    </div>
+    <div class="fld"><label>Observaciones</label><textarea id="mpObs" placeholder="Opcional..."></textarea></div>
+    <div class="modal-footer">
+      <button class="btn btn-o" data-close="mp">Cancelar</button>
+      <button class="btn btn-g" id="btnMarcar">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="ov-sol">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Solicitar servicio</div>
+    <div class="modal-sub">El admin confirmará disponibilidad</div>
+    <div class="fld"><label>Servicio</label>
+      <select id="solTipo">
+        <option value="paseo">🦮 Paseo</option>
+        <option value="asesoria">🧠 Asesoría de comportamiento</option>
+        <option value="petsitter">🏠 Petsitter</option>
+      </select>
+    </div>
+    <div class="fld"><label>Mascota</label><select id="solPerro"></select></div>
+    <div class="fld"><div class="row2">
+      <div><label>Fecha</label><input type="date" id="solFecha"></div>
+      <div><label>Hora</label><input type="time" id="solHora" value="09:00"></div>
+    </div></div>
+    <div class="fld"><label>Notas</label><textarea id="solNotas" placeholder="Opcional..."></textarea></div>
+    <div class="modal-footer">
+      <button class="btn btn-o" data-close="sol">Cancelar</button>
+      <button class="btn btn-g" id="btnSaveSol">Enviar</button>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="ov-resp">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="respTit">Responder solicitud</div>
+    <div class="modal-sub" id="respSub"></div>
+    <input type="hidden" id="respId">
+    <div class="fld"><label>Respuesta</label>
+      <select id="respAccion">
+        <option value="confirmada">✅ Confirmar</option>
+        <option value="propuesta">📅 Proponer fecha alternativa</option>
+        <option value="cancelada">❌ Cancelar</option>
+      </select>
+    </div>
+    <div id="respFechaBox" style="display:none">
+      <div class="fld"><div class="row2">
+        <div><label>Nueva fecha</label><input type="date" id="respFecha"></div>
+        <div><label>Nueva hora</label><input type="time" id="respHora" value="09:00"></div>
+      </div></div>
+    </div>
+    <div class="fld"><label>Mensaje</label><textarea id="respMsg" placeholder="Opcional..."></textarea></div>
+    <div class="modal-footer">
+      <button class="btn btn-o" data-close="resp">Cancelar</button>
+      <button class="btn btn-g" id="btnSaveResp">Enviar</button>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="ov-paq">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Recargar paquete</div>
+    <div class="modal-sub" id="paqSub"></div>
+    <input type="hidden" id="paqPerroId">
+    <div id="paqStatus" style="background:var(--g3);border-radius:var(--r);padding:13px;margin-bottom:13px"></div>
+    <div class="fld"><label>Paseos a agregar</label><input type="number" id="paqAgregar" min="1" placeholder="Ej: 10"></div>
+    <div class="modal-footer">
+      <button class="btn btn-o" data-close="paq">Cancelar</button>
+      <button class="btn btn-g" id="btnSavePaq">✅ Agregar paseos</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal asignar múltiples paseadores -->
+<div class="ov" id="ov-asignar-multi">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Paseadores asignados</div>
+    <div class="modal-sub" id="asignarMultiSub"></div>
+    <input type="hidden" id="amPerroId">
+    <div class="fld">
+      <label>Selecciona todos los paseadores de este perro</label>
+      <div id="amWalkerList" style="display:flex;flex-direction:column;gap:8px;margin-top:4px"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-o" data-close="asignar-multi">Cancelar</button>
+      <button class="btn btn-g" id="btnSaveAsignarMulti">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal editar perro (cliente) -->
+<div class="ov" id="ov-perro-c">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="titPerroC">Editar mascota</div>
+    <input type="hidden" id="perroC-id">
+    <div class="fld"><div class="row2">
+      <div><label>Nombre</label><input type="text" id="perroC-nombre"></div>
+      <div><label>Raza</label><input type="text" id="perroC-raza"></div>
+    </div></div>
+    <div class="fld"><label>Fecha de nacimiento</label><input type="date" id="perroC-nac"></div>
+    <div class="fld"><label>Peso (kg)</label><input type="number" id="perroC-peso" placeholder="Ej: 12"></div>
+    <div class="fld"><label>¿Tiene microchip?</label>
+      <div class="opt-row">
+        <button type="button" class="opt-btn pC-chip-si">✅ Sí</button>
+        <button type="button" class="opt-btn pC-chip-no on">❌ No</button>
+      </div>
+    </div>
+    <div class="fld"><label>¿Está esterilizado/a?</label>
+      <div class="opt-row">
+        <button type="button" class="opt-btn pC-est-si">✅ Sí</button>
+        <button type="button" class="opt-btn pC-est-no on">❌ No</button>
+      </div>
+    </div>
+    <div class="fld"><label>¿Tiene alergias?</label>
+      <div class="opt-row">
+        <button type="button" class="opt-btn pC-alrg-si">⚠️ Sí</button>
+        <button type="button" class="opt-btn pC-alrg-no on">✅ No</button>
+      </div>
+    </div>
+    <div class="fld pC-alrg-det" style="display:none"><label>Describir alergias</label><textarea id="perroC-alergias" placeholder="Ej: alérgico al pollo..."></textarea></div>
+    <div class="fld"><label>Medicamentos</label><input type="text" id="perroC-meds" placeholder="Ej: antiparasitario mensual"></div>
+    <div class="fld"><label>¿Puede recibir snacks?</label>
+      <div class="opt-row">
+        <button type="button" class="opt-btn pC-snack-si on">✅ Sí</button>
+        <button type="button" class="opt-btn pC-snack-no">🚫 No</button>
+      </div>
+    </div>
+    <div class="fld"><label>¿Usa bozal?</label>
+      <div class="opt-row">
+        <button type="button" class="opt-btn pC-bozal-si">😷 Sí</button>
+        <button type="button" class="opt-btn pC-bozal-no on">No</button>
+      </div>
+    </div>
+    <div class="fld"><label>Notas / comportamiento</label><textarea id="perroC-notas" placeholder="Comportamiento, cosas importantes..."></textarea></div>
+    <div class="sec-div-lbl" style="margin:12px 0 8px">🏥 Veterinario</div>
+    <div class="fld"><div class="row2">
+      <div><label>Nombre</label><input type="text" id="perroC-vetnom"></div>
+      <div><label>Teléfono</label><input type="tel" id="perroC-vettel"></div>
+    </div></div>
+    <div class="fld"><label>Clínica / dirección vet.</label><input type="text" id="perroC-vetdir"></div>
+    <div class="sec-div-lbl" style="margin:12px 0 8px">⚡ Comportamiento</div>
+    <div class="fld">
+      <label style="font-size:.7rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:8px">Reactivo a</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <label style="display:flex;align-items:center;gap:8px;font-size:.88rem;font-weight:400;background:var(--bg);padding:9px 12px;border-radius:var(--r2);border:1.5px solid var(--bd);cursor:pointer"><input type="checkbox" id="pC-rmachos" style="width:18px;height:18px;flex-shrink:0"> Machos</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:.88rem;font-weight:400;background:var(--bg);padding:9px 12px;border-radius:var(--r2);border:1.5px solid var(--bd);cursor:pointer"><input type="checkbox" id="pC-rhembras" style="width:18px;height:18px;flex-shrink:0"> Hembras</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:.88rem;font-weight:400;background:var(--bg);padding:9px 12px;border-radius:var(--r2);border:1.5px solid var(--bd);cursor:pointer"><input type="checkbox" id="pC-rninos" style="width:18px;height:18px;flex-shrink:0"> Niños</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:.88rem;font-weight:400;background:var(--bg);padding:9px 12px;border-radius:var(--r2);border:1.5px solid var(--bd);cursor:pointer"><input type="checkbox" id="pC-rbici" style="width:18px;height:18px;flex-shrink:0"> Bicicletas</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:.88rem;font-weight:400;background:var(--bg);padding:9px 12px;border-radius:var(--r2);border:1.5px solid var(--bd);cursor:pointer"><input type="checkbox" id="pC-rdesc" style="width:18px;height:18px;flex-shrink:0"> Desconocidos</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:.88rem;font-weight:400;background:var(--bg);padding:9px 12px;border-radius:var(--r2);border:1.5px solid var(--bd);cursor:pointer"><input type="checkbox" id="pC-rvehi" style="width:18px;height:18px;flex-shrink:0"> Vehículos</label>
+      </div>
+    </div>
+    <div class="fld">
+      <label style="font-size:.7rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:8px">Otras conductas</label>
+      <label style="display:flex;align-items:center;gap:10px;font-size:.88rem;font-weight:400;background:var(--bg);padding:11px 12px;border-radius:var(--r2);border:1.5px solid var(--bd);cursor:pointer;margin-bottom:7px"><input type="checkbox" id="pC-escape" style="width:18px;height:18px;flex-shrink:0"> Tendencia a escapar</label>
+      <label style="display:flex;align-items:center;gap:10px;font-size:.88rem;font-weight:400;background:var(--bg);padding:11px 12px;border-radius:var(--r2);border:1.5px solid var(--bd);cursor:pointer;margin-bottom:7px"><input type="checkbox" id="pC-ruidos" style="width:18px;height:18px;flex-shrink:0"> Miedo a ruidos fuertes / fuegos artificiales</label>
+      <label style="display:flex;align-items:center;gap:10px;font-size:.88rem;font-weight:400;background:var(--bg);padding:11px 12px;border-radius:var(--r2);border:1.5px solid var(--bd);cursor:pointer"><input type="checkbox" id="pC-mordidas" style="width:18px;height:18px;flex-shrink:0"> Antecedentes de mordidas</label>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-o" data-close="perro-c">Cancelar</button>
+      <button class="btn btn-g" id="btnSavePerroC">Guardar ficha</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal editar paseo -->
+<div class="ov" id="ov-eps">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Editar paseo</div>
+    <input type="hidden" id="eps-id">
+    <div class="fld"><label>Perro</label><input type="text" id="eps-perro" readonly style="background:#f2f2f0"></div>
+    <div class="fld"><label>Paseador</label><select id="eps-wal"></select></div>
+    <div class="fld"><div class="row2">
+      <div><label>Fecha</label><input type="date" id="eps-fecha"></div>
+      <div><label>Estado</label><select id="eps-est"><option value="realizado">✓ Realizado</option><option value="pendiente">⏳ Pendiente</option><option value="cancelado">✕ Cancelado</option></select></div>
+    </div></div>
+    <div class="fld"><div class="row2">
+      <div><label>Tarifa cliente</label><input type="number" id="eps-tc"></div>
+      <div><label>Tarifa paseador</label><input type="number" id="eps-tw"></div>
+    </div></div>
+    <div class="fld"><label>Observaciones</label><textarea id="eps-obs"></textarea></div>
+    <div class="modal-footer">
+      <button class="btn btn-o" data-close="eps">Cancelar</button>
+      <button class="btn btn-g" id="btnSaveEps">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal vacunas/desparasitación perro (admin) -->
+<div class="ov" id="ov-vacunas">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="vacTit">Vacunas y desparasitación</div>
+    <div class="modal-sub" id="vacSub"></div>
+    <input type="hidden" id="vac-pid">
+    <div class="sec-div-lbl" style="margin-bottom:10px">💉 Vacunas</div>
+    <div class="fld"><label>Última vacuna</label><input type="date" id="vac-ultima"></div>
+    <div class="fld"><label>Próxima vacuna</label><input type="date" id="vac-proxima"></div>
+    <div class="sec-div-lbl" style="margin:12px 0 10px">🐛 Desparasitación</div>
+    <div class="fld"><label>Última desparasitación</label><input type="date" id="des-ultima"></div>
+    <div class="fld"><label>Próxima desparasitación</label><input type="date" id="des-proxima"></div>
+    <div class="modal-footer">
+      <button class="btn btn-o" data-close="vacunas">Cancelar</button>
+      <button class="btn btn-g" id="btnSaveVac">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ══ CONFIG SUPABASE ══
+var SUPA_URL = 'https://dmaifogoxzwyiunqvrbf.supabase.co';
+var SUPA_KEY = 'sb_publishable_nXmYsUIGAhYJ13vs9JXXRQ_iRWxc46P';
+var EMPRESA_ID = 'ddb83b48-e599-449f-abc3-1a2f1d3a1138';
+
+// ══ API ══
+async function db(table, method, body, filters) {
+  var url = SUPA_URL + '/rest/v1/' + table;
+  if (filters) url += '?' + filters;
+  var res = await fetch(url, {
+    method: method || 'GET',
+    headers: {
+      'apikey': SUPA_KEY,
+      'Authorization': 'Bearer ' + SUPA_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': method === 'POST' ? 'return=representation' : ''
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if (!res.ok) {
+    var err = await res.text();
+    throw new Error(err);
+  }
+  var text = await res.text();
+  return text ? JSON.parse(text) : [];
+}
+
+async function dbGet(table, filters) { return db(table, 'GET', null, filters); }
+async function dbPost(table, body) { return db(table, 'POST', body); }
+async function dbPatch(table, body, filters) { return db(table, 'PATCH', body, filters); }
+async function dbDelete(table, filters) { return db(table, 'DELETE', null, filters); }
+
+// ══ STATE ══
+var me = null;
+var calYear, calMonth, calPerroId;
+var SVC = {paseo:'🦮 Paseo', asesoria:'🧠 Asesoría', petsitter:'🏠 Petsitter'};
+
+// ══ UTILS ══
+function hoy() {
+  var d = new Date();
+  var offset = d.getTimezoneOffset();
+  var local = new Date(d.getTime() - offset * 60 * 1000);
+  return local.toISOString().split('T')[0];
+}
+function fmtF(f) { if(!f) return '—'; var p=f.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
+function fmt(n) { return '$' + Number(n||0).toLocaleString('es-CO'); }
+function mlbl(m) { var p=m.split('-'); return ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][+p[1]-1]+' '+p[0]; }
+function hoyMes() { return hoy().slice(0,7); }
+function toast(msg) { var t=document.getElementById('toast'); t.textContent=msg; t.className='on'; setTimeout(function(){t.className='';},2500); }
+function bdg(e) {
+  var m={realizado:'bdg-g',pendiente:'bdg-o',cancelado:'bdg-x'};
+  var l={realizado:'✓ Realizado',pendiente:'⏳ Pendiente',cancelado:'✕ Cancelado'};
+  return '<span class="bdg '+(m[e]||'bdg-x')+'">'+(l[e]||e)+'</span>';
+}
+function abrir(id) { document.getElementById('ov-'+id).classList.add('on'); }
+function cerrar(id) { document.getElementById('ov-'+id).classList.remove('on'); }
+function ir(name) {
+  document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});
+  document.querySelectorAll('.bn').forEach(function(n){n.classList.remove('on');});
+  var pg = document.getElementById('pg-'+name);
+  if(pg) pg.classList.add('on');
+  document.querySelectorAll('.bn[data-pg="'+name+'"]').forEach(function(n){n.classList.add('on');});
+  var fn = {
+    dash:rDash, clientes:rClientes, paseadores:rPaseadores, paseos:rPaseos,
+    liq:rLiq, solicitudes:rSolicitudes, misperros:rMisPerros, mihist:rMiHist,
+    'misperros-c':rMisPerrosC, calendario:rCalendario, misaldo:rMiSaldo,
+    misolicitudes:rMisSolicitudes,
+    miperfil:rMiPerfil,
+    misaldo:rMiSaldo,
+    'misperros-c':rMisPerrosCConPaseador,
+    'miclave-admin':function(){},
+    'miperfil-w':rMiPerfilW
+  };
+  if(fn[name]) fn[name]();
+}
+
+// ══ AUTH ══
+document.getElementById('btnLogin').addEventListener('click', doLogin);
+document.getElementById('lp').addEventListener('keydown', function(e){if(e.key==='Enter')doLogin();});
+document.getElementById('btnLogout').addEventListener('click', doLogout);
+
+async function doLogin() {
+  var email = document.getElementById('lu').value.trim();
+  var pass = document.getElementById('lp').value.trim();
+  var errEl = document.getElementById('loginError');
+  errEl.style.display='none';
+  if(!email||!pass){errEl.textContent='Ingresa email y contraseña';errEl.style.display='block';return;}
+  try {
+    // Check all usuarios with this email/pass (any company)
+    var users = await dbGet('usuarios', 'email=eq.'+email+'&password_hash=eq.'+pass+'&activo=eq.true');
+    if(users.length) {
+      var user = users[0];
+      // Check if user has multi-company access
+      var multiEmpresas = await dbGet('usuario_empresas', 'usuario_id=eq.'+user.id);
+      // Determine active company
+      var activeEmpresaId = user.empresa_id;
+      var esAdminEnEmpresa = user.es_admin;
+      // If user is admin in their own company
+      if(user.es_admin) {
+        activeEmpresaId = user.empresa_id;
+        esAdminEnEmpresa = true;
+      }
+      me = {tipo:'usuario', ...user, activeEmpresaId: activeEmpresaId, esAdminActivo: esAdminEnEmpresa, multiEmpresas: multiEmpresas};
+      // Update global EMPRESA_ID for this session
+      EMPRESA_ID = activeEmpresaId;
+      // Get empresa name
+      var empresas = await dbGet('empresas', 'id=eq.'+activeEmpresaId+'&select=nombre');
+      var empNombre = empresas.length ? empresas[0].nombre : 'Puchocodri';
+      document.getElementById('login').style.display='none';
+      document.getElementById('app').style.display='block';
+      document.getElementById('topTitle').textContent='🐾 '+empNombre;
+      document.getElementById('topName').textContent=user.nombre;
+      document.getElementById('topAv').textContent=user.nombre[0];
+      setTimeout(solicitarPermiso, 2000);
+      if(esAdminEnEmpresa){
+        document.getElementById('bnAdmin').style.cssText='display:contents';
+        document.getElementById('bnPaseador').style.display='none';
+        document.getElementById('bnCliente').style.display='none';
+        // Show switch company button if multi-company
+        if(multiEmpresas.length>0) mostrarSwitchEmpresa(multiEmpresas, user);
+        iniciarPolling();
+        ir('dash');
+      } else {
+        document.getElementById('bnAdmin').style.cssText='display:none';
+        document.getElementById('bnPaseador').style.cssText='display:contents';
+        document.getElementById('bnCliente').style.display='none';
+        var swBtn2=document.getElementById('btnSwitch');
+        if(swBtn2)swBtn2.style.display='none';
+        ir('misperros');
+      }
+    } else {
+      // Check clientes across all companies
+      var clientes = await dbGet('clientes', 'email=eq.'+email+'&password_hash=eq.'+pass);
+      if(clientes.length) {
+        me = {tipo:'cliente', ...clientes[0], activeEmpresaId: clientes[0].empresa_id};
+        EMPRESA_ID = clientes[0].empresa_id;
+        var empresas = await dbGet('empresas', 'id=eq.'+EMPRESA_ID+'&select=nombre');
+        var empNombre = empresas.length ? empresas[0].nombre : 'Puchocodri';
+        document.getElementById('login').style.display='none';
+        document.getElementById('app').style.display='block';
+        document.getElementById('topTitle').textContent='🐾 '+empNombre;
+        document.getElementById('topName').textContent=me.nombre;
+        document.getElementById('topAv').textContent=me.nombre[0];
+        document.getElementById('bnAdmin').style.cssText='display:none';
+        document.getElementById('bnPaseador').style.display='none';
+        document.getElementById('bnCliente').style.cssText='display:contents';
+        // Hide switch button for clients
+        var swBtn=document.getElementById('btnSwitch');
+        if(swBtn)swBtn.style.display='none';
+        setTimeout(actualizarBadgeSol, 1500);
+        ir('misperros-c');
+      } else {
+        errEl.textContent='Email o contraseña incorrectos';errEl.style.display='block';
+      }
+    }
+  } catch(e) { errEl.textContent='Error de conexión: '+e.message; errEl.style.display='block'; }
+}
+
+function mostrarSwitchEmpresa(multiEmpresas, user){
+  var topbar = document.querySelector('.topbar-right');
+  if(document.getElementById('btnSwitch')) return;
+  // Build full list of companies user has access to
+  // Include own company + multiEmpresas
+  var allEmpresas = [{empresa_id: user.empresa_id, es_admin: user.es_admin, nombre: ''}].concat(multiEmpresas);
+  var currentIdx = 0;
+  var btn = document.createElement('button');
+  btn.id='btnSwitch';
+  btn.className='btn btn-o btn-sm';
+  btn.textContent='↔️';
+  btn.title='Cambiar empresa';
+  btn.addEventListener('click', async function(){
+    // Cycle to next company
+    currentIdx = (currentIdx + 1) % allEmpresas.length;
+    var target = allEmpresas[currentIdx];
+    EMPRESA_ID = target.empresa_id;
+    // Get empresa name
+    var empresas = await dbGet('empresas','id=eq.'+EMPRESA_ID+'&select=nombre');
+    var empNombre = empresas.length?empresas[0].nombre:'';
+    document.getElementById('topTitle').textContent='🐾 '+empNombre;
+    // Determine role in this company
+    var esAdminAqui = false;
+    if(target.empresa_id === user.empresa_id){
+      esAdminAqui = user.es_admin;
+    } else {
+      // Check usuario_empresas for role
+      var ue = await dbGet('usuario_empresas','usuario_id=eq.'+user.id+'&empresa_id=eq.'+EMPRESA_ID);
+      esAdminAqui = ue.length && ue[0].es_admin;
+    }
+    if(esAdminAqui){
+      document.getElementById('bnAdmin').style.cssText='display:contents';
+      document.getElementById('bnPaseador').style.display='none';
+      document.getElementById('bnCliente').style.display='none';
+      ir('dash');
+      rDash();
+    } else {
+      document.getElementById('bnAdmin').style.cssText='display:none';
+      document.getElementById('bnPaseador').style.cssText='display:contents';
+      document.getElementById('bnCliente').style.display='none';
+      ir('misperros');
+      rMisPerros();
+    }
+    toast('↔️ Cambiado a '+empNombre);
+  });
+  topbar.insertBefore(btn, topbar.firstChild);
+}
+
+function doLogout() {
+  detenerPolling();
+  window.location.reload();
+}
+
+// ══ NAV ══
+document.querySelectorAll('.bn[data-pg]').forEach(function(el){
+  el.addEventListener('click',function(){ir(el.getAttribute('data-pg'));});
+});
+
+// ══ DOG BLOCKS ══
+var dogCount=0;
+function addDogBlock(data){
+  dogCount++;
+  var tpl=document.getElementById('dogTpl');
+  var clone=tpl.content.cloneNode(true);
+  var block=clone.querySelector('.dog-block');
+  block.querySelector('[data-rm]').addEventListener('click',function(){block.remove();});
+  block.querySelector('.dt').addEventListener('change',function(){
+    block.querySelector('.dog-custom-price').style.display=this.value==='custom'?'block':'none';
+  });
+  block.querySelectorAll('.opt-row').forEach(function(row){
+    row.querySelectorAll('.opt-btn').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        row.querySelectorAll('.opt-btn').forEach(function(b){b.classList.remove('on');});
+        btn.classList.add('on');
+        if(btn.classList.contains('dalrg-si')||btn.classList.contains('dalrg-no'))
+          block.querySelector('.dalrg-det').style.display=btn.classList.contains('dalrg-si')?'block':'none';
+        if(btn.classList.contains('dog-pack')||btn.classList.contains('dog-mes'))
+          block.querySelector('.dog-pack-det').style.display=btn.classList.contains('dog-pack')?'block':'none';
+      });
+    });
+  });
+  if(data){
+    block.querySelector('.dn').value=data.nombre||'';
+    block.querySelector('.dr').value=data.raza||'';
+    block.querySelector('.dnac').value=data.fecha_nacimiento||'';
+    var tarVal=String(data.tarifa||9000);
+    block.querySelector('.dt').value=tarVal;
+    block.querySelector('.dnotas').value=data.notas||'';
+    block.querySelector('.dvetnom').value=data.vet_nombre||'';
+    block.querySelector('.dvettel').value=data.vet_telefono||'';
+    if(data.chip){block.querySelector('.dchip-si').classList.add('on');block.querySelector('.dchip-no').classList.remove('on');}
+    if(data.alergias){block.querySelector('.dalrg-si').classList.add('on');block.querySelector('.dalrg-no').classList.remove('on');block.querySelector('.dalrg-det').style.display='block';block.querySelector('.dalrg-txt').value=data.alergias||'';}
+    if(data.modalidad_pago==='paquete'){block.querySelector('.dog-pack').classList.add('on');block.querySelector('.dog-mes').classList.remove('on');block.querySelector('.dog-pack-det').style.display='block';block.querySelector('.dpacktotal').value=data.pack_total||'';}
+    block.dataset.pid=data.id||'';
+  }
+  document.getElementById('dogsContainer').appendChild(block);
+}
+
+function readDogs(){
+  var dogs=[];
+  document.querySelectorAll('#dogsContainer .dog-block').forEach(function(b){
+    var packSel=b.querySelector('.dt').value;
+    var tarifa=packSel==='custom'?(+b.querySelector('.dcustom').value||0):(parseFloat(packSel)||9000);
+    dogs.push({
+      pid:b.dataset.pid||null,
+      nombre:b.querySelector('.dn').value.trim(),
+      raza:b.querySelector('.dr').value.trim(),
+      fecha_nacimiento:b.querySelector('.dnac').value||null,
+      tarifa:tarifa,
+      modalidad_pago:b.querySelector('.dog-pack').classList.contains('on')?'paquete':'fin_de_mes',
+      pack_total:+b.querySelector('.dpacktotal').value||0,
+      chip:b.querySelector('.dchip-si').classList.contains('on'),
+      alergias:b.querySelector('.dalrg-si').classList.contains('on')?b.querySelector('.dalrg-txt').value.trim():null,
+      notas:b.querySelector('.dnotas').value.trim(),
+      vet_nombre:b.querySelector('.dvetnom').value.trim(),
+      vet_telefono:b.querySelector('.dvettel').value.trim()
+    });
+  });
+  return dogs;
+}
+
+// ══ CLIENTES ══
+document.getElementById('btnNuevoC').addEventListener('click',function(){abrirC(null);});
+document.getElementById('btnNuevoC2').addEventListener('click',function(){abrirC(null);});
+document.getElementById('btnAddDog').addEventListener('click',function(){addDogBlock(null);});
+document.getElementById('btnSaveC').addEventListener('click',saveC);
+
+function abrirC(cid){
+  document.getElementById('cId').value=cid||'';
+  dogCount=0; document.getElementById('dogsContainer').innerHTML='';
+  if(cid){
+    document.getElementById('titC').textContent='Editar cliente';
+    dbGet('clientes','id=eq.'+cid).then(function(r){
+      if(!r.length)return;
+      var c=r[0];
+      document.getElementById('cNom').value=c.nombre||'';
+      document.getElementById('cApe').value=c.apellido||'';
+      document.getElementById('cRut').value=c.rut||'';
+      document.getElementById('cTel1').value=c.telefono1||'';
+      document.getElementById('cTel2').value=c.telefono2||'';
+      document.getElementById('cEmail').value=c.email||'';
+      document.getElementById('cPass').value=c.password_hash||'';
+      document.getElementById('cDir').value=c.direccion||'';
+      document.getElementById('cCom').value=c.comuna||'';
+      document.getElementById('cPago').value=c.tipo_pago||'fin_de_mes';
+      dbGet('perros','cliente_id=eq.'+cid+'&empresa_id=eq.'+EMPRESA_ID).then(function(perros){
+        perros.forEach(function(p){addDogBlock(p);});
+      });
+    });
+  } else {
+    document.getElementById('titC').textContent='Nuevo cliente';
+    ['cNom','cApe','cRut','cTel1','cTel2','cEmail','cPass','cDir','cCom'].forEach(function(i){document.getElementById(i).value='';});
+    document.getElementById('cPago').value='fin_de_mes';
+    addDogBlock(null);
+  }
+  abrir('c');
+}
+
+async function saveC(){
+  var nom=document.getElementById('cNom').value.trim();
+  var ape=document.getElementById('cApe').value.trim();
+  if(!nom||!ape){toast('⚠️ Nombre y apellido obligatorios');return;}
+  var dogs=readDogs();
+  if(!dogs.length){toast('⚠️ Agrega al menos una mascota');return;}
+  for(var i=0;i<dogs.length;i++){if(!dogs[i].nombre){toast('⚠️ Todas las mascotas necesitan nombre');return;}}
+  document.getElementById('btnSaveCTxt').textContent='Guardando...';
+  document.getElementById('btnSaveCSpinner').style.display='inline-block';
+  try {
+    var cid=document.getElementById('cId').value;
+    var cObj={
+      empresa_id:EMPRESA_ID,nombre:nom,apellido:ape,
+      rut:document.getElementById('cRut').value.trim(),
+      telefono1:document.getElementById('cTel1').value.trim(),
+      telefono2:document.getElementById('cTel2').value.trim(),
+      email:document.getElementById('cEmail').value.trim(),
+      password_hash:document.getElementById('cPass').value.trim()||'cliente123',
+      direccion:document.getElementById('cDir').value.trim(),
+      comuna:document.getElementById('cCom').value.trim(),
+      tipo_pago:document.getElementById('cPago').value
+    };
+    var savedC;
+    if(cid){
+      await dbPatch('clientes',cObj,'id=eq.'+cid);
+      savedC={id:cid};
+    } else {
+      var r=await dbPost('clientes',cObj);
+      savedC=r[0];
+    }
+    // Save dogs
+    for(var i=0;i<dogs.length;i++){
+      var d=dogs[i];
+      var pObj={empresa_id:EMPRESA_ID,cliente_id:savedC.id,nombre:d.nombre,raza:d.raza,
+        fecha_nacimiento:d.fecha_nacimiento,tarifa:d.tarifa,modalidad_pago:d.modalidad_pago,
+        pack_total:d.pack_total,chip:d.chip,alergias:d.alergias,notas:d.notas,
+        vet_nombre:d.vet_nombre,vet_telefono:d.vet_telefono};
+      if(d.pid){await dbPatch('perros',pObj,'id=eq.'+d.pid);}
+      else{await dbPost('perros',pObj);}
+    }
+    cerrar('c'); rClientes(); rDash(); toast(cid?'✅ Cliente actualizado':'✅ Cliente creado');
+  } catch(e){toast('❌ Error: '+e.message);}
+  document.getElementById('btnSaveCTxt').textContent='Guardar todo';
+  document.getElementById('btnSaveCSpinner').style.display='none';
+}
+
+async function delC(id){
+  if(!confirm('¿Borrar cliente y sus mascotas?'))return;
+  await dbDelete('perros','cliente_id=eq.'+id);
+  await dbDelete('clientes','id=eq.'+id);
+  rClientes(); rDash(); toast('🗑️ Eliminado');
+}
+
+// ══ ASIGNAR ══
+document.getElementById('btnSaveAsignar').addEventListener('click', saveAsignar);
+async function abrirAsignar(pid){
+  document.getElementById('asignarPid').value=pid;
+  var walkers=await dbGet('usuarios','empresa_id=eq.'+EMPRESA_ID+'&activo=eq.true');
+  var sel=document.getElementById('asignarWal');
+  sel.innerHTML='<option value="">Sin paseador</option>'+walkers.map(function(w){
+    return '<option value="'+w.id+'">'+(w.es_pucho?'⭐ ':'')+w.nombre+'</option>';
+  }).join('');
+  var perros=await dbGet('perros','id=eq.'+pid);
+  if(perros.length){
+    document.getElementById('asignarSub').textContent='🐕 '+perros[0].nombre;
+    sel.value=perros[0].paseador_principal_id||'';
+  }
+  abrir('asignar');
+}
+async function saveAsignar(){
+  var pid=document.getElementById('asignarPid').value;
+  var wid=document.getElementById('asignarWal').value||null;
+  await dbPatch('perros',{paseador_principal_id:wid},'id=eq.'+pid);
+  cerrar('asignar'); rClientes(); toast('✅ Paseador asignado');
+}
+
+// ══ PASEADORES ══
+document.getElementById('btnNuevoW').addEventListener('click',function(){abrirW(null);});
+document.getElementById('btnSaveW').addEventListener('click',saveW);
+function abrirW(id){
+  document.getElementById('titW').textContent=id?'Editar paseador':'Nuevo paseador';
+  document.getElementById('wId').value=id||'';
+  if(id){
+    dbGet('usuarios','id=eq.'+id).then(function(r){
+      if(!r.length)return;
+      var w=r[0];
+      document.getElementById('wN').value=w.nombre||'';
+      document.getElementById('wApe').value=w.apellido||'';
+      document.getElementById('wT').value=w.telefono||'';
+      document.getElementById('wE').value=w.email||'';
+      document.getElementById('wP').value=w.password_hash||'';
+      document.getElementById('wTa').value=w.tarifa_por_servicio||6000;
+      document.getElementById('wRut').value=w.rut||'';
+      document.getElementById('wFnac').value=w.fecha_nacimiento||'';
+      document.getElementById('wDir').value=w.direccion||'';
+      document.getElementById('wCom').value=w.comuna||'';
+      document.getElementById('wEmNom').value=w.contacto_emergencia_nombre||'';
+      document.getElementById('wEmTel').value=w.contacto_emergencia_telefono||'';
+      document.getElementById('wSalud').value=w.sistema_salud||'';
+      document.getElementById('wAlergias').value=w.alergias_paseador||'';
+      document.getElementById('wCondiciones').value=w.condiciones_medicas||'';
+      document.getElementById('wMeds').value=w.medicamentos_paseador||'';
+      document.getElementById('wCertFecha').value=w.certificado_antecedentes_fecha||'';
+      document.getElementById('wCertUrl').value=w.certificado_antecedentes_url||'';
+      document.getElementById('wFotoUrl').value=w.foto_perfil_url||'';
+      document.getElementById('wNotas').value=w.notas_admin||'';
+      if(w.foto_perfil_url){
+        document.getElementById('wFotoPreview').innerHTML='<img src="'+w.foto_perfil_url+'" style="width:70px;height:70px;border-radius:50%;object-fit:cover;border:2px solid var(--g)">';
+      }
+    });
+  } else {
+    ['wN','wApe','wT','wE','wP','wRut','wDir','wCom','wEmNom','wEmTel','wAlergias','wCondiciones','wMeds','wCertUrl','wFotoUrl','wNotas'].forEach(function(i){document.getElementById(i).value='';});
+    document.getElementById('wTa').value='6000';
+    document.getElementById('wFnac').value='';
+    document.getElementById('wCertFecha').value='';
+    document.getElementById('wSalud').value='';
+    document.getElementById('wFotoPreview').innerHTML='';
+  }
+  abrir('w');
+}
+async function saveW(){
+  var n=document.getElementById('wN').value.trim();
+  var e=document.getElementById('wE').value.trim();
+  if(!n||!e){toast('⚠️ Nombre y email obligatorios');return;}
+  try {
+    var obj={empresa_id:EMPRESA_ID,nombre:n,email:e,
+      apellido:document.getElementById('wApe').value.trim(),
+      telefono:document.getElementById('wT').value.trim(),
+      password_hash:document.getElementById('wP').value||'pass123',
+      tarifa_por_servicio:+document.getElementById('wTa').value||6000,
+      rut:document.getElementById('wRut').value.trim(),
+      fecha_nacimiento:document.getElementById('wFnac').value||null,
+      direccion:document.getElementById('wDir').value.trim(),
+      comuna:document.getElementById('wCom').value.trim(),
+      contacto_emergencia_nombre:document.getElementById('wEmNom').value.trim(),
+      contacto_emergencia_telefono:document.getElementById('wEmTel').value.trim(),
+      sistema_salud:document.getElementById('wSalud').value,
+      alergias_paseador:document.getElementById('wAlergias').value.trim(),
+      condiciones_medicas:document.getElementById('wCondiciones').value.trim(),
+      medicamentos_paseador:document.getElementById('wMeds').value.trim(),
+      certificado_antecedentes_fecha:document.getElementById('wCertFecha').value||null,
+      certificado_antecedentes_url:document.getElementById('wCertUrl').value.trim(),
+      foto_perfil_url:document.getElementById('wFotoUrl').value.trim(),
+      notas_admin:document.getElementById('wNotas').value.trim(),
+      rol:'paseador',es_admin:false,es_pucho:false,activo:true};
+    var id=document.getElementById('wId').value;
+    if(id){
+      await dbPatch('usuarios',obj,'id=eq.'+id);
+      toast('✅ Paseador actualizado');
+    } else {
+      var newW=await dbPost('usuarios',obj);
+      if(newW&&newW.length){
+        try {
+          await dbPost('usuario_empresas',{
+            usuario_id:newW[0].id,
+            empresa_id:EMPRESA_ID,
+            rol:'paseador',
+            es_admin:false,
+            tarifa_por_servicio:+document.getElementById('wTa').value||6000
+          });
+        } catch(e2){}
+      }
+      toast('✅ Paseador creado');
+    }
+    cerrar('w'); rPaseadores();
+  } catch(err){ toast('❌ Error: '+err.message); console.error(err); }
+}
+async function delW(id){
+  var w=await dbGet('usuarios','id=eq.'+id);
+  if(w.length&&w[0].es_pucho){toast('⚠️ No puedes eliminar a Pucho');return;}
+  if(!confirm('¿Borrar paseador?'))return;
+  await dbPatch('usuarios',{activo:false},'id=eq.'+id);
+  rPaseadores(); toast('🗑️ Eliminado');
+}
+
+// ══ PASEOS ══
+document.getElementById('btnNuevoPs').addEventListener('click',abrirPs);
+document.getElementById('btnSavePs').addEventListener('click',savePs);
+document.getElementById('psPerro').addEventListener('change',autoFill);
+document.getElementById('psWal').addEventListener('change',autoFill);
+
+async function abrirPs(){
+  var perros=await dbGet('perros','empresa_id=eq.'+EMPRESA_ID);
+  var walkers=await dbGet('usuarios','empresa_id=eq.'+EMPRESA_ID+'&activo=eq.true');
+  var pSel=document.getElementById('psPerro');
+  pSel.innerHTML=perros.map(function(p){return'<option value="'+p.id+'" data-tarifa="'+p.tarifa+'" data-wid="'+(p.paseador_principal_id||'')+'" data-pack="'+(p.modalidad_pago||'')+'" data-usado="'+(p.pack_usados||0)+'" data-total="'+(p.pack_total||0)+'">🐕 '+p.nombre+'</option>';}).join('');
+  var wSel=document.getElementById('psWal');
+  wSel.innerHTML=walkers.map(function(w){return'<option value="'+w.id+'" data-tarifa="'+w.tarifa_por_servicio+'" data-pucho="'+(w.es_pucho?'1':'0')+'">'+(w.es_pucho?'⭐ ':'')+w.nombre+'</option>';}).join('');
+  document.getElementById('psFecha').value=hoy();
+  document.getElementById('psObs').value='';
+  document.getElementById('psEst').value='realizado';
+  autoFill();
+  abrir('ps');
+}
+function autoFill(){
+  var pSel=document.getElementById('psPerro');
+  var opt=pSel.options[pSel.selectedIndex];
+  if(!opt)return;
+  var tarifa=opt.dataset.tarifa||9000;
+  var wid=opt.dataset.wid;
+  document.getElementById('psTc').value=tarifa;
+  var wSel=document.getElementById('psWal');
+  if(wid)wSel.value=wid;
+  var wOpt=wSel.options[wSel.selectedIndex];
+  // Pucho gets 100% ONLY in his own company (Puchocodri)
+  var esPucho=wOpt&&wOpt.dataset.pucho==='1'&&EMPRESA_ID==='ddb83b48-e599-449f-abc3-1a2f1d3a1138';
+  document.getElementById('psTw').value=esPucho?0:(wOpt?wOpt.dataset.tarifa:6000);
+  document.getElementById('psTw').readOnly=esPucho;
+  // Pack info
+  var pack=opt.dataset.pack;
+  var usado=+opt.dataset.usado||0;
+  var total=+opt.dataset.total||0;
+  var info=document.getElementById('psPackInfo');
+  if(pack==='paquete'){
+    var rest=total-usado;
+    info.innerHTML='<div style="background:var(--warnbg);border-radius:var(--r2);padding:8px 10px;font-size:.78rem;color:var(--warn);margin-bottom:10px">📦 Paquete: <b>'+rest+' restantes</b> de '+total+(rest<=0?' ⚠️ Agotado':'')+'</div>';
+  } else { info.innerHTML=''; }
+}
+async function savePs(){
+  var pid=document.getElementById('psPerro').value;
+  var wid=document.getElementById('psWal').value;
+  var fecha=document.getElementById('psFecha').value;
+  if(!pid||!wid||!fecha){toast('⚠️ Completa todos los campos');return;}
+  var estado=document.getElementById('psEst').value;
+  await dbPost('paseos',{empresa_id:EMPRESA_ID,perro_id:pid,paseador_id:wid,fecha:fecha,
+    estado:estado,observaciones:document.getElementById('psObs').value.trim(),
+    tarifa_cliente:+document.getElementById('psTc').value,
+    tarifa_paseador:+document.getElementById('psTw').value});
+  if(estado==='realizado'){
+    var perros=await dbGet('perros','id=eq.'+pid);
+    if(perros.length&&perros[0].modalidad_pago==='paquete'){
+      await dbPatch('perros',{pack_usados:(perros[0].pack_usados||0)+1},'id=eq.'+pid);
+    }
+  }
+  cerrar('ps'); rPaseos(); rDash(); toast('✅ Paseo registrado');
+}
+async function delPs(id){
+  if(!confirm('¿Eliminar paseo?'))return;
+  await dbDelete('paseos','id=eq.'+id);
+  rPaseos(); rDash(); toast('🗑️ Eliminado');
+}
+
+// ══ MARCAR PASEO (paseador) ══
+document.getElementById('btnMarcar').addEventListener('click',marcar);
+async function abrirMarcar(pid){
+  var perros=await dbGet('perros','id=eq.'+pid);
+  if(!perros.length)return;
+  document.getElementById('mpId').value=pid;
+  document.getElementById('mpEmpId').value=perros[0].empresa_id||EMPRESA_ID;
+  document.getElementById('mpTit').textContent='Paseo de '+perros[0].nombre;
+  document.getElementById('mpFecha').value=hoy();
+  document.getElementById('mpObs').value='';
+  document.getElementById('mpEst').value='realizado';
+  abrir('mp');
+}
+async function marcar(){
+  var pid=document.getElementById('mpId').value;
+  var empId=document.getElementById('mpEmpId').value||EMPRESA_ID;
+  var fecha=document.getElementById('mpFecha').value;
+  if(!fecha){toast('⚠️ Selecciona la fecha');return;}
+  var perros=await dbGet('perros','id=eq.'+pid);
+  if(!perros.length)return;
+  var p=perros[0];
+  var estado=document.getElementById('mpEst').value;
+  var walker=await dbGet('usuarios','id=eq.'+me.id);
+  // Get tarifa from perro_paseadores first, then fallback
+  var ppRow=await dbGet('perro_paseadores','perro_id=eq.'+pid+'&paseador_id=eq.'+me.id);
+  var tw=0;
+  if(ppRow.length&&ppRow[0].tarifa_paseador){
+    tw=ppRow[0].tarifa_paseador;
+  } else if(walker.length&&walker[0].es_pucho&&empId===EMPRESA_ID){
+    tw=0;
+  } else {
+    var ueWalker=await dbGet('usuario_empresas','usuario_id=eq.'+me.id+'&empresa_id=eq.'+empId);
+    tw=ueWalker.length&&ueWalker[0].tarifa_por_servicio?ueWalker[0].tarifa_por_servicio:(walker[0]?.tarifa_por_servicio||6000);
+  }
+  await dbPost('paseos',{empresa_id:empId,perro_id:pid,paseador_id:me.id,
+    fecha:fecha,estado:estado,observaciones:document.getElementById('mpObs').value.trim(),
+    tarifa_cliente:p.tarifa,tarifa_paseador:tw});
+  if(estado==='realizado'&&p.modalidad_pago==='paquete'){
+    await dbPatch('perros',{pack_usados:(p.pack_usados||0)+1},'id=eq.'+pid);
+  }
+  cerrar('mp'); rMisPerros(); rMiHist(); toast('✅ Guardado');
+}
+
+// ══ CAMBIAR CLAVE PASEADOR ══
+document.getElementById('btnCambiarClave').addEventListener('click',async function(){
+  var act=document.getElementById('claveActual').value;
+  var nva=document.getElementById('claveNueva').value;
+  var con=document.getElementById('claveConfirm').value;
+  if(me.password_hash!==act){toast('⚠️ Contraseña actual incorrecta');return;}
+  if(nva.length<6){toast('⚠️ Mínimo 6 caracteres');return;}
+  if(nva!==con){toast('⚠️ Las contraseñas no coinciden');return;}
+  await dbPatch('usuarios',{password_hash:nva},'id=eq.'+me.id);
+  me.password_hash=nva;
+  document.getElementById('claveActual').value='';document.getElementById('claveNueva').value='';document.getElementById('claveConfirm').value='';
+  toast('✅ Contraseña actualizada');
+});
+
+// ══ CAMBIAR CLAVE CLIENTE ══
+document.getElementById('btnCambiarClaveC').addEventListener('click',async function(){
+  var act=document.getElementById('claveCActual').value;
+  var nva=document.getElementById('claveCNueva').value;
+  var con=document.getElementById('claveCConfirm').value;
+  if(me.password_hash!==act){toast('⚠️ Contraseña actual incorrecta');return;}
+  if(nva.length<6){toast('⚠️ Mínimo 6 caracteres');return;}
+  if(nva!==con){toast('⚠️ Las contraseñas no coinciden');return;}
+  await dbPatch('clientes',{password_hash:nva,pass_cambiada:true},'id=eq.'+me.id);
+  me.password_hash=nva;me.pass_cambiada=true;
+  document.getElementById('claveCActual').value='';document.getElementById('claveCNueva').value='';document.getElementById('claveCConfirm').value='';
+  toast('✅ Contraseña actualizada');
+});
+
+// ══ CERRAR MES ══
+document.getElementById('btnCerrarMes').addEventListener('click',async function(){
+  var mes=document.getElementById('liqMes').value;
+  if(!mes){toast('⚠️ Selecciona un mes');return;}
+  await dbPatch('clientes',{mes_notif:mes,pagado_mes:null},'empresa_id=eq.'+EMPRESA_ID);
+  toast('📬 Cobros notificados a todos los clientes');
+});
+
+// ══ SOLICITUDES ══
+document.getElementById('btnNuevaSol').addEventListener('click',abrirSol);
+document.getElementById('btnNuevaSol2').addEventListener('click',abrirSol);
+document.getElementById('btnSaveSol').addEventListener('click',saveSol);
+document.getElementById('btnSaveResp').addEventListener('click',saveResp);
+document.getElementById('respAccion').addEventListener('change',function(){
+  document.getElementById('respFechaBox').style.display=this.value==='propuesta'?'block':'none';
+});
+
+async function abrirSol(){
+  var perros=await dbGet('perros','cliente_id=eq.'+me.id);
+  if(!perros.length){toast('⚠️ No tienes mascotas registradas');return;}
+  var sel=document.getElementById('solPerro');
+  sel.innerHTML=perros.map(function(p){return'<option value="'+p.id+'">🐕 '+p.nombre+'</option>';}).join('');
+  document.getElementById('solFecha').value=hoy();
+  document.getElementById('solHora').value='09:00';
+  document.getElementById('solNotas').value='';
+  abrir('sol');
+}
+async function saveSol(){
+  var fecha=document.getElementById('solFecha').value;
+  if(!fecha){toast('⚠️ Selecciona una fecha');return;}
+  await dbPost('solicitudes',{empresa_id:EMPRESA_ID,cliente_id:me.id,
+    perro_id:document.getElementById('solPerro').value,
+    tipo:document.getElementById('solTipo').value,
+    fecha_solicitada:fecha,hora_solicitada:document.getElementById('solHora').value,
+    notas_cliente:document.getElementById('solNotas').value.trim(),estado:'nueva'});
+  // Notify admin
+  var admins=await dbGet('usuarios','empresa_id=eq.'+EMPRESA_ID+'&es_admin=eq.true');
+  admins.forEach(function(a){
+    if(a.fcm_token) enviarNotif(a.id,'📬 Nueva solicitud',me.nombre+' agendó un servicio',false);
+  });
+  cerrar('sol'); rMisSolicitudes(); toast('✅ Solicitud enviada');
+}
+async function abrirResp(sid){
+  var sols=await dbGet('solicitudes','id=eq.'+sid);
+  if(!sols.length)return;
+  var s=sols[0];
+  document.getElementById('respId').value=sid;
+  document.getElementById('respTit').textContent=SVC[s.tipo]||s.tipo;
+  var perros=await dbGet('perros','id=eq.'+s.perro_id);
+  document.getElementById('respSub').textContent='🐕 '+(perros[0]?.nombre||'—')+' · '+fmtF(s.fecha_solicitada)+' '+s.hora_solicitada;
+  document.getElementById('respAccion').value='confirmada';
+  document.getElementById('respFecha').value=s.fecha_solicitada||hoy();
+  document.getElementById('respHora').value=s.hora_solicitada||'09:00';
+  document.getElementById('respMsg').value='';
+  document.getElementById('respFechaBox').style.display='none';
+  abrir('resp');
+}
+async function saveResp(){
+  var sid=document.getElementById('respId').value;
+  var accion=document.getElementById('respAccion').value;
+  var obj={estado:accion,mensaje_admin:document.getElementById('respMsg').value.trim()};
+  if(accion==='propuesta'){
+    var f=document.getElementById('respFecha').value;
+    if(!f){toast('⚠️ Ingresa la fecha alternativa');return;}
+    obj.fecha_confirmada=f;
+    obj.hora_confirmada=document.getElementById('respHora').value;
+  } else if(accion==='confirmada'){
+    var sols=await dbGet('solicitudes','id=eq.'+sid);
+    if(sols.length){obj.fecha_confirmada=sols[0].fecha_solicitada;obj.hora_confirmada=sols[0].hora_solicitada;}
+  }
+  await dbPatch('solicitudes',obj,'id=eq.'+sid);
+  // Notify client
+  var solR=await dbGet('solicitudes','id=eq.'+sid+'&select=cliente_id');
+  if(solR.length){
+    var cliR=await dbGet('clientes','id=eq.'+solR[0].cliente_id+'&select=id,fcm_token,nombre');
+    if(cliR.length&&cliR[0].fcm_token){
+      var msg=accion==='confirmada'?'✅ Tu servicio fue confirmado':accion==='propuesta'?'📅 Te propusimos una nueva fecha':'❌ Tu solicitud fue cancelada';
+      enviarNotif(cliR[0].id, 'Puchocodri', msg, true);
+    }
+  }
+  cerrar('resp'); rSolicitudes(); toast('✅ Respuesta enviada');
+}
+async function cancelarSol(sid){
+  if(!confirm('¿Cancelar este servicio?'))return;
+  await dbPatch('solicitudes',{estado:'cancelada'},'id=eq.'+sid);
+  rSolicitudes(); rMisSolicitudes(); toast('Cancelado');
+}
+async function aceptarPropuesta(sid){
+  await dbPatch('solicitudes',{estado:'confirmada'},'id=eq.'+sid);
+  rMisSolicitudes(); toast('✅ Cita confirmada');
+}
+async function rechazarPropuesta(sid){
+  await dbPatch('solicitudes',{estado:'rechazada'},'id=eq.'+sid);
+  rMisSolicitudes(); toast('Propuesta rechazada');
+}
+
+// ══ PAQUETE ══
+document.getElementById('btnSavePaq').addEventListener('click',saveRecargar);
+async function abrirRecargar(pid){
+  document.getElementById('paqPerroId').value=pid;
+  var perros=await dbGet('perros','id=eq.'+pid);
+  if(!perros.length)return;
+  var p=perros[0];
+  document.getElementById('paqSub').textContent='🐕 '+p.nombre;
+  document.getElementById('paqAgregar').value='';
+  var rest=(p.pack_total||0)-(p.pack_usados||0);
+  document.getElementById('paqStatus').innerHTML=
+    '<div style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:var(--g);margin-bottom:7px">Estado del paquete</div>'+
+    '<div style="display:flex;justify-content:space-between;font-size:.83rem;margin-bottom:3px"><span style="color:var(--mu)">Total comprado</span><b>'+(p.pack_total||0)+'</b></div>'+
+    '<div style="display:flex;justify-content:space-between;font-size:.83rem;margin-bottom:3px"><span style="color:var(--mu)">Realizados</span><b>'+(p.pack_usados||0)+'</b></div>'+
+    '<div style="display:flex;justify-content:space-between;font-size:.83rem"><span style="color:var(--mu)">Restantes</span><b style="color:'+(rest<=0?'var(--red)':'var(--g)')+'">'+rest+(rest<=0?' ⚠️':'')+'</b></div>'+
+    '<div class="paq-bar"><div class="paq-bar-fill'+(rest<=0?' agotado':'')+'" style="width:'+Math.min(p.pack_total?Math.round((p.pack_usados||0)/p.pack_total*100):0,100)+'%"></div></div>';
+  abrir('paq');
+}
+async function saveRecargar(){
+  var pid=document.getElementById('paqPerroId').value;
+  var ag=+document.getElementById('paqAgregar').value;
+  if(!ag||ag<1){toast('⚠️ Ingresa cuántos paseos agregar');return;}
+  var perros=await dbGet('perros','id=eq.'+pid);
+  if(!perros.length)return;
+  await dbPatch('perros',{pack_total:(perros[0].pack_total||0)+ag},'id=eq.'+pid);
+  cerrar('paq'); rClientes(); toast('✅ '+ag+' paseos agregados');
+}
+
+// ══ RENDERS ══
+async function rDash(){
+  try {
+    var [clientes,perros,homeWalkersD,crossWalkersD,paseos]=await Promise.all([
+      dbGet('clientes','empresa_id=eq.'+EMPRESA_ID+'&select=id'),
+      dbGet('perros','empresa_id=eq.'+EMPRESA_ID+'&select=id'),
+      dbGet('usuarios','empresa_id=eq.'+EMPRESA_ID+'&activo=eq.true&select=id'),
+      dbGet('usuario_empresas','empresa_id=eq.'+EMPRESA_ID),
+      dbGet('paseos','empresa_id=eq.'+EMPRESA_ID)
+    ]);
+    document.getElementById('stC').textContent=clientes.length;
+    document.getElementById('stP').textContent=perros.length;
+    var allWIds=new Set(homeWalkersD.map(function(w){return w.id;}));
+    crossWalkersD.forEach(function(x){allWIds.add(x.usuario_id);});
+    document.getElementById('stW').textContent=allWIds.size;
+    var mes=hoyMes();
+    var pMes=paseos.filter(function(p){return p.fecha&&p.fecha.startsWith(mes)&&p.estado==='realizado';});
+    document.getElementById('stPm').textContent=pMes.length;
+    // Acumulado
+    var hoyS=hoy();
+    var pHoy=paseos.filter(function(p){return p.fecha&&p.fecha===hoyS&&p.estado==='realizado';});
+    // ganHoy = margen equipo hoy + mi producción personal hoy
+    var ganHoyEquipo=me.es_pucho
+      ? pHoy.filter(function(p){return p.paseador_id!==me.id;}).reduce(function(s,p){return s+(p.tarifa_cliente-p.tarifa_paseador);},0)
+      : pHoy.reduce(function(s,p){return s+(p.tarifa_cliente-p.tarifa_paseador);},0);
+    var ganHoyPersonal=pHoy.filter(function(p){return p.paseador_id===me.id;}).reduce(function(s,p){return s+(me.es_pucho?p.tarifa_cliente:p.tarifa_paseador);},0);
+    var ganHoy=ganHoyEquipo+ganHoyPersonal;
+    var ganMes=pMes.reduce(function(s,p){return s+(p.tarifa_cliente-p.tarifa_paseador);},0);
+    var recMes=pMes.reduce(function(s,p){return s+p.tarifa_cliente;},0);
+    // My personal production this month
+    // Si es_pucho, su tarifa_paseador=0 entonces usamos tarifa_cliente; si no, tarifa_paseador
+    var miProdMes=pMes.filter(function(p){return p.paseador_id===me.id;}).reduce(function(s,p){return s+(me.es_pucho?p.tarifa_cliente:p.tarifa_paseador);},0);
+    var miPaseosMes=pMes.filter(function(p){return p.paseador_id===me.id;}).length;
+    // Ganancia equipo = margen sobre paseos de OTROS paseadores (no los míos)
+    var ganEquipo=pMes.filter(function(p){return p.paseador_id!==me.id;}).reduce(function(s,p){return s+(p.tarifa_cliente-p.tarifa_paseador);},0);
+    // Load cross-company earnings for this admin
+    var ganOtraEmpresa=0; var pasOtraEmpresa=0; var otraEmpresaNombre='';
+    try {
+      var mesStr2=hoyMes();
+      // Find what other companies this admin works for as walker
+      var ueAdmin=await dbGet('usuario_empresas','usuario_id=eq.'+me.id);
+      var otraEmpresa=ueAdmin.find(function(x){return x.empresa_id!==EMPRESA_ID;});
+      if(otraEmpresa){
+        var empInfo=await dbGet('empresas','id=eq.'+otraEmpresa.empresa_id+'&select=nombre');
+        otraEmpresaNombre=empInfo.length?empInfo[0].nombre:'Otra empresa';
+        var paseosOtra=await dbGet('paseos','empresa_id=eq.'+otraEmpresa.empresa_id+'&paseador_id=eq.'+me.id+'&fecha=gte.'+mesStr2+'-01&estado=eq.realizado');
+        ganOtraEmpresa=paseosOtra.reduce(function(s,p){return s+p.tarifa_paseador;},0);
+        pasOtraEmpresa=paseosOtra.length;
+      }
+    } catch(e){}
+    var ganTotal=miProdMes+ganEquipo+ganOtraEmpresa;
+    document.getElementById('dashAcumulado').innerHTML=
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">'+
+      '<div style="background:var(--g3);border-radius:var(--r);padding:11px;border:1.5px solid var(--g)"><div style="font-size:.63rem;font-weight:700;text-transform:uppercase;color:var(--g);margin-bottom:3px">Ganancia hoy</div><div style="font-size:1.4rem;font-weight:700;color:var(--g);font-family:monospace">'+fmt(ganHoy)+'</div></div>'+
+      '<div style="background:#fff;border-radius:var(--r);padding:11px;border:1.5px solid var(--bd)"><div style="font-size:.63rem;font-weight:700;text-transform:uppercase;color:var(--mu);margin-bottom:3px">Recaudado mes</div><div style="font-size:1.4rem;font-weight:700;color:var(--tx);font-family:monospace">'+fmt(recMes)+'</div></div>'+
+      '</div>'+
+      '<div style="background:#fff;border-radius:var(--r);padding:13px;border:1.5px solid var(--bd);margin-bottom:8px">'+
+        '<div style="font-size:.65rem;font-weight:700;text-transform:uppercase;color:var(--mu);margin-bottom:8px">Desglose del mes</div>'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
+          '<div><div style="font-size:.82rem;font-weight:600">⭐ Mi producción personal</div>'+
+          '<div style="font-size:.72rem;color:var(--mu)">'+miPaseosMes+' paseos realizados por mí</div></div>'+
+          '<div style="font-family:monospace;font-weight:700;font-size:.95rem;color:var(--g)">'+fmt(miProdMes)+'</div>'+
+        '</div>'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
+          '<div><div style="font-size:.82rem;font-weight:600">🚶 Ganancia del equipo</div>'+
+          '<div style="font-size:.72rem;color:var(--mu)">Margen sobre paseos de paseadores</div></div>'+
+          '<div style="font-family:monospace;font-weight:700;font-size:.95rem;color:var(--tx)">'+fmt(ganEquipo)+'</div>'+
+        '</div>'+
+        (otraEmpresaNombre?
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
+          '<div><div style="font-size:.82rem;font-weight:600">💼 Mis paseos en '+otraEmpresaNombre+'</div>'+
+          '<div style="font-size:.72rem;color:var(--mu)">'+pasOtraEmpresa+' paseos</div></div>'+
+          '<div style="font-family:monospace;font-weight:700;font-size:.95rem;color:var(--tx)">'+fmt(ganOtraEmpresa)+'</div>'+
+        '</div>':'')+
+        '<div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid var(--bd)">'+
+          '<div style="font-size:.86rem;font-weight:700;color:var(--g)">💰 Ganancia total mes</div>'+
+          '<div style="font-family:monospace;font-weight:700;font-size:1.1rem;color:var(--g)">'+fmt(ganTotal)+'</div>'+
+        '</div>'+
+      '</div>';
+    // Últimos paseos
+    var pNombres=await dbGet('perros','empresa_id=eq.'+EMPRESA_ID+'&select=id,nombre,cliente_id');
+    var cNombres=await dbGet('clientes','empresa_id=eq.'+EMPRESA_ID+'&select=id,nombre,apellido');
+    var wNombresH=await dbGet('usuarios','empresa_id=eq.'+EMPRESA_ID+'&select=id,nombre');
+    var ueDash=await dbGet('usuario_empresas','empresa_id=eq.'+EMPRESA_ID);
+    var extraDashIds=ueDash.map(function(x){return x.usuario_id;}).filter(function(id){return !wNombresH.find(function(w){return w.id===id;});});
+    var wNombresE=extraDashIds.length?await dbGet('usuarios','id=in.('+extraDashIds.join(',')+')&select=id,nombre'):[];
+    var wNombres=wNombresH.concat(wNombresE);
+    var rows=paseos.slice().sort(function(a,b){return b.fecha.localeCompare(a.fecha);}).slice(0,6);
+    rAlertas();
+    document.getElementById('dashPaseos').innerHTML=rows.length?rows.map(function(p){
+      var dog=pNombres.find(function(x){return x.id===p.perro_id;})||{nombre:'—',cliente_id:null};
+      var cli=cNombres.find(function(x){return x.id===dog.cliente_id;})||{nombre:'—',apellido:''};
+      var wal=wNombres.find(function(x){return x.id===p.paseador_id;})||{nombre:'—'};
+      return'<div class="list-item"><div class="li-ico">🐕</div><div class="li-body"><div class="li-title">'+dog.nombre+' · '+cli.nombre+' '+cli.apellido+'</div><div class="li-sub">'+fmtF(p.fecha)+' · '+wal.nombre+' · '+fmt(p.tarifa_cliente)+'</div></div>'+bdg(p.estado)+'</div>';
+    }).join(''):'<div class="empty"><p>Sin paseos aún</p></div>';
+  } catch(e){ document.getElementById('dashPaseos').innerHTML='<div class="empty"><p>Error cargando datos</p></div>'; }
+}
+
+async function rClientes(){
+  var em=document.getElementById('emC');
+  var list=document.getElementById('listClientes');
+  list.innerHTML='<div class="loading"><div class="spinner"></div>Cargando...</div>';
+  try {
+    var clientes=await dbGet('clientes','empresa_id=eq.'+EMPRESA_ID+'&order=nombre');
+    var perros=await dbGet('perros','empresa_id=eq.'+EMPRESA_ID);
+    var walkersH=await dbGet('usuarios','empresa_id=eq.'+EMPRESA_ID+'&activo=eq.true&select=id,nombre,es_pucho,tarifa_por_servicio');
+    var ue2=await dbGet('usuario_empresas','empresa_id=eq.'+EMPRESA_ID);
+    var extraIds2=ue2.map(function(x){return x.usuario_id;}).filter(function(id){return !walkersH.find(function(w){return w.id===id;});});
+    var walkersE=extraIds2.length?await dbGet('usuarios','id=in.('+extraIds2.join(',')+')&activo=eq.true&select=id,nombre,es_pucho,tarifa_por_servicio'):[];
+    var walkers=walkersH.concat(walkersE).sort(function(a,b){return a.nombre.localeCompare(b.nombre);});
+    if(!clientes.length){list.innerHTML='';em.style.display='block';return;}
+    em.style.display='none';
+    list.innerHTML=clientes.map(function(c){
+      var cPerros=perros.filter(function(p){return p.cliente_id===c.id;});
+      var pdivs=cPerros.map(function(p){
+        var w=walkers.find(function(x){return x.id===p.paseador_principal_id;});
+      // We'll show paseador_principal for now, full list loads async
+        var chips='';
+        if(p.chip)chips+='<span class="bdg bdg-b" style="margin-right:3px">📡 Chip</span>';
+        if(p.alergias)chips+='<span class="bdg bdg-o" style="margin-right:3px">⚠️ Alergia</span>';
+        if(p.modalidad_pago==='paquete'){var rest=(p.pack_total||0)-(p.pack_usados||0);chips+='<span class="bdg '+(rest<=0?'bdg-x':'bdg-g')+'" style="margin-right:3px">📦 '+rest+' paseos</span>';}
+        return'<div style="background:var(--bg);border-radius:var(--r2);padding:9px;margin-top:7px">'+
+          '<div style="display:flex;align-items:center;justify-content:space-between">'+
+            '<span style="font-weight:600;font-size:.84rem">🐕 '+p.nombre+(p.raza?' <span style="font-weight:400;color:var(--mu)">'+p.raza+'</span>':'')+'</span>'+
+            '<div style="display:flex;gap:4px;align-items:center">'+
+              '<button class="btn btn-o btn-xs" data-act="asignar-multi" data-id="'+p.id+'">🚶 Paseadores</button>'+
+              '<button class="btn btn-o btn-xs" data-act="abrir-vac" data-id="'+p.id+'">💉</button>'+
+              (p.modalidad_pago==='paquete'?'<button class="btn btn-warn btn-xs" data-act="recargar" data-id="'+p.id+'">📦+</button>':'')+
+              '<span class="mono">'+fmt(p.tarifa)+'</span>'+
+            '</div>'+
+          '</div>'+
+          (chips?'<div style="margin-top:5px">'+chips+'</div>':'')+
+          (p.notas?'<div style="font-size:.73rem;color:var(--warn);margin-top:3px">📝 '+p.notas+'</div>':'')+
+        '</div>';
+      }).join('');
+      var bp=c.tipo_pago==='fin_de_mes'?'<span class="bdg bdg-b">Fin de mes</span>':'<span class="bdg bdg-o">Paquete</span>';
+      return'<div class="card" style="margin-bottom:11px">'+
+        '<div class="card-hdr"><div>'+
+          '<div style="font-weight:700;font-size:.9rem">'+c.nombre+' '+c.apellido+'</div>'+
+          '<div style="font-size:.73rem;color:var(--mu);margin-top:1px">'+(c.rut||'')+(c.telefono1?' · '+c.telefono1:'')+' · '+c.email+'</div>'+
+          '<div style="font-size:.72rem;margin-top:2px">🔑 <span style="font-family:monospace;color:var(--tx)">'+c.email+' / '+(c.pass_cambiada?'••••••• (privada)':(c.password_hash||'cliente123'))+'</span></div>'+
+        '</div>'+
+        '<div style="display:flex;gap:5px">'+bp+
+          '<button class="btn btn-o btn-xs" data-act="ec" data-id="'+c.id+'">✏️</button>'+
+          '<button class="btn btn-r btn-xs" data-act="dc" data-id="'+c.id+'">🗑️</button>'+
+        '</div></div>'+
+        '<div style="padding:0 11px 11px">'+pdivs+'</div>'+
+      '</div>';
+    }).join('');
+  } catch(e){list.innerHTML='<div class="empty"><p>Error: '+e.message+'</p></div>';}
+}
+
+async function rPaseadores(){
+  var list=document.getElementById('listWalkers');
+  var em=document.getElementById('emW');
+  list.innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  try {
+    // Load walkers from both usuarios (home company) and usuario_empresas (cross-company)
+    var walkersHome=await dbGet('usuarios','empresa_id=eq.'+EMPRESA_ID+'&activo=eq.true&order=nombre');
+    var ue=await dbGet('usuario_empresas','empresa_id=eq.'+EMPRESA_ID);
+    var extraIds=ue.map(function(x){return x.usuario_id;}).filter(function(id){
+      return !walkersHome.find(function(w){return w.id===id;});
+    });
+    var walkersExtra=[];
+    if(extraIds.length){
+      walkersExtra=await dbGet('usuarios','id=in.('+extraIds.join(',')+')&activo=eq.true');
+    }
+    var walkers=walkersHome.concat(walkersExtra).sort(function(a,b){return a.nombre.localeCompare(b.nombre);});
+    var perros=await dbGet('perros','empresa_id=eq.'+EMPRESA_ID+'&select=paseador_principal_id');
+    if(!walkers.length){list.innerHTML='';em.style.display='block';return;}
+    em.style.display='none';
+    list.innerHTML=walkers.map(function(w){
+      var n=perros.filter(function(p){return p.paseador_principal_id===w.id;}).length;
+      var isPucho=w.es_pucho&&EMPRESA_ID==='ddb83b48-e599-449f-abc3-1a2f1d3a1138';
+      var certBdg='';
+      if(w.certificado_antecedentes_fecha){
+        var hoyD=new Date(hoy());var certD=new Date(w.certificado_antecedentes_fecha);
+        var diff=Math.ceil((certD-hoyD)/(1000*60*60*24));
+        if(diff<0)certBdg='<span class="bdg bdg-x" style="margin-left:5px">📄 Cert. vencido</span>';
+        else if(diff<=30)certBdg='<span class="bdg bdg-o" style="margin-left:5px">📄 Vence en '+diff+'d</span>';
+        else certBdg='<span class="bdg bdg-g" style="margin-left:5px">📄 Vigente</span>';
+      }
+      var fotoHtml=w.foto_perfil_url?
+        '<img src="'+w.foto_perfil_url+'" style="width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid var(--g);flex-shrink:0">':
+        '<div class="li-ico">'+(isPucho?'⭐':'🚶')+'</div>';
+      return'<div style="padding:12px 13px;border-bottom:1px solid var(--bd)">'+
+        '<div style="display:flex;align-items:flex-start;gap:10px">'+
+          fotoHtml+
+          '<div style="flex:1;min-width:0">'+
+            '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px">'+
+              '<span style="font-weight:700;font-size:.9rem">'+w.nombre+' '+(w.apellido||'')+'</span>'+
+              (isPucho?'<span class="bdg bdg-g">Admin</span>':'')+certBdg+
+            '</div>'+
+            '<div style="font-size:.74rem;color:var(--mu);margin-top:2px">'+
+              (w.rut?'RUT: '+w.rut+' · ':'')+
+              (!isPucho?fmt(w.tarifa_por_servicio)+'/servicio · ':'')+
+              n+' perro'+(n!==1?'s':'')+
+            '</div>'+
+            (!w.es_admin?'<div style="font-size:.72rem;color:var(--mu);margin-top:1px">🔑 <span style="font-family:monospace">'+w.password_hash+'</span></div>':'')+
+            (w.contacto_emergencia_nombre?'<div style="font-size:.73rem;color:var(--mu);margin-top:2px">🚨 '+w.contacto_emergencia_nombre+' · '+w.contacto_emergencia_telefono+'</div>':'')+
+            (w.sistema_salud?'<div style="font-size:.73rem;color:var(--mu);margin-top:1px">🏥 '+w.sistema_salud+'</div>':'')+
+            (w.alergias_paseador?'<div style="font-size:.73rem;color:var(--warn);margin-top:1px">⚠️ '+w.alergias_paseador+'</div>':'')+
+            (w.notas_admin?'<div style="font-size:.73rem;color:var(--mu);margin-top:1px;font-style:italic">📝 '+w.notas_admin+'</div>':'')+
+          '</div>'+
+          (!w.es_admin?'<div style="display:flex;flex-direction:column;gap:4px">'+
+            '<button class="btn btn-o btn-xs" data-act="ew" data-id="'+w.id+'">✏️</button>'+
+            '<button class="btn btn-r btn-xs" data-act="dw" data-id="'+w.id+'">🗑️</button>'+
+            (w.certificado_antecedentes_url?'<a href="'+w.certificado_antecedentes_url+'" target="_blank" class="btn btn-o btn-xs" style="text-decoration:none">📄</a>':'')
+          +'</div>':'')+
+        '</div>'+
+      '</div>';
+    }).join('');
+  } catch(e){list.innerHTML='<div class="empty"><p>Error cargando</p></div>';}
+}
+
+async function rPaseos(){
+  var list=document.getElementById('listPaseos');
+  var em=document.getElementById('emPs');
+  list.innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  try {
+    var todosPaseos=await dbGet('paseos','empresa_id=eq.'+EMPRESA_ID+'&order=fecha.desc&limit=500');
+    var perros=await dbGet('perros','empresa_id=eq.'+EMPRESA_ID+'&select=id,nombre,cliente_id');
+    var clientes=await dbGet('clientes','empresa_id=eq.'+EMPRESA_ID+'&select=id,nombre,apellido');
+    var walkersLiqH=await dbGet('usuarios','empresa_id=eq.'+EMPRESA_ID+'&select=id,nombre');
+  var ueLiq=await dbGet('usuario_empresas','empresa_id=eq.'+EMPRESA_ID);
+  var extraLiqIds=ueLiq.map(function(x){return x.usuario_id;}).filter(function(id){return !walkersLiqH.find(function(w){return w.id===id;});});
+  var walkersLiqE=extraLiqIds.length?await dbGet('usuarios','id=in.('+extraLiqIds.join(',')+')&select=id,nombre'):[];
+  var walkers=walkersLiqH.concat(walkersLiqE);
+    // Build month filter
+    var meses=[...new Set(todosPaseos.map(function(p){return p.fecha?p.fecha.slice(0,7):'';}).filter(Boolean))].sort().reverse();
+    if(!meses.length)meses.push(hoyMes());
+    var mSel=document.getElementById('paseosMesFiltro');
+    var curMes=mSel.value||meses[0];
+    mSel.innerHTML='<option value="">Todos los meses</option>'+meses.map(function(m){return'<option value="'+m+'"'+(m===curMes?' selected':'')+'>'+mlbl(m)+'</option>';}).join('');
+    // Build walker filter
+    var wSel=document.getElementById('paseosPaseadorFiltro');
+    var curW=wSel.value||'';
+    wSel.innerHTML='<option value="">Todos los paseadores</option>'+walkers.map(function(w){return'<option value="'+w.id+'"'+(w.id===curW?' selected':'')+'>'+w.nombre+'</option>';}).join('');
+    // Filter
+    var paseos=todosPaseos.filter(function(p){
+      var mesOk=!mSel.value||p.fecha.startsWith(mSel.value);
+      var walkerOk=!wSel.value||p.paseador_id===wSel.value;
+      return mesOk&&walkerOk;
+    });
+    if(!paseos.length){list.innerHTML='<div class="empty"><p>Sin paseos para este filtro</p></div>';em.style.display='none';return;}
+    em.style.display='none';
+    list.innerHTML=paseos.map(function(p){
+      var dog=perros.find(function(x){return x.id===p.perro_id;})||{nombre:'—',cliente_id:null};
+      var cli=clientes.find(function(x){return x.id===dog.cliente_id;})||{nombre:'—',apellido:''};
+      var wal=walkers.find(function(x){return x.id===p.paseador_id;})||{nombre:'—'};
+      return'<div class="list-item"><div class="li-ico">🐕</div><div class="li-body">'+
+        '<div class="li-title">'+dog.nombre+' · '+cli.nombre+' '+cli.apellido+'</div>'+
+        '<div class="li-sub">'+fmtF(p.fecha)+' · 🚶 '+wal.nombre+'</div>'+
+        '<div style="margin-top:4px;display:flex;gap:5px;align-items:center">'+bdg(p.estado)+'<span class="mono">'+fmt(p.tarifa_cliente)+'</span></div>'+
+        (p.observaciones?'<div style="font-size:.73rem;color:var(--mu);margin-top:2px">💬 '+p.observaciones+'</div>':'')+
+      '</div><div class="li-actions"><button class="btn btn-o btn-xs" data-act="eps" data-id="'+p.id+'">✏️</button><button class="btn btn-r btn-xs" data-act="dps" data-id="'+p.id+'">🗑️</button></div></div>';
+    }).join('');
+  } catch(e){list.innerHTML='<div class="empty"><p>Error: '+e.message+'</p></div>';}
+}
+
+async function rLiq(){
+  var paseos=await dbGet('paseos','empresa_id=eq.'+EMPRESA_ID+'&estado=eq.realizado&order=fecha.desc');
+  var meses=[...new Set(paseos.map(function(p){return p.fecha?p.fecha.slice(0,7):'';}).filter(Boolean))].sort().reverse();
+  if(!meses.length)meses.push(hoyMes());
+  var sel=document.getElementById('liqMes');
+  var cur=sel.value||meses[0];
+  sel.innerHTML=meses.map(function(m){return'<option value="'+m+'"'+(m===cur?' selected':'')+'>'+mlbl(m)+'</option>';}).join('');
+  var mes=sel.value||meses[0];
+  var mp=paseos.filter(function(p){return p.fecha&&p.fecha.slice(0,7)===mes;});
+  var perros=await dbGet('perros','empresa_id=eq.'+EMPRESA_ID+'&select=id,cliente_id');
+  var clientes=await dbGet('clientes','empresa_id=eq.'+EMPRESA_ID+'&select=id,nombre,apellido');
+  var walkersLiqH=await dbGet('usuarios','empresa_id=eq.'+EMPRESA_ID+'&select=id,nombre');
+  var ueLiq=await dbGet('usuario_empresas','empresa_id=eq.'+EMPRESA_ID);
+  var extraLiqIds=ueLiq.map(function(x){return x.usuario_id;}).filter(function(id){return !walkersLiqH.find(function(w){return w.id===id;});});
+  var walkersLiqE=extraLiqIds.length?await dbGet('usuarios','id=in.('+extraLiqIds.join(',')+')&select=id,nombre'):[];
+  var walkers=walkersLiqH.concat(walkersLiqE);
+  var pc={},pw={};
+  mp.forEach(function(p){
+    var dog=perros.find(function(x){return x.id===p.perro_id;});
+    var cid=dog?dog.cliente_id:null;
+    if(cid){if(!pc[cid])pc[cid]={t:0,n:0};pc[cid].t+=p.tarifa_cliente;pc[cid].n++;}
+    if(p.paseador_id){if(!pw[p.paseador_id])pw[p.paseador_id]={t:0,n:0};pw[p.paseador_id].t+=p.tarifa_paseador;pw[p.paseador_id].n++;}
+  });
+  var ce=Object.entries(pc),we=Object.entries(pw);
+  document.getElementById('liqClientes').innerHTML=ce.length?ce.map(function(e){
+    var c=clientes.find(function(x){return x.id===e[0];})||{nombre:'—',apellido:''};
+    var cObj=clientes.find(function(x){return x.id===e[0];});
+    var pagado=cObj&&cObj.pagado_mes===mes;
+    return'<div class="liq-row"><div><div class="liq-name">'+c.nombre+' '+c.apellido+'</div><div class="liq-cnt">'+e[1].n+' paseos</div></div><div style="display:flex;align-items:center;gap:6px"><div class="liq-amt">'+fmt(e[1].t)+'</div>'+(pagado?'<span class="bdg bdg-g">✓ Pagado</span>':'<button class="btn btn-g btn-xs" data-act="marcar-pagado" data-id="'+e[0]+'" data-mes="'+mes+'">Marcar pagado</button>')+'</div></div>';
+  }).join(''):'<div class="empty" style="padding:14px"><p>Sin datos</p></div>';
+  document.getElementById('liqWalkers').innerHTML=we.length?we.map(function(e){
+    var w=walkers.find(function(x){return x.id===e[0];})||{nombre:'—'};
+    var wObj=walkers.find(function(x){return x.id===e[0];});
+    var pagadoW=wObj&&wObj.pagado_mes===mes;
+    var wNombre=w?w.nombre:'—';
+    return'<div class="liq-row"><div><div class="liq-name">'+wNombre+'</div><div class="liq-cnt">'+e[1].n+' paseos</div></div><div style="display:flex;align-items:center;gap:6px"><div class="liq-amt" style="color:var(--tx)">'+fmt(e[1].t)+'</div>'+(pagadoW?'<span class="bdg bdg-g">✓ Pagado</span>':'<button class="btn btn-warn btn-xs" data-act="marcar-pagado-w" data-id="'+e[0]+'" data-mes="'+mes+'">Marcar pagado</button>')+'</div></div>';
+  }).join(''):'<div class="empty" style="padding:14px"><p>Sin datos</p></div>';
+  var tc=ce.reduce(function(s,e){return s+e[1].t;},0);
+  var tp=we.reduce(function(s,e){return s+e[1].t;},0);
+  // Mi producción personal (paseos hechos por mí en esta empresa)
+  var miProd=mp.filter(function(p){return p.paseador_id===me.id;}).reduce(function(s,p){return s+(me.es_pucho?p.tarifa_cliente:p.tarifa_paseador);},0);
+  var miPaseos=mp.filter(function(p){return p.paseador_id===me.id;}).length;
+  // Ganancia de paseadores (margen sobre paseos de otros)
+  var ganPaseadores=me.es_pucho
+    ? mp.filter(function(p){return p.paseador_id!==me.id;}).reduce(function(s,p){return s+(p.tarifa_cliente-p.tarifa_paseador);},0)
+    : mp.reduce(function(s,p){return s+(p.tarifa_cliente-p.tarifa_paseador);},0);
+  document.getElementById('lqTc').textContent=fmt(tc);
+  document.getElementById('lqTp').textContent=fmt(tp);
+  document.getElementById('lqGn').textContent=fmt(tc-tp);
+  // Show breakdown
+  var breakdown=document.getElementById('lqBreakdown');
+  if(breakdown){
+    breakdown.innerHTML=
+      '<div style="margin-top:16px;padding-top:14px;border-top:2px solid var(--g3)">'+
+      '<div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--mu);margin-bottom:10px">Detalle de ganancia</div>'+
+      '<div class="liq-total" style="border-color:var(--g)">'+
+        '<div><div class="liq-total-lbl">⭐ Mi producción personal</div>'+
+        '<div style="font-size:.72rem;color:var(--mu);margin-top:2px">'+miPaseos+' paseos realizados por mí</div></div>'+
+        '<div class="liq-total-val">'+fmt(miProd)+'</div>'+
+      '</div>'+
+      '<div class="liq-total">'+
+        '<div><div class="liq-total-lbl">🚶 Ganancia de paseadores</div>'+
+        '<div style="font-size:.72rem;color:var(--mu);margin-top:2px">Margen sobre paseos del equipo</div></div>'+
+        '<div class="liq-total-val" style="color:var(--tx)">'+fmt(ganPaseadores)+'</div>'+
+      '</div>'+
+      '<div class="liq-total" style="border-color:var(--g);background:var(--g3)">'+
+        '<div><div class="liq-total-lbl" style="color:var(--g)">💰 Total neto</div></div>'+
+        '<div class="liq-total-val" style="font-size:1.4rem">'+fmt(miProd+ganPaseadores)+'</div>'+
+      '</div>'+
+    '</div>';
+  }
+}
+
+async function rSolicitudes(){
+  marcarSolicitudesLeidas();
+  var list=document.getElementById('listSolicitudes');
+  var em=document.getElementById('emSol');
+  list.innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  try {
+    var sols=await dbGet('solicitudes','empresa_id=eq.'+EMPRESA_ID+'&order=created_at.desc');
+    var perros=await dbGet('perros','empresa_id=eq.'+EMPRESA_ID+'&select=id,nombre');
+    var clientes=await dbGet('clientes','empresa_id=eq.'+EMPRESA_ID+'&select=id,nombre,apellido');
+    if(!sols.length){list.innerHTML='';em.style.display='block';return;}
+    em.style.display='none';
+    var estadoOrd={nueva:0,propuesta:1,confirmada:2,rechazada:3,cancelada:4};
+    sols.sort(function(a,b){return (estadoOrd[a.estado]||0)-(estadoOrd[b.estado]||0);});
+    list.innerHTML=sols.map(function(s){
+      var dog=perros.find(function(x){return x.id===s.perro_id;})||{nombre:'—'};
+      var cli=clientes.find(function(x){return x.id===s.cliente_id;})||{nombre:'—',apellido:''};
+      var fecha=s.fecha_confirmada||s.fecha_solicitada;
+      var hora=s.hora_confirmada||s.hora_solicitada;
+      var btns='';
+      if(s.estado==='nueva'||s.estado==='rechazada')
+        btns='<button class="btn btn-g btn-sm" data-act="resp-sol" data-id="'+s.id+'">Responder</button><button class="btn btn-r btn-sm" data-act="cancel-sol" data-id="'+s.id+'">Cancelar</button>';
+      else if(s.estado==='propuesta')
+        btns='<button class="btn btn-warn btn-sm" data-act="resp-sol" data-id="'+s.id+'">Modificar</button><button class="btn btn-r btn-sm" data-act="cancel-sol" data-id="'+s.id+'">Cancelar</button>';
+      else if(s.estado==='confirmada')
+        btns='<button class="btn btn-r btn-sm" data-act="cancel-sol" data-id="'+s.id+'">Cancelar</button>';
+      var estadoBdg={nueva:'bdg-b',propuesta:'bdg-o',confirmada:'bdg-g',cancelada:'bdg-x',rechazada:'bdg-x'};
+      var estadoLbl={nueva:'📬 Nueva',propuesta:'📅 Propuesta',confirmada:'✅ Confirmada',cancelada:'✕ Cancelada',rechazada:'✗ Rechazada'};
+      return'<div class="sol-card '+(s.estado||'')+'">'+
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px">'+
+          '<div><div style="font-weight:700;font-size:.88rem">'+SVC[s.tipo]+' · '+dog.nombre+'</div>'+
+          '<div style="font-size:.76rem;color:var(--mu);margin-top:2px">👤 '+cli.nombre+' '+cli.apellido+' · 📅 '+fmtF(fecha)+' '+hora+'</div>'+
+          (s.notas_cliente?'<div style="font-size:.75rem;color:var(--mu);margin-top:2px">📝 '+s.notas_cliente+'</div>':'')+
+          (s.mensaje_admin?'<div style="font-size:.75rem;color:var(--g);margin-top:2px;background:var(--g3);border-radius:5px;padding:5px">💬 '+s.mensaje_admin+'</div>':'')+
+          '</div>'+
+          '<span class="bdg '+(estadoBdg[s.estado]||'bdg-x')+'">'+estadoLbl[s.estado]+'</span>'+
+        '</div>'+
+        (btns?'<div style="display:flex;gap:7px;flex-wrap:wrap">'+btns+'</div>':'')+
+      '</div>';
+    }).join('');
+  } catch(e){list.innerHTML='<div class="empty"><p>Error</p></div>';}
+}
+
+async function rMisPerros(){
+  var list=document.getElementById('listMisPerros');
+  list.innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  try {
+    // Get all companies this walker belongs to
+    var ueWalker=await dbGet('usuario_empresas','usuario_id=eq.'+me.id);
+    var allEmpIds=[me.empresa_id];
+    ueWalker.forEach(function(x){if(allEmpIds.indexOf(x.empresa_id)<0)allEmpIds.push(x.empresa_id);});
+
+    // Get empresa names
+    var empresasInfo=await dbGet('empresas','id=in.('+allEmpIds.join(',')+')&select=id,nombre');
+
+    // Get all perros assigned to this walker across all companies
+    var asignaciones=await dbGet('perro_paseadores','paseador_id=eq.'+me.id);
+    var perroIds=asignaciones.map(function(a){return a.perro_id;});
+
+    // Also perros where paseador_principal_id = me.id in any of the companies
+    for(var ei=0;ei<allEmpIds.length;ei++){
+      var pp=await dbGet('perros','empresa_id=eq.'+allEmpIds[ei]+'&paseador_principal_id=eq.'+me.id+'&select=id');
+      pp.forEach(function(p){if(perroIds.indexOf(p.id)<0)perroIds.push(p.id);});
+    }
+
+    var perros=[];
+    if(perroIds.length){
+      perros=await dbGet('perros','id=in.('+perroIds.join(',')+')'+'&select=*');
+    }
+
+    // Get all clients from all companies
+    var clientes=[];
+    for(var ci=0;ci<allEmpIds.length;ci++){
+      var cls=await dbGet('clientes','empresa_id=eq.'+allEmpIds[ci]+'&select=id,nombre,apellido,telefono1,telefono2');
+      clientes=clientes.concat(cls);
+    }
+
+    if(!perros.length){list.innerHTML='<div class="empty"><div class="empty-ico">🐕</div><p>Sin mascotas asignadas</p></div>';return;}
+    list.innerHTML=perros.map(function(p){
+      var cl=clientes.find(function(x){return x.id===p.cliente_id;})||{nombre:'—',apellido:'',telefono1:'',telefono2:''};
+      var emp=empresasInfo.find(function(x){return x.id===p.empresa_id;})||{nombre:''};
+      var badges='';
+      if(p.empresa_id!==EMPRESA_ID)badges+='<span class="bdg bdg-b" style="margin-right:3px">🏢 '+emp.nombre+'</span>';
+      if(p.chip)badges+='<span class="bdg bdg-b" style="margin-right:3px">📡 Chip</span>';
+      if(p.alergias)badges+='<span class="bdg bdg-o" style="margin-right:3px">⚠️ Alergia</span>';
+      if(p.reactivo_machos)badges+='<span class="bdg bdg-x" style="margin-right:3px">⚡ Reactivo machos</span>';
+      if(p.reactivo_desconocidos)badges+='<span class="bdg bdg-x" style="margin-right:3px">⚡ Reactivo desconocidos</span>';
+      if(p.tendencia_escape)badges+='<span class="bdg bdg-r" style="margin-right:3px">🚨 Tendencia escape</span>';
+      if(p.antecedentes_mordidas)badges+='<span class="bdg bdg-r" style="margin-right:3px">🚨 Mordidas</span>';
+      return'<div class="perro-card">'+
+        '<div class="perro-top"><div class="perro-av">🐕</div><div>'+
+          '<div style="font-weight:700;font-size:.95rem">'+p.nombre+(p.raza?' <span style="font-weight:400;color:var(--mu);font-size:.8rem">'+p.raza+'</span>':'')+'</div>'+
+          '<div style="font-size:.76rem;color:var(--mu);margin-top:1px">Tutor: '+cl.nombre+' '+cl.apellido+'</div>'+
+        '</div></div>'+
+        (badges?'<div style="margin-bottom:8px;flex-wrap:wrap;display:flex">'+badges+'</div>':'')+
+        (p.alergias?'<div style="background:#fef3e8;border-radius:var(--r2);padding:8px;margin-bottom:8px;font-size:.8rem;color:var(--warn)">⚠️ <b>Alergias:</b> '+p.alergias+'</div>':'')+
+        (p.notas?'<div style="background:var(--bg);border-radius:var(--r2);padding:8px;margin-bottom:8px;font-size:.8rem">📝 '+p.notas+'</div>':'')+
+        (!p.puede_snacks?'<div style="background:var(--redbg);border-radius:var(--r2);padding:6px 8px;margin-bottom:8px;font-size:.78rem;color:var(--red)">🚫 NO puede recibir snacks</div>':'')+
+        (p.usa_bozal?'<div style="background:var(--redbg);border-radius:var(--r2);padding:6px 8px;margin-bottom:8px;font-size:.78rem;color:var(--red)">😷 USA BOZAL</div>':'')+
+        '<div style="background:#f0f8ff;border-radius:var(--r2);padding:8px;margin-bottom:10px;font-size:.78rem">'+
+          '<div style="font-weight:700;margin-bottom:4px;color:#2c5fa8">🚨 Emergencia</div>'+
+          '<div>📞 '+cl.nombre+' '+cl.apellido+': '+(cl.telefono1||'—')+(cl.telefono2?' / '+cl.telefono2:'')+'</div>'+
+          (p.vet_nombre?'<div style="margin-top:2px">🏥 '+p.vet_nombre+(p.vet_telefono?' · '+p.vet_telefono:'')+'</div>':'')+
+        '</div>'+
+        '<button class="btn btn-g btn-w" data-act="mp" data-id="'+p.id+'" data-emp="'+p.empresa_id+'">📝 Registrar paseo de hoy</button>'+
+      '</div>';
+    }).join('');
+  } catch(e){list.innerHTML='<div class="empty"><p>Error</p></div>';}
+}
+
+async function rMiHist(){
+  var list=document.getElementById('listMiHist');
+  list.innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  try {
+    var mes=hoyMes();
+    // Load paseos from all companies this walker belongs to
+    var ueW=await dbGet('usuario_empresas','usuario_id=eq.'+me.id);
+    var allEmpIds=[me.empresa_id];
+    ueW.forEach(function(x){if(allEmpIds.indexOf(x.empresa_id)<0)allEmpIds.push(x.empresa_id);});
+    var todosLosPaseos=[];
+    var todosLosPerros=[];
+    for(var i=0;i<allEmpIds.length;i++){
+      var ps=await dbGet('paseos','empresa_id=eq.'+allEmpIds[i]+'&paseador_id=eq.'+me.id+'&order=fecha.desc&limit=100');
+      var pr=await dbGet('perros','empresa_id=eq.'+allEmpIds[i]+'&select=id,nombre');
+      todosLosPaseos=todosLosPaseos.concat(ps);
+      todosLosPerros=todosLosPerros.concat(pr);
+    }
+    todosLosPaseos.sort(function(a,b){return b.fecha.localeCompare(a.fecha);});
+    var pMes=todosLosPaseos.filter(function(p){return p.fecha&&p.fecha.startsWith(mes)&&p.estado==='realizado';});
+    var acumMes=pMes.reduce(function(s,p){
+      // Si el paseo es de Puchocodri y soy es_pucho, uso tarifa_cliente; si no, tarifa_paseador
+      var usarCliente=me.es_pucho&&p.empresa_id===me.empresa_id;
+      return s+(usarCliente?p.tarifa_cliente:p.tarifa_paseador);
+    },0);
+    var acumHeader='<div style="background:var(--g3);border-radius:var(--r);padding:13px;margin-bottom:12px;border:1.5px solid var(--g)">'+
+      '<div style="font-size:.65rem;font-weight:700;text-transform:uppercase;color:var(--g);margin-bottom:4px">Mi acumulado '+mlbl(mes)+'</div>'+
+      '<div style="font-size:1.6rem;font-weight:700;color:var(--g);font-family:monospace">'+fmt(acumMes)+'</div>'+
+      '<div style="font-size:.72rem;color:var(--mu);margin-top:2px">'+pMes.length+' paseos realizados este mes</div>'+
+    '</div>';
+    list.innerHTML=acumHeader+(todosLosPaseos.length?todosLosPaseos.map(function(p){
+      var dog=todosLosPerros.find(function(x){return x.id===p.perro_id;})||{nombre:'—'};
+      return'<div class="hist-item"><div class="hist-top"><div class="hist-perro">🐕 '+dog.nombre+'</div>'+bdg(p.estado)+'</div>'+
+        '<div style="font-size:.72rem;color:var(--mu)">'+fmtF(p.fecha)+'</div>'+
+        (p.observaciones?'<div style="font-size:.78rem;color:var(--mu);margin-top:3px">💬 '+p.observaciones+'</div>':'')+
+      '</div>';
+    }).join(''):'<div class="empty"><div class="empty-ico">📋</div><p>Sin historial</p></div>');
+  } catch(e){list.innerHTML='<div class="empty"><p>Error: '+e.message+'</p></div>';}
+}
+
+async function rMisPerrosC(){
+  var list=document.getElementById('listMisPerrosC');
+  list.innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  try {
+    var perros=await dbGet('perros','cliente_id=eq.'+me.id);
+    var walkersLiqH=await dbGet('usuarios','empresa_id=eq.'+EMPRESA_ID+'&select=id,nombre');
+  var ueLiq=await dbGet('usuario_empresas','empresa_id=eq.'+EMPRESA_ID);
+  var extraLiqIds=ueLiq.map(function(x){return x.usuario_id;}).filter(function(id){return !walkersLiqH.find(function(w){return w.id===id;});});
+  var walkersLiqE=extraLiqIds.length?await dbGet('usuarios','id=in.('+extraLiqIds.join(',')+')&select=id,nombre'):[];
+  var walkers=walkersLiqH.concat(walkersLiqE);
+    if(!perros.length){list.innerHTML='<div class="empty"><div class="empty-ico">🐕</div><p>Sin mascotas</p></div>';return;}
+    list.innerHTML=perros.map(function(p){
+      var w=walkers.find(function(x){return x.id===p.paseador_principal_id;});
+      // We'll show paseador_principal for now, full list loads async
+      var chips='';
+      if(p.chip)chips+='<span class="bdg bdg-b" style="margin-right:3px">📡 Chip</span>';
+      if(p.alergias)chips+='<span class="bdg bdg-o" style="margin-right:3px">⚠️ Alergia</span>';
+      return'<div class="card" style="margin-bottom:10px">'+
+        '<div class="card-hdr">'+
+          '<div><div style="font-weight:700">🐕 '+p.nombre+(p.raza?' <span style="font-weight:400;color:var(--mu);font-size:.78rem">'+p.raza+'</span>':'')+'</div>'+
+          '<div style="font-size:.75rem;color:var(--mu);margin-top:1px">'+(w?'🚶 Paseador: '+w.nombre:'Sin paseador asignado')+'</div></div>'+
+          '<button class="btn btn-o btn-xs" data-act="edit-perro-c" data-id="'+p.id+'">✏️ Editar</button>'+
+        '</div>'+
+        '<div style="padding:10px 13px">'+
+          (chips?'<div style="margin-bottom:7px">'+chips+'</div>':'')+
+          (p.alergias?'<div style="font-size:.8rem;color:var(--warn);margin-bottom:5px">⚠️ '+p.alergias+'</div>':'')+
+          (p.notas?'<div style="font-size:.8rem;color:var(--mu);margin-bottom:5px">📝 '+p.notas+'</div>':'')+
+          (p.vet_nombre?'<div style="font-size:.78rem;color:var(--mu)">🏥 '+p.vet_nombre+(p.vet_telefono?' · '+p.vet_telefono:'')+'</div>':'')+
+        '</div>'+
+      '</div>';
+    }).join('');
+  } catch(e){list.innerHTML='<div class="empty"><p>Error</p></div>';}
+}
+
+async function rCalendario(){
+  var perros=await dbGet('perros','cliente_id=eq.'+me.id+'&select=id,nombre');
+  var sel=document.getElementById('calPerroSel');
+  sel.innerHTML=perros.map(function(p){return'<option value="'+p.id+'">🐕 '+p.nombre+'</option>';}).join('');
+  if(!calPerroId&&perros.length)calPerroId=perros[0].id;
+  if(calPerroId)sel.value=calPerroId;
+  var now=new Date();
+  if(calYear===undefined)calYear=now.getFullYear();
+  if(calMonth===undefined)calMonth=now.getMonth();
+  await renderCal();
+}
+async function renderCal(){
+  var mNames=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  document.getElementById('calMesLbl').textContent=mNames[calMonth]+' '+calYear;
+  var pid=document.getElementById('calPerroSel').value;
+  var mesStr=calYear+'-'+(calMonth+1<10?'0':'')+(calMonth+1);
+  var daysInM=new Date(calYear,calMonth+1,0).getDate();
+  var lastDay=(daysInM<10?'0':'')+daysInM;
+  var paseos=await dbGet('paseos','empresa_id=eq.'+EMPRESA_ID+'&perro_id=eq.'+pid+'&fecha=gte.'+mesStr+'-01&fecha=lte.'+mesStr+'-'+lastDay);
+  var pDia={};
+  paseos.forEach(function(p){var d=+p.fecha.split('-')[2];if(!pDia[d])pDia[d]=[];pDia[d].push(p);});
+  document.getElementById('calDiasLbl').innerHTML=['L','M','M','J','V','S','D'].map(function(l){return'<div class="cal-dia-lbl">'+l+'</div>';}).join('');
+  var first=(new Date(calYear,calMonth,1).getDay()+6)%7;
+  var daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  var todayStr=hoy();
+  var cells='';
+  for(var i=0;i<first;i++)cells+='<div class="cal-dia vacio"></div>';
+  for(var d=1;d<=daysInMonth;d++){
+    var dateStr=calYear+'-'+(calMonth+1<10?'0':'')+(calMonth+1)+'-'+(d<10?'0':'')+d;
+    var ps=pDia[d]||[];
+    var cls='cal-dia';
+    if(dateStr===todayStr)cls+=' hoy';
+    if(ps.length)cls+=ps[0].estado==='cancelado'?' cancelado':' paseo';
+    var dotHtml='';
+    if(ps.length===1)dotHtml='<div class="cal-dot"></div>';
+    else if(ps.length>1)dotHtml='<div style="display:flex;gap:2px;justify-content:center"><div class="cal-dot"></div><div class="cal-dot"></div>'+(ps.length>2?'<div class="cal-dot"></div>':'')+'</div>';
+    cells+='<div class="'+cls+'"'+(ps.length?' data-act="caldia" data-dia="'+d+'"':'')+'>'+d+dotHtml+'</div>';
+  }
+  document.getElementById('calGrid').innerHTML=cells;
+  document.getElementById('calDetalle').style.display='none';
+}
+async function mostrarDiaCal(dia){
+  var pid=document.getElementById('calPerroSel').value;
+  var mesStr=calYear+'-'+(calMonth+1<10?'0':'')+(calMonth+1);
+  var dStr=mesStr+'-'+(dia<10?'0':'')+dia;
+  var paseos=await dbGet('paseos','empresa_id=eq.'+EMPRESA_ID+'&perro_id=eq.'+pid+'&fecha=eq.'+dStr);
+  var walkersLiqH=await dbGet('usuarios','empresa_id=eq.'+EMPRESA_ID+'&select=id,nombre');
+  var ueLiq=await dbGet('usuario_empresas','empresa_id=eq.'+EMPRESA_ID);
+  var extraLiqIds=ueLiq.map(function(x){return x.usuario_id;}).filter(function(id){return !walkersLiqH.find(function(w){return w.id===id;});});
+  var walkersLiqE=extraLiqIds.length?await dbGet('usuarios','id=in.('+extraLiqIds.join(',')+')&select=id,nombre'):[];
+  var walkers=walkersLiqH.concat(walkersLiqE);
+  if(!paseos.length)return;
+  var mN=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  document.getElementById('calDetalleTit').textContent=dia+' '+mN[calMonth]+' '+calYear;
+  document.getElementById('calDetalleBody').innerHTML=paseos.map(function(p,idx){
+    var w=walkers.find(function(x){return x.id===p.paseador_id;})||{nombre:'—'};
+    var total=paseos.length;
+    return'<div style="padding:12px 13px;border-bottom:1px solid var(--bd)">'+
+      (total>1?'<div style="font-size:.7rem;font-weight:700;text-transform:uppercase;color:var(--mu);margin-bottom:6px">Paseo '+(idx+1)+' de '+total+'</div>':'')+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'+
+        '<div style="display:flex;align-items:center;gap:8px">'+
+          '<div style="width:32px;height:32px;border-radius:50%;background:var(--g3);display:flex;align-items:center;justify-content:center;font-size:1rem">🚶</div>'+
+          '<div><div style="font-weight:600;font-size:.88rem">'+w.nombre+'</div>'+
+          '<div style="font-size:.72rem;color:var(--mu)">Paseador</div></div>'+
+        '</div>'+
+        bdg(p.estado)+
+      '</div>'+
+      (p.observaciones?'<div style="font-size:.82rem;background:var(--bg);border-radius:var(--r2);padding:8px;margin-top:4px">💬 '+p.observaciones+'</div>':'<div style="font-size:.78rem;color:var(--mu);margin-top:4px">Sin observaciones</div>')+
+    '</div>';
+  }).join('');
+  document.getElementById('calDetalle').style.display='block';
+}
+
+async function rMiSaldo(){
+  // Clear saldo badge
+  var bnS=document.getElementById('bnSaldo');
+  if(bnS){bnS.classList.remove('bn-badge');bnS.removeAttribute('data-count');}
+  try {
+    // Build month selector
+    var todosPaseos=await dbGet('paseos','empresa_id=eq.'+EMPRESA_ID+'&order=fecha.desc&limit=200');
+    var perrosIds=(await dbGet('perros','cliente_id=eq.'+me.id+'&select=id')).map(function(p){return p.id;});
+    var misPaseos=todosPaseos.filter(function(p){return perrosIds.indexOf(p.perro_id)>=0;});
+    var meses=[...new Set(misPaseos.map(function(p){return p.fecha?p.fecha.slice(0,7):'';}).filter(Boolean))].sort().reverse();
+    if(!meses.length)meses.push(hoyMes());
+    var saldoHdr=document.getElementById('saldoBox');
+    var mesSel='<select id="saldoMesSel" style="width:100%;padding:10px 13px;border:1.5px solid var(--bd);border-radius:var(--r2);font-family:inherit;font-size:.88rem;background:#fff;margin-bottom:13px">'+
+      meses.map(function(m){return'<option value="'+m+'"'+(m===hoyMes()?' selected':'')+'>'+mlbl(m)+'</option>';}).join('')+
+    '</select>';
+    document.getElementById('saldoDetalle').insertAdjacentHTML('beforebegin',mesSel);
+    document.getElementById('saldoMesSel').addEventListener('change',function(){rMiSaldoMes(this.value);});
+    var perros=await dbGet('perros','cliente_id=eq.'+me.id+'&select=id,nombre,tarifa,modalidad_pago,pack_total,pack_usados');
+    var mes=hoyMes();
+    var pids=perros.map(function(p){return p.id;});
+    var allPaseos=[];
+    for(var i=0;i<pids.length;i++){
+      var ps=await dbGet('paseos','perro_id=eq.'+pids[i]+'&fecha=gte.'+mes+'-01&estado=eq.realizado&order=fecha.asc');
+      allPaseos=allPaseos.concat(ps.map(function(p){var dog=perros.find(function(x){return x.id===p.perro_id;})||{nombre:'—'};p._dogNombre=dog.nombre;return p;}));
+    }
+    allPaseos.sort(function(a,b){return a.fecha.localeCompare(b.fecha);});
+    var total=allPaseos.reduce(function(s,p){return s+p.tarifa_cliente;},0);
+    var clienteDB=await dbGet('clientes','id=eq.'+me.id);
+    var notif=clienteDB[0]&&clienteDB[0].mes_notif===mes;
+    var sEl=document.getElementById('saldoBox');
+    sEl.innerHTML='<div class="saldo-box'+(notif?' pendiente':'')+'">'+
+      '<div class="saldo-lbl">Acumulado '+mlbl(mes)+'</div>'+
+      '<div class="saldo-val">'+fmt(total)+'</div>'+
+      '<div style="font-size:.76rem;color:var(--mu);margin-top:4px">'+allPaseos.length+' paseos realizados</div>'+
+      (notif?datosBancarios(EMPRESA_ID):'')+
+    '</div>';
+    var acum=0;
+    document.getElementById('saldoDetalle').innerHTML=allPaseos.length?allPaseos.map(function(p){
+      acum+=p.tarifa_cliente;
+      return'<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 13px;border-bottom:1px solid var(--bd)">'+
+        '<div><div style="font-size:.85rem;font-weight:500">🐕 '+p._dogNombre+' · '+fmtF(p.fecha)+'</div>'+
+        (p.observaciones?'<div style="font-size:.75rem;color:var(--mu);margin-top:1px">💬 '+p.observaciones+'</div>':'')+
+        '</div><div style="text-align:right"><div class="mono">'+fmt(p.tarifa_cliente)+'</div>'+
+        '<div style="font-size:.7rem;color:var(--mu)">Total: '+fmt(acum)+'</div></div></div>';
+    }).join(''):'<div class="empty"><p>Sin paseos este mes</p></div>';
+  } catch(e){document.getElementById('saldoBox').innerHTML='<div class="empty"><p>Error cargando</p></div>';}
+}
+
+async function rMisSolicitudes(){
+  marcarSolicitudesLeidas();
+  var list=document.getElementById('listMisSolicitudes');
+  var em=document.getElementById('emMisSol');
+  list.innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  try {
+    var sols=await dbGet('solicitudes','cliente_id=eq.'+me.id+'&order=created_at.desc');
+    var perros=await dbGet('perros','cliente_id=eq.'+me.id+'&select=id,nombre');
+    if(!sols.length){list.innerHTML='';em.style.display='block';return;}
+    em.style.display='none';
+    var estadoLbl={nueva:'📬 Enviada',propuesta:'📅 Nueva fecha propuesta',confirmada:'✅ Confirmada',cancelada:'✕ Cancelada',rechazada:'✗ Rechazada'};
+    var estadoBdg={nueva:'bdg-b',propuesta:'bdg-o',confirmada:'bdg-g',cancelada:'bdg-x',rechazada:'bdg-x'};
+    list.innerHTML=sols.map(function(s){
+      var dog=perros.find(function(x){return x.id===s.perro_id;})||{nombre:'—'};
+      var fecha=s.fecha_confirmada||s.fecha_solicitada;
+      var hora=s.hora_confirmada||s.hora_solicitada;
+      var btns='';
+      if(s.estado==='propuesta')btns='<button class="btn btn-g btn-sm" data-act="aceptar-sol" data-id="'+s.id+'">✅ Acepto esta fecha</button><button class="btn btn-r btn-sm" data-act="rechazar-sol" data-id="'+s.id+'">❌ No me conviene</button>';
+      else if(s.estado==='confirmada'||s.estado==='nueva')btns='<button class="btn btn-r btn-sm" data-act="cancel-sol" data-id="'+s.id+'">Cancelar</button>';
+      return'<div class="sol-card '+(s.estado||'')+'">'+
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">'+
+          '<div><div style="font-weight:700;font-size:.88rem">'+SVC[s.tipo]+' · 🐕 '+dog.nombre+'</div>'+
+          '<div style="font-size:.76rem;color:var(--mu);margin-top:2px">📅 '+fmtF(fecha)+' '+hora+'</div>'+
+          (s.estado==='propuesta'?'<div style="font-size:.76rem;color:var(--warn);margin-top:3px;font-weight:600">⚠️ El admin propone esta nueva fecha</div>':'')+
+          (s.mensaje_admin?'<div style="font-size:.76rem;background:var(--g3);border-radius:5px;padding:5px;margin-top:4px">💬 '+s.mensaje_admin+'</div>':'')+
+          '</div><span class="bdg '+(estadoBdg[s.estado]||'bdg-x')+'">'+estadoLbl[s.estado]+'</span>'+
+        '</div>'+(btns?'<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:8px">'+btns+'</div>':'')+
+      '</div>';
+    }).join('');
+  } catch(e){list.innerHTML='<div class="empty"><p>Error</p></div>';}
+}
+
+// ══ DELEGACIÓN ══
+document.querySelectorAll('[data-close]').forEach(function(el){el.addEventListener('click',function(){cerrar(el.getAttribute('data-close'));});});
+document.querySelectorAll('.ov').forEach(function(ov){ov.addEventListener('click',function(e){if(e.target===ov)ov.classList.remove('on');});});
+document.getElementById('liqMes').addEventListener('change',rLiq);
+document.getElementById('paseosMesFiltro').addEventListener('change',rPaseos);
+document.getElementById('paseosPaseadorFiltro').addEventListener('change',rPaseos);
+document.getElementById('calPerroSel').addEventListener('change',async function(){calPerroId=this.value;await renderCal();});
+document.getElementById('calPrev').addEventListener('click',async function(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}await renderCal();});
+document.getElementById('calNext').addEventListener('click',async function(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}await renderCal();});
+
+document.addEventListener('click',function(e){
+  var btn=e.target.closest('[data-act]');if(!btn)return;
+  var a=btn.getAttribute('data-act'),id=btn.getAttribute('data-id');
+  if(a==='ec')abrirC(id);
+  else if(a==='dc')delC(id);
+  else if(a==='ew')abrirW(id);
+  else if(a==='dw')delW(id);
+  else if(a==='dps')delPs(id);
+  else if(a==='mp')abrirMarcar(id);
+  else if(a==='asignar')abrirAsignar(id);
+  else if(a==='recargar')abrirRecargar(id);
+  else if(a==='resp-sol')abrirResp(id);
+  else if(a==='cancel-sol')cancelarSol(id);
+  else if(a==='aceptar-sol')aceptarPropuesta(id);
+  else if(a==='rechazar-sol')rechazarPropuesta(id);
+  else if(a==='caldia')mostrarDiaCal(+btn.getAttribute('data-dia'));
+  else if(a==='edit-perro-c')abrirEditPerroC(id);
+  else if(a==='eps')abrirEditPs(id);
+  else if(a==='asignar-multi')abrirAsignarMulti(id);
+  else if(a==='abrir-vac')abrirVacunas(id);
+  else if(a==='marcar-pagado'){var mes=btn.getAttribute('data-mes');marcarPagado(id,mes);}
+  else if(a==='marcar-pagado-w'){var mes=btn.getAttribute('data-mes');marcarPagadoW(id,mes);}
+});
+
+// ══ CLIENTE: MI PERFIL ══
+async function rMiPerfil(){
+  try {
+    var r=await dbGet('clientes','id=eq.'+me.id);
+    if(!r.length)return;
+    var cl=r[0];
+    document.getElementById('mpNom').value=cl.nombre||'';
+    document.getElementById('mpApe').value=cl.apellido||'';
+    document.getElementById('mpTel1').value=cl.telefono1||'';
+    document.getElementById('mpTel2').value=cl.telefono2||'';
+    document.getElementById('mpDir').value=cl.direccion||'';
+    document.getElementById('mpCom').value=cl.comuna||'';
+  } catch(e){}
+}
+document.getElementById('btnSavePerfil').addEventListener('click',async function(){
+  var nom=document.getElementById('mpNom').value.trim();
+  var ape=document.getElementById('mpApe').value.trim();
+  if(!nom||!ape){toast('⚠️ Nombre y apellido obligatorios');return;}
+  try {
+    await dbPatch('clientes',{
+      nombre:nom, apellido:ape,
+      telefono1:document.getElementById('mpTel1').value.trim(),
+      telefono2:document.getElementById('mpTel2').value.trim(),
+      direccion:document.getElementById('mpDir').value.trim(),
+      comuna:document.getElementById('mpCom').value.trim()
+    },'id=eq.'+me.id);
+    me.nombre=nom+' '+ape;
+    document.getElementById('topName').textContent=nom;
+    toast('✅ Perfil actualizado');
+  } catch(e){toast('❌ Error: '+e.message);}
+});
+
+// ══ CLIENTE: EDITAR PERRO ══
+async function abrirEditPerroC(pid){
+  document.getElementById('perroC-id').value=pid;
+  try {
+    var r=await dbGet('perros','id=eq.'+pid);
+    if(!r.length)return;
+    var p=r[0];
+    document.getElementById('titPerroC').textContent='Editar a '+p.nombre;
+    document.getElementById('perroC-nombre').value=p.nombre||'';
+    document.getElementById('perroC-raza').value=p.raza||'';
+    document.getElementById('perroC-nac').value=p.fecha_nacimiento||'';
+    document.getElementById('perroC-peso').value=p.peso||'';
+    document.getElementById('perroC-meds').value=p.medicamentos||'';
+    document.getElementById('perroC-notas').value=p.notas||'';
+    document.getElementById('perroC-vetnom').value=p.vet_nombre||'';
+    document.getElementById('perroC-vettel').value=p.vet_telefono||'';
+    document.getElementById('perroC-vetdir').value=p.vet_direccion||'';
+    // Chip
+    document.querySelector('.pC-chip-si').classList.toggle('on',!!p.chip);
+    document.querySelector('.pC-chip-no').classList.toggle('on',!p.chip);
+    // Esterilizado
+    document.querySelector('.pC-est-si').classList.toggle('on',!!p.esterilizado);
+    document.querySelector('.pC-est-no').classList.toggle('on',!p.esterilizado);
+    // Alergias
+    var tieneAlrg=!!p.alergias;
+    document.querySelector('.pC-alrg-si').classList.toggle('on',tieneAlrg);
+    document.querySelector('.pC-alrg-no').classList.toggle('on',!tieneAlrg);
+    document.querySelector('.pC-alrg-det').style.display=tieneAlrg?'block':'none';
+    document.getElementById('perroC-alergias').value=p.alergias||'';
+    // Snacks
+    document.querySelector('.pC-snack-si').classList.toggle('on',p.puede_snacks!==false);
+    document.querySelector('.pC-snack-no').classList.toggle('on',p.puede_snacks===false);
+    // Bozal
+    document.querySelector('.pC-bozal-si').classList.toggle('on',!!p.usa_bozal);
+    document.querySelector('.pC-bozal-no').classList.toggle('on',!p.usa_bozal);
+    // Comportamiento
+    document.getElementById('pC-rmachos').checked=!!p.reactivo_machos;
+    document.getElementById('pC-rhembras').checked=!!p.reactivo_hembras;
+    document.getElementById('pC-rninos').checked=!!p.reactivo_ninos;
+    document.getElementById('pC-rbici').checked=!!p.reactivo_bicicletas;
+    document.getElementById('pC-rdesc').checked=!!p.reactivo_desconocidos;
+    document.getElementById('pC-rvehi').checked=!!p.reactivo_vehiculos;
+    document.getElementById('pC-escape').checked=!!p.tendencia_escape;
+    document.getElementById('pC-ruidos').checked=!!p.miedo_ruidos;
+    document.getElementById('pC-mordidas').checked=!!p.antecedentes_mordidas;
+    abrir('perro-c');
+  } catch(e){toast('❌ Error cargando ficha');}
+}
+
+// Wire opt-btns in perro-c modal
+document.querySelectorAll('#ov-perro-c .opt-row').forEach(function(row){
+  row.querySelectorAll('.opt-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      row.querySelectorAll('.opt-btn').forEach(function(b){b.classList.remove('on');});
+      btn.classList.add('on');
+      if(btn.classList.contains('pC-alrg-si')||btn.classList.contains('pC-alrg-no'))
+        document.querySelector('.pC-alrg-det').style.display=btn.classList.contains('pC-alrg-si')?'block':'none';
+    });
+  });
+});
+
+document.getElementById('btnSavePerroC').addEventListener('click',async function(){
+  var pid=document.getElementById('perroC-id').value;
+  if(!pid)return;
+  try {
+    var tieneAlrg=document.querySelector('.pC-alrg-si').classList.contains('on');
+    var obj={
+      nombre:document.getElementById('perroC-nombre').value.trim(),
+      raza:document.getElementById('perroC-raza').value.trim(),
+      fecha_nacimiento:document.getElementById('perroC-nac').value||null,
+      peso:+document.getElementById('perroC-peso').value||null,
+      medicamentos:document.getElementById('perroC-meds').value.trim(),
+      notas:document.getElementById('perroC-notas').value.trim(),
+      vet_nombre:document.getElementById('perroC-vetnom').value.trim(),
+      vet_telefono:document.getElementById('perroC-vettel').value.trim(),
+      vet_direccion:document.getElementById('perroC-vetdir').value.trim(),
+      chip:document.querySelector('.pC-chip-si').classList.contains('on'),
+      esterilizado:document.querySelector('.pC-est-si').classList.contains('on'),
+      alergias:tieneAlrg?document.getElementById('perroC-alergias').value.trim():null,
+      puede_snacks:document.querySelector('.pC-snack-si').classList.contains('on'),
+      usa_bozal:document.querySelector('.pC-bozal-si').classList.contains('on'),
+      reactivo_machos:document.getElementById('pC-rmachos').checked,
+      reactivo_hembras:document.getElementById('pC-rhembras').checked,
+      reactivo_ninos:document.getElementById('pC-rninos').checked,
+      reactivo_bicicletas:document.getElementById('pC-rbici').checked,
+      reactivo_desconocidos:document.getElementById('pC-rdesc').checked,
+      reactivo_vehiculos:document.getElementById('pC-rvehi').checked,
+      tendencia_escape:document.getElementById('pC-escape').checked,
+      miedo_ruidos:document.getElementById('pC-ruidos').checked,
+      antecedentes_mordidas:document.getElementById('pC-mordidas').checked
+    };
+    await dbPatch('perros',obj,'id=eq.'+pid);
+    cerrar('perro-c');
+    rMisPerrosC();
+    toast('✅ Ficha actualizada');
+  } catch(e){toast('❌ Error: '+e.message);}
+});
+
+
+// ══ EDITAR PASEO ══
+async function abrirEditPs(pid){
+  try {
+    var r=await dbGet('paseos','id=eq.'+pid);
+    if(!r.length)return;
+    var p=r[0];
+    document.getElementById('eps-id').value=pid;
+    var perros=await dbGet('perros','id=eq.'+p.perro_id+'&select=id,nombre');
+    document.getElementById('eps-perro').value=perros.length?perros[0].nombre:'—';
+    var walkersH=await dbGet('usuarios','empresa_id=eq.'+EMPRESA_ID+'&activo=eq.true&select=id,nombre,es_pucho,tarifa_por_servicio');
+    var ue2=await dbGet('usuario_empresas','empresa_id=eq.'+EMPRESA_ID);
+    var extraIds2=ue2.map(function(x){return x.usuario_id;}).filter(function(id){return !walkersH.find(function(w){return w.id===id;});});
+    var walkersE=extraIds2.length?await dbGet('usuarios','id=in.('+extraIds2.join(',')+')&activo=eq.true&select=id,nombre,es_pucho,tarifa_por_servicio'):[];
+    var walkers=walkersH.concat(walkersE).sort(function(a,b){return a.nombre.localeCompare(b.nombre);});
+    var wSel=document.getElementById('eps-wal');
+    wSel.innerHTML=walkers.map(function(w){return'<option value="'+w.id+'"'+(w.id===p.paseador_id?' selected':'')+'>'+w.nombre+'</option>';}).join('');
+    document.getElementById('eps-fecha').value=p.fecha||'';
+    document.getElementById('eps-est').value=p.estado||'realizado';
+    document.getElementById('eps-tc').value=p.tarifa_cliente||0;
+    document.getElementById('eps-tw').value=p.tarifa_paseador||0;
+    document.getElementById('eps-obs').value=p.observaciones||'';
+    abrir('eps');
+  } catch(e){toast('❌ Error: '+e.message);}
+}
+document.getElementById('btnSaveEps').addEventListener('click',async function(){
+  var pid=document.getElementById('eps-id').value;
+  if(!pid)return;
+  try {
+    var wid=document.getElementById('eps-wal').value;
+    var wObj=await dbGet('usuarios','id=eq.'+wid+'&select=es_pucho');
+    var esPucho=wObj.length&&wObj[0].es_pucho&&EMPRESA_ID==='ddb83b48-e599-449f-abc3-1a2f1d3a1138';
+    await dbPatch('paseos',{
+      paseador_id:wid,
+      fecha:document.getElementById('eps-fecha').value,
+      estado:document.getElementById('eps-est').value,
+      tarifa_cliente:+document.getElementById('eps-tc').value,
+      tarifa_paseador:esPucho?0:+document.getElementById('eps-tw').value,
+      observaciones:document.getElementById('eps-obs').value.trim()
+    },'id=eq.'+pid);
+    cerrar('eps'); rPaseos(); rDash(); toast('✅ Paseo actualizado');
+  } catch(e){toast('❌ Error: '+e.message);}
+});
+
+// ══ MARCAR PAGADO CLIENTE ══
+async function marcarPagado(cid,mes){
+  if(!confirm('¿Marcar como pagado a este cliente?'))return;
+  await dbPatch('clientes',{pagado_mes:mes},'id=eq.'+cid);
+  rLiq(); toast('✅ Marcado como pagado');
+}
+
+// ══ MARCAR PAGADO PASEADOR ══
+async function marcarPagadoW(wid,mes){
+  if(!confirm('¿Marcar como pagado a este paseador?'))return;
+  await dbPatch('usuarios',{pagado_mes:mes},'id=eq.'+wid);
+  rLiq(); toast('✅ Liquidación marcada como pagada');
+}
+
+// ══ VACUNAS Y DESPARASITACIÓN ══
+async function abrirVacunas(pid){
+  try {
+    var r=await dbGet('perros','id=eq.'+pid);
+    if(!r.length)return;
+    var p=r[0];
+    document.getElementById('vac-pid').value=pid;
+    document.getElementById('vacTit').textContent='Vacunas — '+p.nombre;
+    document.getElementById('vacSub').textContent='Registra fechas para recibir recordatorios';
+    document.getElementById('vac-ultima').value=p.vacuna_ultima||'';
+    document.getElementById('vac-proxima').value=p.vacuna_proxima||'';
+    document.getElementById('des-ultima').value=p.desparasitacion_ultima||'';
+    document.getElementById('des-proxima').value=p.desparasitacion_proxima||'';
+    abrir('vacunas');
+  } catch(e){toast('❌ Error');}
+}
+document.getElementById('btnSaveVac').addEventListener('click',async function(){
+  var pid=document.getElementById('vac-pid').value;
+  if(!pid)return;
+  try {
+    await dbPatch('perros',{
+      vacuna_ultima:document.getElementById('vac-ultima').value||null,
+      vacuna_proxima:document.getElementById('vac-proxima').value||null,
+      desparasitacion_ultima:document.getElementById('des-ultima').value||null,
+      desparasitacion_proxima:document.getElementById('des-proxima').value||null
+    },'id=eq.'+pid);
+    cerrar('vacunas'); rClientes(); toast('✅ Fechas guardadas');
+  } catch(e){toast('❌ Error: '+e.message);}
+});
+
+// ══ ALERTAS VACUNAS EN DASHBOARD ══
+async function rAlertas(){
+  try {
+    var hoy30=new Date();hoy30.setDate(hoy30.getDate()+30);
+    var hoy30str=hoy30.toISOString().split('T')[0];
+    var hoyStr=hoy();
+    var perros=await dbGet('perros','empresa_id=eq.'+EMPRESA_ID);
+    var alertas=[];
+    perros.forEach(function(p){
+      if(p.vacuna_proxima&&p.vacuna_proxima<=hoy30str){
+        var dias=Math.ceil((new Date(p.vacuna_proxima)-new Date(hoyStr))/(1000*60*60*24));
+        alertas.push({tipo:'vacuna',perro:p.nombre,fecha:p.vacuna_proxima,dias:dias});
+      }
+      if(p.desparasitacion_proxima&&p.desparasitacion_proxima<=hoy30str){
+        var dias2=Math.ceil((new Date(p.desparasitacion_proxima)-new Date(hoyStr))/(1000*60*60*24));
+        alertas.push({tipo:'desparasitacion',perro:p.nombre,fecha:p.desparasitacion_proxima,dias:dias2});
+      }
+    });
+    var el=document.getElementById('alertasBanner');
+    if(!el)return;
+    el.innerHTML=alertas.map(function(a){
+      var urgente=a.dias<=7;
+      var vencida=a.dias<0;
+      return'<div class="alerta-banner" style="'+(urgente?'background:#fdf0ef;border-color:var(--red)':'')+'">'+
+        '<div class="alerta-ico">'+(a.tipo==='vacuna'?'💉':'🐛')+'</div>'+
+        '<div class="alerta-body">'+
+          '<div class="alerta-title">'+(vencida?'⚠️ VENCIDA — ':urgente?'⚠️ Próxima — ':'📅 Recordatorio — ')+a.perro+'</div>'+
+          '<div class="alerta-sub">'+(a.tipo==='vacuna'?'Vacuna':'Desparasitación')+': '+fmtF(a.fecha)+(vencida?' (vencida hace '+Math.abs(a.dias)+' días)':' (en '+a.dias+' días)')+'</div>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  } catch(e){}
+}
+
+// ══ HISTORIAL MESES ANTERIORES (cliente) ══
+async function rMiSaldoMes(mes){
+  try {
+    var perros=await dbGet('perros','cliente_id=eq.'+me.id+'&select=id,nombre');
+    var pids=perros.map(function(p){return p.id;});
+    var allPaseos=[];
+    for(var i=0;i<pids.length;i++){
+      var ps=await dbGet('paseos','perro_id=eq.'+pids[i]+'&fecha=gte.'+mes+'-01&fecha=lte.'+mes+'-31&estado=eq.realizado&order=fecha.asc');
+      ps.forEach(function(p){var dog=perros.find(function(x){return x.id===p.perro_id;})||{nombre:'—'};p._dogNombre=dog.nombre;allPaseos.push(p);});
+    }
+    allPaseos.sort(function(a,b){return a.fecha.localeCompare(b.fecha);});
+    var total=allPaseos.reduce(function(s,p){return s+p.tarifa_cliente;},0);
+    var clienteDB=await dbGet('clientes','id=eq.'+me.id);
+    var notif=clienteDB[0]&&clienteDB[0].pagado_mes===mes;
+    var sEl=document.getElementById('saldoBox');
+    sEl.innerHTML='<div class="saldo-box'+(notif?' pendiente':'')+'">'+
+      '<div class="saldo-lbl">'+mlbl(mes)+'</div>'+
+      '<div class="saldo-val">'+fmt(total)+'</div>'+
+      '<div style="font-size:.76rem;color:var(--mu);margin-top:4px">'+allPaseos.length+' paseos realizados</div>'+
+      (notif?datosBancarios(EMPRESA_ID):'')+
+    '</div>';
+    var acum=0;
+    document.getElementById('saldoDetalle').innerHTML=allPaseos.length?allPaseos.map(function(p){
+      acum+=p.tarifa_cliente;
+      return'<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 13px;border-bottom:1px solid var(--bd)">'+
+        '<div><div style="font-size:.85rem;font-weight:500">🐕 '+p._dogNombre+' · '+fmtF(p.fecha)+'</div>'+
+        (p.observaciones?'<div style="font-size:.75rem;color:var(--mu);margin-top:1px">💬 '+p.observaciones+'</div>':'')+
+        '</div><div style="text-align:right"><div class="mono">'+fmt(p.tarifa_cliente)+'</div>'+
+        '<div style="font-size:.7rem;color:var(--mu)">Total: '+fmt(acum)+'</div></div></div>';
+    }).join(''):'<div class="empty"><p>Sin paseos este mes</p></div>';
+  } catch(e){}
+}
+
+
+// ══ ASIGNAR MÚLTIPLES PASEADORES ══
+async function abrirAsignarMulti(pid){
+  document.getElementById('amPerroId').value=pid;
+  try {
+    var perros=await dbGet('perros','id=eq.'+pid+'&select=id,nombre,tarifa');
+    document.getElementById('asignarMultiSub').textContent='🐕 '+(perros[0]?.nombre||'—');
+    var walkersH=await dbGet('usuarios','empresa_id=eq.'+EMPRESA_ID+'&activo=eq.true&select=id,nombre,es_pucho,tarifa_por_servicio,es_admin');
+    var ue2=await dbGet('usuario_empresas','empresa_id=eq.'+EMPRESA_ID);
+    var extraIds2=ue2.map(function(x){return x.usuario_id;}).filter(function(id){return !walkersH.find(function(w){return w.id===id;});});
+    var walkersE=extraIds2.length?await dbGet('usuarios','id=in.('+extraIds2.join(',')+')&select=id,nombre,es_pucho,tarifa_por_servicio,es_admin'):[];
+    var walkers=walkersH.concat(walkersE).sort(function(a,b){return a.nombre.localeCompare(b.nombre);});
+    if(!walkers.length){document.getElementById('amWalkerList').innerHTML='<div style="color:var(--mu);font-size:.85rem;padding:8px">No hay paseadores activos</div>';abrir('asignar-multi');return;}
+    var asignados=await dbGet('perro_paseadores','perro_id=eq.'+pid);
+    var asignadosIds=asignados.map(function(a){return a.paseador_id;});
+    if(perros[0]?.paseador_principal_id&&asignadosIds.indexOf(perros[0].paseador_principal_id)<0){
+      asignadosIds.push(perros[0].paseador_principal_id);
+    }
+    document.getElementById('amWalkerList').innerHTML=walkers.map(function(w){
+      var checked=asignadosIds.indexOf(w.id)>=0;
+      var asig=asignados.find(function(a){return a.paseador_id===w.id;});
+      var tarifaVal=asig&&asig.tarifa_paseador?asig.tarifa_paseador:(w.tarifa_por_servicio||6000);
+      return'<label style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--bg);border-radius:var(--r2);border:1.5px solid '+(checked?'var(--g)':'var(--bd)')+';cursor:pointer">'+
+        '<input type="checkbox" data-wid="'+w.id+'" '+(checked?'checked':'')+' style="width:18px;height:18px;flex-shrink:0;accent-color:var(--g)">'+
+        '<span style="font-size:.9rem;font-weight:'+(checked?'600':'400')+';flex:1">'+
+          (w.es_pucho?'⭐ ':'')+w.nombre+
+        '</span>'+
+        '<input type="number" data-tarifa-wid="'+w.id+'" value="'+tarifaVal+'" placeholder="Tarifa" style="width:80px;padding:5px 7px;border:1.5px solid var(--bd);border-radius:var(--r2);font-size:.82rem;text-align:right" onclick="event.stopPropagation()">'+
+      '</label>';
+    }).join('');
+    document.querySelectorAll('#amWalkerList input[type=checkbox]').forEach(function(cb){
+      cb.addEventListener('change',function(){
+        var lbl=cb.closest('label');
+        lbl.style.borderColor=cb.checked?'var(--g)':'var(--bd)';
+        lbl.querySelector('span').style.fontWeight=cb.checked?'600':'400';
+      });
+    });
+    abrir('asignar-multi');
+  } catch(e){toast('❌ Error: '+e.message);}
+}
+
+document.getElementById('btnSaveAsignarMulti').addEventListener('click',async function(){
+  var pid=document.getElementById('amPerroId').value;
+  if(!pid)return;
+  try {
+    var selected=[];
+    document.querySelectorAll('#amWalkerList input[type=checkbox]:checked').forEach(function(cb){
+      var wid=cb.getAttribute('data-wid');
+      var tarifaInput=document.querySelector('[data-tarifa-wid="'+wid+'"]');
+      var tarifa=tarifaInput?parseInt(tarifaInput.value)||0:0;
+      selected.push({wid:wid,tarifa:tarifa});
+    });
+    await dbDelete('perro_paseadores','perro_id=eq.'+pid);
+    for(var i=0;i<selected.length;i++){
+      await dbPost('perro_paseadores',{perro_id:pid,paseador_id:selected[i].wid,empresa_id:EMPRESA_ID,tarifa_paseador:selected[i].tarifa});
+    }
+    var principal=selected.length?selected[0].wid:null;
+    await dbPatch('perros',{paseador_principal_id:principal},'id=eq.'+pid);
+    cerrar('asignar-multi');
+    rClientes();
+    toast('✅ Paseadores asignados');
+  } catch(e){toast('❌ Error: '+e.message);}
+});
+
+
+// ══ CAMBIAR CLAVE ADMIN ══
+document.getElementById('btnCambiarClaveAdmin').addEventListener('click',async function(){
+  var act=document.getElementById('adminClaveActual').value;
+  var nva=document.getElementById('adminClaveNueva').value;
+  var con=document.getElementById('adminClaveConfirm').value;
+  if(me.password_hash!==act){toast('⚠️ Contraseña actual incorrecta');return;}
+  if(nva.length<6){toast('⚠️ Mínimo 6 caracteres');return;}
+  if(nva!==con){toast('⚠️ Las contraseñas no coinciden');return;}
+  try {
+    await dbPatch('usuarios',{password_hash:nva},'id=eq.'+me.id);
+    me.password_hash=nva;
+    document.getElementById('adminClaveActual').value='';
+    document.getElementById('adminClaveNueva').value='';
+    document.getElementById('adminClaveConfirm').value='';
+    toast('✅ Contraseña actualizada');
+  } catch(e){toast('❌ Error: '+e.message);}
+});
+
+// ══ PRIVACY: Hide client pass after they change it ══
+// Client pass is shown only if it's still the default or admin-set value
+// Once client changes it, admin sees "••••••" instead
+function mostrarClaveCliente(c){
+  // If password was changed by client (we track this with a flag), hide it
+  if(c.pass_cambiada) return '••••••• (privada)';
+  return c.password_hash||'cliente123';
+}
+
+
+// ══ DATOS BANCARIOS POR EMPRESA ══
+function datosBancarios(empresaId){
+  var datos = {
+    'ddb83b48-e599-449f-abc3-1a2f1d3a1138': [
+      {banco:'Banco Estado', tipo:'Cuenta Rut/Vista', numero:'25653518', titular:'Alfredo Echezuría', rut:'25.653.518-1', email:'aechezuria90@gmail.com'},
+      {banco:'BCI / Banco Crédito e Inversiones', tipo:'Cuenta Corriente', numero:'777925653518', titular:'Alfredo Echezuría', rut:'25.653.518-1', email:'aechezuria90@gmail.com'}
+    ],
+    'e20d365b-35fe-4157-8357-75d9d2cf23ea': [
+      {banco:'Banco Estado', tipo:'Cuenta Corriente', numero:'32900052161', titular:'Ricardo Andrés Rondón', rut:'26.792.991-2', email:''}
+    ]
+  };
+  var cuentas = datos[empresaId] || datos['ddb83b48-e599-449f-abc3-1a2f1d3a1138'];
+  var html = '<div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(181,108,26,.3)">';
+  html += '<div style="font-size:.8rem;font-weight:700;margin-bottom:8px">💳 Datos de transferencia:</div>';
+  cuentas.forEach(function(d, i){
+    if(cuentas.length > 1) html += '<div style="font-size:.72rem;font-weight:700;color:var(--warn);margin-bottom:4px">Opción '+(i+1)+':</div>';
+    html += '<div style="font-size:.82rem;line-height:1.9;margin-bottom:'+(i<cuentas.length-1?'10':'0')+'px">';
+    html += '🏦 '+d.banco+'<br>';
+    html += '📋 '+d.tipo+': '+d.numero+'<br>';
+    html += '👤 '+d.titular+'<br>';
+    html += '🪪 RUT: '+d.rut;
+    if(d.email) html += '<br>📧 '+d.email;
+    html += '</div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+
+// ══ GOOGLE DRIVE VIEW URL ══
+// Convierte cualquier URL de Google Drive a un link de visualización embebible.
+// Si la URL no es de Drive, la devuelve sin cambios.
+function driveViewUrl(url){
+  if(!url) return url;
+  // Formato: https://drive.google.com/file/d/FILE_ID/view
+  var m = url.match(/drive\.google\.com\/file\/d\/([^/\?]+)/);
+  if(m) return 'https://drive.google.com/file/d/'+m[1]+'/view';
+  // Formato: https://drive.google.com/open?id=FILE_ID
+  var m2 = url.match(/drive\.google\.com\/open\?id=([^&]+)/);
+  if(m2) return 'https://drive.google.com/file/d/'+m2[1]+'/view';
+  return url;
+}
+
+// ══ CLOUDINARY UPLOAD ══
+function subirArchivo(callback, tipo){
+  var widget = cloudinary.createUploadWidget({
+    cloudName: 'dtjmqxob7',
+    uploadPreset: tipo==='pdf'?'puchocodri_unsigned':'ml_default',
+    sources: ['local', 'camera'],
+    resourceType: tipo==='pdf'?'raw':'image',
+    clientAllowedFormats: tipo==='pdf'?['pdf']:['jpg','jpeg','png','webp'],
+    maxFileSize: 5000000,
+    language: 'es',
+    text: {es: {or: 'o', menu: {files: 'Mis archivos', camera: 'Cámara'}}}
+  }, function(error, result){
+    if(!error && result && result.event === 'success'){
+      callback(result.info.secure_url);
+    }
+  });
+  widget.open();
+}
+
+// ══ WALKER PROFILE (paseador edits own data) ══
+async function rMiPerfilW(){
+  try {
+    var r=await dbGet('usuarios','id=eq.'+me.id);
+    if(!r.length)return;
+    var w=r[0];
+    document.getElementById('wSelfieNombre').textContent=w.nombre+' '+(w.apellido||'');
+    if(w.foto_perfil_url){
+      document.getElementById('wSelfiePreview').innerHTML='<img src="'+w.foto_perfil_url+'" style="width:70px;height:70px;border-radius:50%;object-fit:cover">';
+    }
+    document.getElementById('wpNom').value=w.nombre||'';
+    document.getElementById('wpApe').value=w.apellido||'';
+    document.getElementById('wpRut').value=w.rut||'';
+    document.getElementById('wpFnac').value=w.fecha_nacimiento||'';
+    document.getElementById('wpDir').value=w.direccion||'';
+    document.getElementById('wpCom').value=w.comuna||'';
+    document.getElementById('wpTel').value=w.telefono||'';
+    document.getElementById('wpEmNom').value=w.contacto_emergencia_nombre||'';
+    document.getElementById('wpEmTel').value=w.contacto_emergencia_telefono||'';
+    document.getElementById('wpSalud').value=w.sistema_salud||'';
+    document.getElementById('wpAlergias').value=w.alergias_paseador||'';
+    document.getElementById('wpCondiciones').value=w.condiciones_medicas||'';
+    document.getElementById('wpMeds').value=w.medicamentos_paseador||'';
+    document.getElementById('wpCertFecha').value=w.certificado_antecedentes_fecha||'';
+    document.getElementById('wpCertUrl').value=w.certificado_antecedentes_url||'';
+    if(w.certificado_antecedentes_url){
+      document.getElementById('wpCertPreview').innerHTML='<a href="https://docs.google.com/viewer?url='+encodeURIComponent(w.certificado_antecedentes_url)+'" target="_blank" class="btn btn-o btn-sm" style="text-decoration:none">📄 Ver certificado actual</a>';
+    }
+  } catch(e){}
+}
+
+document.getElementById('btnSubirSelfie').addEventListener('click',function(){
+  subirArchivo(function(url){
+    document.getElementById('wSelfiePreview').innerHTML='<img src="'+url+'" style="width:70px;height:70px;border-radius:50%;object-fit:cover">';
+    // Save foto_perfil_url directly
+    dbPatch('usuarios',{foto_perfil_url:url},'id=eq.'+me.id);
+    toast('✅ Foto actualizada');
+  },'image');
+});
+
+document.getElementById('btnSubirCert').addEventListener('click',function(){
+  var input=document.createElement('input');
+  input.type='file';
+  input.accept='application/pdf';
+  input.onchange=async function(){
+    var file=input.files[0];
+    if(!file)return;
+    if(file.size>5*1024*1024){toast('❌ El PDF no puede superar 5MB');return;}
+    var btn=document.getElementById('btnSubirCert');
+    btn.textContent='⏳ Subiendo...';
+    btn.disabled=true;
+    try{
+      var fileName=me.id+'_'+Date.now()+'.pdf';
+      var res=await fetch(SUPA_URL+'/storage/v1/object/certificados/'+fileName,{
+        method:'POST',
+        headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/pdf','x-upsert':'true'},
+        body:file
+      });
+      if(!res.ok)throw new Error('Error subiendo');
+      var url=SUPA_URL+'/storage/v1/object/public/certificados/'+fileName;
+      document.getElementById('wpCertUrl').value=url;
+      document.getElementById('wpCertPreview').innerHTML='<a href="'+url+'" target="_blank" class="btn btn-o btn-sm" style="text-decoration:none">📄 Certificado subido ✅</a>';
+      toast('✅ Certificado subido');
+    }catch(e){toast('❌ Error al subir el PDF');}
+    btn.textContent='📄 Subir certificado PDF';
+    btn.disabled=false;
+  };
+  input.click();
+});
+
+document.getElementById('btnSubirFotoW').addEventListener('click',function(){
+  subirArchivo(function(url){
+    document.getElementById('wFotoUrl').value=url;
+    document.getElementById('wFotoPreview').innerHTML='<img src="'+url+'" style="width:70px;height:70px;border-radius:50%;object-fit:cover;border:2px solid var(--g)">';
+    toast('✅ Foto cargada');
+  },'image');
+});
+
+document.getElementById('btnSavePerfilW').addEventListener('click',async function(){
+  try {
+    await dbPatch('usuarios',{
+      nombre:document.getElementById('wpNom').value.trim(),
+      apellido:document.getElementById('wpApe').value.trim(),
+      rut:document.getElementById('wpRut').value.trim(),
+      fecha_nacimiento:document.getElementById('wpFnac').value||null,
+      direccion:document.getElementById('wpDir').value.trim(),
+      comuna:document.getElementById('wpCom').value.trim(),
+      telefono:document.getElementById('wpTel').value.trim(),
+      contacto_emergencia_nombre:document.getElementById('wpEmNom').value.trim(),
+      contacto_emergencia_telefono:document.getElementById('wpEmTel').value.trim(),
+      sistema_salud:document.getElementById('wpSalud').value,
+      alergias_paseador:document.getElementById('wpAlergias').value.trim(),
+      condiciones_medicas:document.getElementById('wpCondiciones').value.trim(),
+      medicamentos_paseador:document.getElementById('wpMeds').value.trim(),
+      certificado_antecedentes_fecha:document.getElementById('wpCertFecha').value||null,
+      certificado_antecedentes_url:document.getElementById('wpCertUrl').value.trim()
+    },'id=eq.'+me.id);
+    toast('✅ Ficha actualizada');
+  } catch(e){toast('❌ Error: '+e.message);}
+});
+
+// ══ CLIENT VIEW - show walker info ══
+async function rMisPerrosCConPaseador(){
+  // Enhanced version showing walker public info
+  var list=document.getElementById('listMisPerrosC');
+  list.innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  try {
+    var perros=await dbGet('perros','cliente_id=eq.'+me.id);
+    var walkerIdSet=new Set(perros.map(function(p){return p.paseador_principal_id;}).filter(Boolean));
+    // Also get IDs from perro_paseadores
+    var ppTemp=perros.length?await dbGet('perro_paseadores','perro_id=in.('+perros.map(function(p){return p.id;}).join(',')+')'):[];
+    ppTemp.forEach(function(r){if(r.paseador_id)walkerIdSet.add(r.paseador_id);});
+    var walkerIds=[...walkerIdSet];
+    var walkersInfo=walkerIds.length?await dbGet('usuarios','id=in.('+walkerIds.join(',')+')&select=id,nombre,apellido,rut,telefono,foto_perfil_url,certificado_antecedentes_fecha,certificado_antecedentes_url'):[];
+    // Load all assigned walkers via perro_paseadores
+    var ppRows=await dbGet('perro_paseadores','perro_id=in.('+perros.map(function(p){return p.id;}).join(',')+')');
+    list.innerHTML=perros.map(function(p){
+      var wPrincipal=walkersInfo.find(function(x){return x.id===p.paseador_principal_id;});
+      var wSecundarios=ppRows.filter(function(r){return r.perro_id===p.id&&r.paseador_id!==p.paseador_principal_id;})
+        .map(function(r){return walkersInfo.find(function(x){return x.id===r.paseador_id;});})
+        .filter(Boolean);
+      function walkerCard(w, isPrincipal){
+        var certOk=false, certVencido=false;
+        if(w.certificado_antecedentes_fecha){
+          var diff=Math.ceil((new Date(w.certificado_antecedentes_fecha)-new Date(hoy()))/(1000*60*60*24));
+          certOk=diff>=0; certVencido=diff<0;
+        }
+        var hasCert=!!w.certificado_antecedentes_fecha;
+        return'<div style="background:'+(isPrincipal?'var(--g3)':'var(--bg)')+';border-radius:var(--r2);padding:9px;margin-bottom:7px;border:1px solid '+(isPrincipal?'var(--g)':'var(--bd)')+'">'+
+          '<div style="display:flex;align-items:center;gap:10px">'+
+            (w.foto_perfil_url?'<img src="'+w.foto_perfil_url+'" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid '+(isPrincipal?'var(--g)':'var(--bd)')+'">':'<div style="width:44px;height:44px;border-radius:50%;background:var(--g);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">🚶</div>')+
+            '<div style="flex:1">'+
+              '<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">'+
+                '<span style="font-weight:700;font-size:.88rem">'+w.nombre+' '+(w.apellido||'')+'</span>'+
+                (isPrincipal?'<span class="bdg bdg-g" style="font-size:.6rem">Principal</span>':'<span class="bdg bdg-x" style="font-size:.6rem">Secundario</span>')+
+              '</div>'+
+              '<div style="font-size:.74rem;color:var(--mu);margin-top:2px">'+
+                'RUT: '+(w.rut||'—')+(w.telefono?' &nbsp;·&nbsp; 📞 '+w.telefono:'')+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          '<div style="margin-top:8px;padding-top:8px;border-top:1px solid '+(isPrincipal?'rgba(61,122,82,.2)':'var(--bd)')+'">'+
+            (hasCert?
+              '<div style="display:flex;align-items:center;justify-content:space-between">'+
+                '<span class="bdg '+(certOk?'bdg-g':'bdg-x')+'">'+(certOk?'✅ Antecedentes vigentes':'❌ Antecedentes vencidos')+'</span>'+
+                (w.certificado_antecedentes_url?'<a href="'+w.certificado_antecedentes_url+'" target="_blank" class="btn btn-o btn-xs" style="text-decoration:none;font-size:.72rem">📄 Ver PDF</a>':'')+
+              '</div>':
+              '<span class="bdg bdg-x">📄 Sin certificado cargado</span>'
+            )+
+          '</div>'+
+        '</div>';
+      }
+      return'<div class="card" style="margin-bottom:10px">'+
+        '<div class="card-hdr">'+
+          '<div><div style="font-weight:700">🐕 '+p.nombre+(p.raza?' <span style="font-weight:400;color:var(--mu);font-size:.78rem">'+p.raza+'</span>':'')+'</div></div>'+
+          '<button class="btn btn-o btn-xs" data-act="edit-perro-c" data-id="'+p.id+'">✏️ Editar</button>'+
+        '</div>'+
+        '<div style="padding:10px 13px">'+
+          '<div style="font-size:.68rem;font-weight:700;text-transform:uppercase;color:var(--mu);margin-bottom:6px">🚶 Paseadores asignados</div>'+
+          (wPrincipal?walkerCard(wPrincipal,true):'<div style="font-size:.8rem;color:var(--mu);margin-bottom:8px">Sin paseador principal asignado</div>')+
+          wSecundarios.map(function(w){return walkerCard(w,false);}).join('')+
+          (p.alergias?'<div style="font-size:.8rem;color:var(--warn);margin-top:5px">⚠️ '+p.alergias+'</div>':'')+
+          (p.notas?'<div style="font-size:.8rem;color:var(--mu);margin-top:3px">📝 '+p.notas+'</div>':'')+
+        '</div>'+
+      '</div>';
+    }).join('');
+  } catch(e){list.innerHTML='<div class="empty"><p>Error</p></div>';}
+}
+
+
+// ══ FIREBASE + NOTIFICACIONES PUSH ══
+var VAPID_KEY = "BCtyXuHslhvDtADvyAJYNHOrtzlgOqIJZaAyivq4zA5eaUshEdiYUhSO_8v2631xGpO_urmcKmCv_JIHlvHVCaA";
+var firebaseConfig = {
+  apiKey: "AIzaSyB-iE3JOO2bU5Rm0rh2l1QZ1fvJepEV55M",
+  authDomain: "puchocodri-507b1.firebaseapp.com",
+  projectId: "puchocodri-507b1",
+  storageBucket: "puchocodri-507b1.firebasestorage.app",
+  messagingSenderId: "558917990116",
+  appId: "1:558917990116:web:53c400531bfb9196ce5ef1"
+};
+
+var fbApp = null;
+var messaging = null;
+
+function initFirebase(){
+  try {
+    fbApp = firebase.initializeApp(firebaseConfig);
+    messaging = firebase.messaging();
+    console.log('Firebase iniciado');
+  } catch(e){ console.log('Firebase error:', e); }
+}
+
+async function solicitarPermiso(){
+  try {
+    var perm = await Notification.requestPermission();
+    if(perm === 'granted'){
+      var token = await messaging.getToken({vapidKey: VAPID_KEY});
+      if(token){
+        // Save token to database for this user
+        if(me && me.id){
+          var tabla = me.tipo === 'cliente' ? 'clientes' : 'usuarios';
+          await dbPatch(tabla, {fcm_token: token}, 'id=eq.'+me.id);
+        }
+        console.log('Token FCM guardado');
+      }
+    }
+  } catch(e){ console.log('Error permiso notif:', e); }
+}
+
+async function enviarNotif(userId, titulo, cuerpo, esCliente){
+  // Save notification request to Supabase - a service worker will pick it up
+  try {
+    await dbPost('notificaciones', {
+      usuario_id: userId,
+      es_cliente: esCliente||false,
+      titulo: titulo,
+      cuerpo: cuerpo,
+      leida: false,
+      empresa_id: EMPRESA_ID
+    });
+  } catch(e){}
+}
+
+// Register service worker
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/firebase-messaging-sw.js').then(function(reg){
+    console.log('SW registrado');
+  }).catch(function(e){ console.log('SW error:', e); });
+}
+
+// Init Firebase after page load
+window.addEventListener('load', function(){
+  initFirebase();
+});
+
+
+// ══ POLLING NOTIFICACIONES ══
+var _lastSolCheck = new Date().toISOString();
+var _pollingInterval = null;
+var _notifPermitido = false;
+
+function iniciarPolling(){
+  if(_pollingInterval) clearInterval(_pollingInterval);
+  _lastSolCheck = new Date().toISOString();
+  _pollingInterval = setInterval(checkNuevaSolicitud, 30000);
+  actualizarBadgeSol();
+  setInterval(actualizarBadgeSol, 60000); // cada 30 seg
+}
+
+function detenerPolling(){
+  if(_pollingInterval) clearInterval(_pollingInterval);
+  _pollingInterval = null;
+}
+
+async function checkNuevaSolicitud(){
+  if(!me || !me.es_admin) return;
+  try {
+    var nuevas = await dbGet('solicitudes',
+      'empresa_id=eq.'+EMPRESA_ID+
+      '&estado=eq.nueva'+
+      '&created_at=gt.'+_lastSolCheck
+    );
+    _lastSolCheck = new Date().toISOString();
+    if(nuevas.length > 0){
+      nuevas.forEach(async function(s){
+        // Get client name
+        var cli = await dbGet('clientes','id=eq.'+s.cliente_id+'&select=nombre,apellido');
+        var nombre = cli.length ? cli[0].nombre+' '+cli[0].apellido : 'Un cliente';
+        var svc = {paseo:'paseo',asesoria:'asesoría',petsitter:'petsitter'};
+        mostrarNotifLocal('📬 Nueva solicitud', nombre+' agendó un '+( svc[s.tipo]||s.tipo));
+      });
+      // Update badge on solicitudes tab
+      var bn = document.querySelector('.bn[data-pg="solicitudes"] .ico');
+      if(bn) bn.textContent = '📬';
+    }
+  } catch(e){}
+}
+
+function mostrarNotifLocal(titulo, cuerpo){
+  // Try push notification first
+  if('Notification' in window && Notification.permission === 'granted'){
+    try {
+      new Notification(titulo, {
+        body: cuerpo,
+        icon: 'https://raw.githubusercontent.com/googlesamples/web-fundamentals/gh-pages/fundamentals/push-notifications/demos/notification-examples/images/icon.png',
+        badge: 'https://raw.githubusercontent.com/googlesamples/web-fundamentals/gh-pages/fundamentals/push-notifications/demos/notification-examples/images/icon.png',
+        tag: 'puchocodri-sol',
+        renotify: true
+      });
+    } catch(e){}
+  }
+  // Always show in-app toast too
+  toast('📬 ' + cuerpo);
+}
+
+
+// ══ BADGE SOLICITUDES ══
+async function actualizarBadgeSol(){
+  try {
+    if(me && me.es_admin){
+      var nuevas=await dbGet('solicitudes','empresa_id=eq.'+EMPRESA_ID+'&estado=eq.nueva&leida=eq.false');
+      var bn=document.getElementById('bnSolAdmin');
+      if(bn){
+        if(nuevas.length>0){bn.classList.add('bn-badge');bn.setAttribute('data-count',nuevas.length);}
+        else{bn.classList.remove('bn-badge');bn.removeAttribute('data-count');}
+      }
+    } else if(me && me.tipo==='cliente'){
+      // Badge en solicitudes - respuestas no leídas
+      var resps=await dbGet('solicitudes','cliente_id=eq.'+me.id+'&leida_cliente=eq.false&estado=in.(confirmada,propuesta,cancelada)');
+      var bn=document.getElementById('bnSolCliente');
+      if(bn){
+        if(resps.length>0){bn.classList.add('bn-badge');bn.setAttribute('data-count',resps.length);}
+        else{bn.classList.remove('bn-badge');bn.removeAttribute('data-count');}
+      }
+      // Badge en saldo - cobro pendiente notificado
+      var mes=hoyMes();
+      var cliData=await dbGet('clientes','id=eq.'+me.id+'&select=mes_notif,pagado_mes');
+      var bnSaldo=document.getElementById('bnSaldo');
+      if(bnSaldo){
+        var tieneCobro=cliData.length&&cliData[0].mes_notif===mes&&cliData[0].pagado_mes!==mes;
+        if(tieneCobro){bnSaldo.classList.add('bn-badge');bnSaldo.setAttribute('data-count','$');}
+        else{bnSaldo.classList.remove('bn-badge');bnSaldo.removeAttribute('data-count');}
+      }
+    }
+  } catch(e){}
+}
+
+async function marcarSolicitudesLeidas(){
+  try {
+    if(me && me.es_admin){
+      await dbPatch('solicitudes',{leida:true},'empresa_id=eq.'+EMPRESA_ID+'&estado=eq.nueva&leida=eq.false');
+    } else if(me && me.tipo==='cliente'){
+      await dbPatch('solicitudes',{leida_cliente:true},'cliente_id=eq.'+me.id+'&leida_cliente=eq.false');
+    }
+    actualizarBadgeSol();
+  } catch(e){}
+}
+
+</script>
+</body>
+</html>
