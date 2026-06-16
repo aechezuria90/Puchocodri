@@ -1641,29 +1641,31 @@ async function rDash(){
     // Acumulado
     var hoyS=hoy();
     var pHoy=paseos.filter(function(p){return p.fecha&&p.fecha===hoyS&&p.estado==='realizado';});
-    var ganHoy=pHoy.reduce(function(s,p){return s+(p.tarifa_cliente-p.tarifa_paseador);},0);
-    var ganMes=pMes.reduce(function(s,p){return s+(p.tarifa_cliente-p.tarifa_paseador);},0);
     var recMes=pMes.reduce(function(s,p){return s+p.tarifa_cliente;},0);
-    // My personal production this month
-    var miProdMes=pMes.filter(function(p){return p.paseador_id==='fa92ba9b-9afe-485d-8df3-1f6e0254f0e1';}).reduce(function(s,p){return s+p.tarifa_cliente;},0);
-    var miPaseosMes=pMes.filter(function(p){return p.paseador_id==='fa92ba9b-9afe-485d-8df3-1f6e0254f0e1';}).length;
-    var ganEquipo=pMes.filter(function(p){return p.paseador_id!=='fa92ba9b-9afe-485d-8df3-1f6e0254f0e1';}).reduce(function(s,p){return s+(p.tarifa_cliente-p.tarifa_paseador);},0);
-    // Load cross-company earnings for this admin
+    // Mi producción personal en Puchocodri (soy dueño → tarifa_cliente)
+    var miPaseosMes=pMes.filter(function(p){return p.paseador_id===me.id;}).length;
+    var miProdMes=pMes.filter(function(p){return p.paseador_id===me.id;}).reduce(function(s,p){return s+p.tarifa_cliente;},0);
+    // Ganancia del equipo (margen sobre paseos de otros paseadores)
+    var ganEquipo=pMes.filter(function(p){return p.paseador_id!==me.id;}).reduce(function(s,p){return s+(p.tarifa_cliente-p.tarifa_paseador);},0);
+    // Paseos hoy personales
+    var pHoyMios=pHoy.filter(function(p){return p.paseador_id===me.id;});
+    var ganHoy=pHoyMios.reduce(function(s,p){return s+p.tarifa_cliente;},0)+
+               pHoy.filter(function(p){return p.paseador_id!==me.id;}).reduce(function(s,p){return s+(p.tarifa_cliente-p.tarifa_paseador);},0);
+    // Paseos en otras empresas
     var ganOtraEmpresa=0; var pasOtraEmpresa=0; var otraEmpresaNombre='';
     try {
-      var mesStr2=hoyMes();
-      // Find what other companies this admin works for as walker
       var ueAdmin=await dbGet('usuario_empresas','usuario_id=eq.'+me.id);
       var otraEmpresa=ueAdmin.find(function(x){return x.empresa_id!==EMPRESA_ID;});
       if(otraEmpresa){
         var empInfo=await dbGet('empresas','id=eq.'+otraEmpresa.empresa_id+'&select=nombre');
         otraEmpresaNombre=empInfo.length?empInfo[0].nombre:'Otra empresa';
-        var paseosOtra=await dbGet('paseos','empresa_id=eq.'+otraEmpresa.empresa_id+'&paseador_id=eq.'+me.id+'&fecha=gte.'+mesStr2+'-01&estado=eq.realizado');
+        var paseosOtra=await dbGet('paseos','empresa_id=eq.'+otraEmpresa.empresa_id+'&paseador_id=eq.'+me.id+'&fecha=gte.'+mes+'-01&estado=eq.realizado');
         ganOtraEmpresa=paseosOtra.reduce(function(s,p){return s+p.tarifa_paseador;},0);
         pasOtraEmpresa=paseosOtra.length;
       }
     } catch(e){}
-    var ganTotal=ganMes+ganOtraEmpresa;
+    // TOTAL = mi producción personal (todas las empresas) + ganancia equipo
+    var ganTotal=miProdMes+ganOtraEmpresa+ganEquipo;
     document.getElementById('dashAcumulado').innerHTML=
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">'+
       '<div style="background:var(--g3);border-radius:var(--r);padding:11px;border:1.5px solid var(--g)"><div style="font-size:.63rem;font-weight:700;text-transform:uppercase;color:var(--g);margin-bottom:3px">Ganancia hoy</div><div style="font-size:1.4rem;font-weight:700;color:var(--g);font-family:monospace">'+fmt(ganHoy)+'</div></div>'+
@@ -1672,8 +1674,8 @@ async function rDash(){
       '<div style="background:#fff;border-radius:var(--r);padding:13px;border:1.5px solid var(--bd);margin-bottom:8px">'+
         '<div style="font-size:.65rem;font-weight:700;text-transform:uppercase;color:var(--mu);margin-bottom:8px">Desglose del mes</div>'+
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
-          '<div><div style="font-size:.82rem;font-weight:600">⭐ Mi producción — Puchocodri</div>'+
-          '<div style="font-size:.72rem;color:var(--mu)">'+miPaseosMes+' paseos realizados por mí</div></div>'+
+          '<div><div style="font-size:.82rem;font-weight:600">⭐ Mis paseos — Puchocodri</div>'+
+          '<div style="font-size:.72rem;color:var(--mu)">'+miPaseosMes+' paseos</div></div>'+
           '<div style="font-family:monospace;font-weight:700;font-size:.95rem;color:var(--g)">'+fmt(miProdMes)+'</div>'+
         '</div>'+
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
@@ -1683,12 +1685,12 @@ async function rDash(){
         '</div>'+
         (otraEmpresaNombre?
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
-          '<div><div style="font-size:.82rem;font-weight:600">💼 Mis paseos en '+otraEmpresaNombre+'</div>'+
+          '<div><div style="font-size:.82rem;font-weight:600">💼 Mis paseos — '+otraEmpresaNombre+'</div>'+
           '<div style="font-size:.72rem;color:var(--mu)">'+pasOtraEmpresa+' paseos</div></div>'+
           '<div style="font-family:monospace;font-weight:700;font-size:.95rem;color:var(--tx)">'+fmt(ganOtraEmpresa)+'</div>'+
         '</div>':'')+
         '<div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid var(--bd)">'+
-          '<div style="font-size:.86rem;font-weight:700;color:var(--g)">💰 Ganancia total mes</div>'+
+          '<div style="font-size:.86rem;font-weight:700;color:var(--g)">💰 Total del mes</div>'+
           '<div style="font-family:monospace;font-weight:700;font-size:1.1rem;color:var(--g)">'+fmt(ganTotal)+'</div>'+
         '</div>'+
       '</div>';
