@@ -655,6 +655,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
     <div class="modal-handle"></div>
     <div class="modal-title" id="mpTit">Registrar paseo</div>
     <input type="hidden" id="mpId">
+    <input type="hidden" id="mpEmpId">
     <div class="fld"><label>Fecha</label><input type="date" id="mpFecha"></div>
     <div class="fld"><label>¿Cómo fue?</label>
       <select id="mpEst"><option value="realizado">✅ Realizado</option><option value="cancelado">❌ No se realizó</option></select>
@@ -1475,11 +1476,12 @@ async function delPs(id){
 }
 
 // ══ MARCAR PASEO (paseador) ══
-document.getElementById('btnMarcar').addEventListener('click',marcar);
-async function abrirMarcar(pid){
+document.getElementById('btnMarcar').onclick=function(){marcar();};
+async function abrirMarcar(pid,empId){
   var perros=await dbGet('perros','id=eq.'+pid);
   if(!perros.length)return;
   document.getElementById('mpId').value=pid;
+  document.getElementById('mpEmpId').value=empId||EMPRESA_ID;
   document.getElementById('mpTit').textContent='Paseo de '+perros[0].nombre;
   document.getElementById('mpFecha').value=hoy();
   document.getElementById('mpObs').value='';
@@ -2424,7 +2426,7 @@ document.addEventListener('click',function(e){
   else if(a==='ew')abrirW(id);
   else if(a==='dw')delW(id);
   else if(a==='dps')delPs(id);
-  else if(a==='mp')abrirMarcar(id);
+  else if(a==='mp')abrirMarcar(id,el.dataset.emp);
   else if(a==='asignar')abrirAsignar(id);
   else if(a==='recargar')abrirRecargar(id);
   else if(a==='resp-sol')abrirResp(id);
