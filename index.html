@@ -1478,48 +1478,52 @@ async function delPs(id){
 // ══ MARCAR PASEO (paseador) ══
 document.getElementById('btnMarcar').onclick=function(){marcar();};
 async function abrirMarcar(pid,empId){
-  var perros=await dbGet('perros','id=eq.'+pid);
-  if(!perros.length)return;
-  document.getElementById('mpId').value=pid;
-  document.getElementById('mpEmpId').value=empId||EMPRESA_ID;
-  document.getElementById('mpTit').textContent='Paseo de '+perros[0].nombre;
-  document.getElementById('mpFecha').value=hoy();
-  document.getElementById('mpObs').value='';
-  document.getElementById('mpEst').value='realizado';
-  abrir('mp');
+  try {
+    var perros=await dbGet('perros','id=eq.'+pid);
+    if(!perros.length)return;
+    document.getElementById('mpId').value=pid;
+    document.getElementById('mpEmpId').value=empId||EMPRESA_ID;
+    document.getElementById('mpTit').textContent='Paseo de '+perros[0].nombre;
+    document.getElementById('mpFecha').value=hoy();
+    document.getElementById('mpObs').value='';
+    document.getElementById('mpEst').value='realizado';
+    abrir('mp');
+  } catch(e){toast('❌ Error: '+e.message);}
 }
 async function marcar(){
-  var pid=document.getElementById('mpId').value;
-  var empId=document.getElementById('mpEmpId').value||EMPRESA_ID;
-  var fecha=document.getElementById('mpFecha').value;
-  if(!fecha){toast('⚠️ Selecciona la fecha');return;}
-  var perros=await dbGet('perros','id=eq.'+pid);
-  if(!perros.length)return;
-  var p=perros[0];
-  var estado=document.getElementById('mpEst').value;
-  var walker=await dbGet('usuarios','id=eq.'+me.id+'&select=es_pucho');
-  var esPucho=walker.length&&walker[0].es_pucho&&empId===me.empresa_id;
-  var tw=0;
-  if(!esPucho){
-    try {
-      var pp=await dbGet('perro_paseadores','perro_id=eq.'+pid+'&paseador_id=eq.'+me.id);
-      tw=pp.length&&pp[0].tarifa_paseador?pp[0].tarifa_paseador:0;
-    } catch(e){}
-  }
-  var esExtra=false;
-  if(estado==='realizado'&&p.modalidad_pago==='paquete'){
-    var rest=(p.pack_total||0)-(p.pack_usados||0);
-    if(rest>0){
-      await dbPatch('perros',{pack_usados:(p.pack_usados||0)+1},'id=eq.'+pid);
-    } else {
-      esExtra=true;
+  try {
+    var pid=document.getElementById('mpId').value;
+    var empId=document.getElementById('mpEmpId').value||EMPRESA_ID;
+    var fecha=document.getElementById('mpFecha').value;
+    if(!fecha){toast('⚠️ Selecciona la fecha');return;}
+    var perros=await dbGet('perros','id=eq.'+pid);
+    if(!perros.length)return;
+    var p=perros[0];
+    var estado=document.getElementById('mpEst').value;
+    var walker=await dbGet('usuarios','id=eq.'+me.id+'&select=es_pucho');
+    var esPucho=walker.length&&walker[0].es_pucho&&empId===me.empresa_id;
+    var tw=0;
+    if(!esPucho){
+      try {
+        var pp=await dbGet('perro_paseadores','perro_id=eq.'+pid+'&paseador_id=eq.'+me.id);
+        tw=pp.length&&pp[0].tarifa_paseador?pp[0].tarifa_paseador:0;
+      } catch(e){}
     }
-  }
-  await dbPost('paseos',{empresa_id:empId,perro_id:pid,paseador_id:me.id,
-    fecha:fecha,estado:estado,observaciones:document.getElementById('mpObs').value.trim(),
-    tarifa_cliente:p.tarifa,tarifa_paseador:tw,es_extra:esExtra});
-  cerrar('mp'); rMisPerros(); rMiHist();
-  toast(esExtra?'✅ Paseo extra registrado':'✅ Guardado');
+    var esExtra=false;
+    if(estado==='realizado'&&p.modalidad_pago==='paquete'){
+      var rest=(p.pack_total||0)-(p.pack_usados||0);
+      if(rest>0){
+        await dbPatch('perros',{pack_usados:(p.pack_usados||0)+1},'id=eq.'+pid);
+      } else {
+        esExtra=true;
+      }
+    }
+    await dbPost('paseos',{empresa_id:empId,perro_id:pid,paseador_id:me.id,
+      fecha:fecha,estado:estado,observaciones:document.getElementById('mpObs').value.trim(),
+      tarifa_cliente:p.tarifa,tarifa_paseador:tw,es_extra:esExtra});
+    cerrar('mp'); rMisPerros(); rMiHist();
+    toast(esExtra?'✅ Paseo extra registrado':'✅ Guardado');
+  } catch(e){toast('❌ Error: '+e.message);}
 }
 
 // ══ CAMBIAR CLAVE PASEADOR ══
@@ -2426,7 +2430,7 @@ document.addEventListener('click',function(e){
   else if(a==='ew')abrirW(id);
   else if(a==='dw')delW(id);
   else if(a==='dps')delPs(id);
-  else if(a==='mp')abrirMarcar(id,el.dataset.emp);
+  else if(a==='mp')abrirMarcar(id,btn.dataset.emp);
   else if(a==='asignar')abrirAsignar(id);
   else if(a==='recargar')abrirRecargar(id);
   else if(a==='resp-sol')abrirResp(id);
