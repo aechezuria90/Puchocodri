@@ -1,0 +1,22 @@
+{
+  "name": "Puchocodri",
+  "short_name": "Puchocodri",
+  "description": "Educación canina con respeto",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3d7a52",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/googlesamples/web-fundamentals/gh-pages/fundamentals/push-notifications/demos/notification-examples/images/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/googlesamples/web-fundamentals/gh-pages/fundamentals/push-notifications/demos/notification-examples/images/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
