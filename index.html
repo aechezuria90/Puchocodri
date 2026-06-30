@@ -1456,8 +1456,10 @@ async function savePs(){
     if(estado==='realizado'){
       var perrosChk=await dbGet('perros','id=eq.'+pid);
       if(perrosChk.length&&perrosChk[0].modalidad_pago==='paquete'){
+        var mesDelPaseo=fecha.slice(0,7);
+        var packMes=perrosChk[0].pack_mes||'';
         var rest=(perrosChk[0].pack_total||0)-(perrosChk[0].pack_usados||0);
-        if(rest>0){
+        if(packMes&&mesDelPaseo===packMes&&rest>0){
           await dbPatch('perros',{pack_usados:(perrosChk[0].pack_usados||0)+1},'id=eq.'+pid);
         } else {
           esExtra=true;
@@ -1473,8 +1475,18 @@ async function savePs(){
 }
 async function delPs(id){
   if(!confirm('¿Eliminar paseo?'))return;
-  await dbDelete('paseos','id=eq.'+id);
-  rPaseos(); rDash(); toast('🗑️ Eliminado');
+  try {
+    // Si el paseo era "realizado" y el perro tiene paquete, restar pack_usados
+    var paseosDel=await dbGet('paseos','id=eq.'+id+'&select=perro_id,estado,es_extra');
+    if(paseosDel.length&&paseosDel[0].estado==='realizado'&&!paseosDel[0].es_extra){
+      var perroDel=await dbGet('perros','id=eq.'+paseosDel[0].perro_id+'&select=modalidad_pago,pack_usados');
+      if(perroDel.length&&perroDel[0].modalidad_pago==='paquete'&&perroDel[0].pack_usados>0){
+        await dbPatch('perros',{pack_usados:perroDel[0].pack_usados-1},'id=eq.'+paseosDel[0].perro_id);
+      }
+    }
+    await dbDelete('paseos','id=eq.'+id);
+    rPaseos(); rDash(); toast('🗑️ Eliminado');
+  } catch(e){toast('❌ Error: '+e.message);}
 }
 
 // ══ MARCAR PASEO (paseador) ══
@@ -1515,8 +1527,10 @@ async function marcar(){
     } catch(e){}
     var esExtra=false;
     if(estado==='realizado'&&p.modalidad_pago==='paquete'){
+      var mesDelPaseo=fecha.slice(0,7);
+      var packMes=p.pack_mes||'';
       var rest=(p.pack_total||0)-(p.pack_usados||0);
-      if(rest>0){
+      if(packMes&&mesDelPaseo===packMes&&rest>0){
         await dbPatch('perros',{pack_usados:(p.pack_usados||0)+1},'id=eq.'+pid);
       } else {
         esExtra=true;
@@ -1675,31 +1689,42 @@ async function abrirRecargar(pid){
   document.getElementById('paqSub').textContent='🐕 '+p.nombre;
   document.getElementById('paqAgregar').value='';
   var rest=(p.pack_total||0)-(p.pack_usados||0);
-  // Contar paseos extras pendientes
-  var extras=await dbGet('paseos','perro_id=eq.'+pid+'&es_extra=eq.true&estado=eq.realizado');
+  var mesActivo=p.pack_mes||'Sin ciclo activo';
+  // Contar paseos extras del mes activo
+  var extras=p.pack_mes?await dbGet('paseos','perro_id=eq.'+pid+'&es_extra=eq.true&estado=eq.realizado&fecha=gte.'+p.pack_mes+'-01'):[];
   var montoExtra=extras.reduce(function(s,e){return s+e.tarifa_cliente;},0);
+  // Selector de mes para el nuevo ciclo (mes siguiente al activo, o mes actual)
+  var mesBase=p.pack_mes||hoyMes();
+  var d=new Date(mesBase+'-01');
+  d.setMonth(d.getMonth()+1);
+  var mesSig=d.toISOString().slice(0,7);
   document.getElementById('paqStatus').innerHTML=
-    '<div style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:var(--g);margin-bottom:7px">Estado del paquete</div>'+
-    '<div style="display:flex;justify-content:space-between;font-size:.83rem;margin-bottom:3px"><span style="color:var(--mu)">Total comprado</span><b>'+(p.pack_total||0)+'</b></div>'+
+    '<div style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:var(--g);margin-bottom:7px">Ciclo activo: '+mlbl(mesActivo)+'</div>'+
+    '<div style="display:flex;justify-content:space-between;font-size:.83rem;margin-bottom:3px"><span style="color:var(--mu)">Paseos del paquete</span><b>'+(p.pack_total||0)+'</b></div>'+
     '<div style="display:flex;justify-content:space-between;font-size:.83rem;margin-bottom:3px"><span style="color:var(--mu)">Realizados</span><b>'+(p.pack_usados||0)+'</b></div>'+
     '<div style="display:flex;justify-content:space-between;font-size:.83rem"><span style="color:var(--mu)">Restantes</span><b style="color:'+(rest<=0?'var(--red)':'var(--g)')+'">'+rest+(rest<=0?' ⚠️ Agotado':'')+'</b></div>'+
     '<div class="paq-bar"><div class="paq-bar-fill'+(rest<=0?' agotado':'')+'" style="width:'+Math.min(p.pack_total?Math.round((p.pack_usados||0)/p.pack_total*100):0,100)+'%"></div></div>'+
     (extras.length?
       '<div style="margin-top:10px;padding:10px;background:var(--warnbg);border-radius:var(--r2)">'+
-        '<div style="font-size:.72rem;font-weight:700;color:var(--warn);margin-bottom:4px">➕ Paseos extra realizados</div>'+
+        '<div style="font-size:.72rem;font-weight:700;color:var(--warn);margin-bottom:4px">➕ Paseos extra este ciclo</div>'+
         '<div style="display:flex;justify-content:space-between;font-size:.83rem"><span style="color:var(--mu)">'+extras.length+' paseos fuera del paquete</span><b style="color:var(--warn)">'+fmt(montoExtra)+' pendiente</b></div>'+
-      '</div>':''
-    );
+      '</div>':'')+
+    '<div style="margin-top:14px;border-top:1px solid var(--bd);padding-top:12px">'+
+      '<div style="font-size:.78rem;font-weight:700;color:var(--g);margin-bottom:8px">🔄 Nuevo ciclo</div>'+
+      '<div style="font-size:.78rem;color:var(--mu);margin-bottom:5px">Mes del paquete:</div>'+
+      '<input type="month" id="paqMesNuevo" value="'+mesSig+'" style="width:100%;padding:8px 10px;border:1.5px solid var(--bd);border-radius:var(--r2);font-family:inherit;font-size:.88rem;margin-bottom:8px">'+
+      '<div style="font-size:.78rem;color:var(--mu);margin-bottom:5px">Paseos del nuevo paquete:</div>'+
+    '</div>';
   abrir('paq');
 }
 async function saveRecargar(){
   var pid=document.getElementById('paqPerroId').value;
   var ag=+document.getElementById('paqAgregar').value;
+  var mes=document.getElementById('paqMesNuevo').value;
   if(!ag||ag<1){toast('⚠️ Ingresa cuántos paseos agregar');return;}
-  var perros=await dbGet('perros','id=eq.'+pid);
-  if(!perros.length)return;
-  await dbPatch('perros',{pack_total:(perros[0].pack_total||0)+ag},'id=eq.'+pid);
-  cerrar('paq'); rClientes(); toast('✅ '+ag+' paseos agregados');
+  if(!mes){toast('⚠️ Selecciona el mes del paquete');return;}
+  await dbPatch('perros',{pack_total:ag,pack_usados:0,pack_mes:mes},'id=eq.'+pid);
+  cerrar('paq'); rClientes(); toast('✅ Paquete de '+ag+' paseos cargado para '+mlbl(mes));
 }
 
 // ══ RENDERS ══
@@ -2335,8 +2360,12 @@ async function rMiSaldo(){
     '</select>';
     document.getElementById('saldoDetalle').insertAdjacentHTML('beforebegin',mesSel);
     document.getElementById('saldoMesSel').addEventListener('change',function(){rMiSaldoMes(this.value);});
-    var perros=await dbGet('perros','cliente_id=eq.'+me.id+'&select=id,nombre,tarifa,modalidad_pago,pack_total,pack_usados');
-    var mes=hoyMes();
+    var perros=await dbGet('perros','cliente_id=eq.'+me.id+'&select=id,nombre,tarifa,modalidad_pago,pack_total,pack_usados,pack_mes');
+    // Determinar el mes a mostrar: pack_mes del perro de paquete, o mes actual
+    var mesPaquete=hoyMes();
+    var perroPaquete=perros.find(function(p){return p.modalidad_pago==='paquete'&&p.pack_mes;});
+    if(perroPaquete)mesPaquete=perroPaquete.pack_mes;
+    var mes=mesPaquete;
     var pids=perros.map(function(p){return p.id;});
     var allPaseos=[];
     for(var i=0;i<pids.length;i++){
