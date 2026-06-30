@@ -2380,20 +2380,34 @@ async function rMiSaldo(){
     var total=allPaseos.reduce(function(s,p){return s+p.tarifa_cliente;},0);
     var clienteDB=await dbGet('clientes','id=eq.'+me.id);
     var notif=clienteDB[0]&&clienteDB[0].mes_notif===mes;
+    var pagado=clienteDB[0]&&clienteDB[0].pagado_mes===mes;
     var tieneExtra=paseosExtra.length>0;
     var sEl=document.getElementById('saldoBox');
-    sEl.innerHTML='<div class="saldo-box'+(notif?' pendiente':'')+'">'+
-      '<div class="saldo-lbl">Acumulado '+mlbl(mes)+'</div>'+
-      '<div class="saldo-val">'+fmt(totalPack)+'</div>'+
-      '<div style="font-size:.76rem;color:var(--mu);margin-top:4px">'+paseosPack.length+' paseos del paquete</div>'+
-      (tieneExtra?
-        '<div style="margin-top:10px;padding:10px;background:rgba(255,255,255,.2);border-radius:var(--r2)">'+
-          '<div style="font-size:.72rem;font-weight:700;margin-bottom:3px">➕ Paseos extra</div>'+
-          '<div style="font-size:.85rem">'+paseosExtra.length+' paseos adicionales</div>'+
-          '<div style="font-size:1.1rem;font-weight:700;margin-top:3px">'+fmt(totalExtra)+' pendiente de pago</div>'+
-        '</div>':'')+
-      (notif?datosBancarios(EMPRESA_ID):'')+
-    '</div>';
+    if(pagado){
+      sEl.innerHTML='<div class="saldo-box" style="background:linear-gradient(135deg,#2d6a3f,#3d7a52)">'+
+        '<div class="saldo-lbl">Acumulado '+mlbl(mes)+'</div>'+
+        '<div class="saldo-val">'+fmt(total)+'</div>'+
+        '<div style="font-size:.76rem;color:rgba(255,255,255,.8);margin-top:4px">'+allPaseos.length+' paseos realizados</div>'+
+        '<div style="margin-top:14px;padding:12px;background:rgba(255,255,255,.15);border-radius:var(--r2);text-align:center">'+
+          '<div style="font-size:1.5rem">✅</div>'+
+          '<div style="font-size:.9rem;font-weight:700;color:#fff;margin-top:4px">Pago de '+mlbl(mes)+' recibido</div>'+
+          '<div style="font-size:.75rem;color:rgba(255,255,255,.8);margin-top:2px">¡Gracias por tu pago!</div>'+
+        '</div>'+
+      '</div>';
+    } else {
+      sEl.innerHTML='<div class="saldo-box'+(notif?' pendiente':'')+'">'+
+        '<div class="saldo-lbl">Acumulado '+mlbl(mes)+'</div>'+
+        '<div class="saldo-val">'+fmt(totalPack)+'</div>'+
+        '<div style="font-size:.76rem;color:var(--mu);margin-top:4px">'+paseosPack.length+' paseos del paquete</div>'+
+        (tieneExtra?
+          '<div style="margin-top:10px;padding:10px;background:rgba(255,255,255,.2);border-radius:var(--r2)">'+
+            '<div style="font-size:.72rem;font-weight:700;margin-bottom:3px">➕ Paseos extra</div>'+
+            '<div style="font-size:.85rem">'+paseosExtra.length+' paseos adicionales</div>'+
+            '<div style="font-size:1.1rem;font-weight:700;margin-top:3px">'+fmt(totalExtra)+' pendiente de pago</div>'+
+          '</div>':'')+
+        (notif?datosBancarios(EMPRESA_ID):'')+
+      '</div>';
+    }
     var acum=0;
     document.getElementById('saldoDetalle').innerHTML=allPaseos.length?allPaseos.map(function(p){
       acum+=p.tarifa_cliente;
