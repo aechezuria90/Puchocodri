@@ -1992,8 +1992,8 @@ async function rLiq(){
   var mes=sel.value||meses[0];
   var mp=paseos.filter(function(p){return p.fecha&&p.fecha.slice(0,7)===mes;});
   var perros=await dbGet('perros','empresa_id=eq.'+EMPRESA_ID+'&select=id,cliente_id');
-  var clientes=await dbGet('clientes','empresa_id=eq.'+EMPRESA_ID+'&select=id,nombre,apellido');
-  var walkersLiqH=await dbGet('usuarios','empresa_id=eq.'+EMPRESA_ID+'&select=id,nombre');
+  var clientes=await dbGet('clientes','empresa_id=eq.'+EMPRESA_ID+'&select=id,nombre,apellido,pagado_mes,mes_notif');
+  var walkersLiqH=await dbGet('usuarios','empresa_id=eq.'+EMPRESA_ID+'&select=id,nombre,pagado_mes');
   var ueLiq=await dbGet('usuario_empresas','empresa_id=eq.'+EMPRESA_ID);
   var extraLiqIds=ueLiq.map(function(x){return x.usuario_id;}).filter(function(id){return !walkersLiqH.find(function(w){return w.id===id;});});
   var walkersLiqE=extraLiqIds.length?await dbGet('usuarios','id=in.('+extraLiqIds.join(',')+')&select=id,nombre'):[];
