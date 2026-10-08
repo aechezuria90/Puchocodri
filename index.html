@@ -872,6 +872,19 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
   </div>
 </div>
 
+<!-- Modal confirmación genérico -->
+<div class="ov" id="ov-confirm">
+  <div class="modal" style="max-height:auto">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="confirmTit">¿Confirmar?</div>
+    <div class="modal-sub" id="confirmMsg" style="margin-bottom:20px"></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-o" style="flex:1" id="confirmNo">Cancelar</button>
+      <button class="btn btn-r" style="flex:1" id="confirmSi">Eliminar</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -924,6 +937,46 @@ function fmt(n) { return '$' + Number(n||0).toLocaleString('es-CO'); }
 function mlbl(m) { var p=m.split('-'); return ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][+p[1]-1]+' '+p[0]; }
 function hoyMes() { return hoy().slice(0,7); }
 function toast(msg) { var t=document.getElementById('toast'); t.textContent=msg; t.className='on'; setTimeout(function(){t.className='';},2500); }
+function confirmar(msg){
+  return new Promise(function(resolve){
+    document.getElementById('confirmMsg').textContent=msg;
+    document.getElementById('confirmSi').textContent='Eliminar';
+    document.getElementById('confirmSi').className='btn btn-r';
+    document.getElementById('ov-confirm').classList.add('on');
+    function onSi(){cleanup();resolve(true);}
+    function onNo(){cleanup();resolve(false);}
+    function onOv(e){if(e.target===document.getElementById('ov-confirm')){cleanup();resolve(false);}}
+    function cleanup(){
+      document.getElementById('confirmSi').removeEventListener('click',onSi);
+      document.getElementById('confirmNo').removeEventListener('click',onNo);
+      document.getElementById('ov-confirm').removeEventListener('click',onOv);
+      document.getElementById('ov-confirm').classList.remove('on');
+    }
+    document.getElementById('confirmSi').addEventListener('click',onSi);
+    document.getElementById('confirmNo').addEventListener('click',onNo);
+    document.getElementById('ov-confirm').addEventListener('click',onOv);
+  });
+}
+function confirmarDup(msg){
+  return new Promise(function(resolve){
+    document.getElementById('confirmMsg').textContent=msg;
+    document.getElementById('confirmSi').textContent='Sí, registrar igual';
+    document.getElementById('confirmSi').className='btn btn-warn';
+    document.getElementById('ov-confirm').classList.add('on');
+    function onSi(){cleanup();resolve(true);}
+    function onNo(){cleanup();resolve(false);}
+    function onOv(e){if(e.target===document.getElementById('ov-confirm')){cleanup();resolve(false);}}
+    function cleanup(){
+      document.getElementById('confirmSi').removeEventListener('click',onSi);
+      document.getElementById('confirmNo').removeEventListener('click',onNo);
+      document.getElementById('ov-confirm').removeEventListener('click',onOv);
+      document.getElementById('ov-confirm').classList.remove('on');
+    }
+    document.getElementById('confirmSi').addEventListener('click',onSi);
+    document.getElementById('confirmNo').addEventListener('click',onNo);
+    document.getElementById('ov-confirm').addEventListener('click',onOv);
+  });
+}
 function bdg(e) {
   var m={realizado:'bdg-g',pendiente:'bdg-o',cancelado:'bdg-x'};
   var l={realizado:'✓ Realizado',pendiente:'⏳ Pendiente',cancelado:'✕ Cancelado'};
@@ -1227,12 +1280,22 @@ async function saveC(){
     // Save dogs
     for(var i=0;i<dogs.length;i++){
       var d=dogs[i];
-      var pObj={empresa_id:EMPRESA_ID,cliente_id:savedC.id,nombre:d.nombre,raza:d.raza,
-        fecha_nacimiento:d.fecha_nacimiento,tarifa:d.tarifa,modalidad_pago:d.modalidad_pago,
-        pack_total:d.pack_total,chip:d.chip,alergias:d.alergias,notas:d.notas,
-        vet_nombre:d.vet_nombre,vet_telefono:d.vet_telefono};
-      if(d.pid){await dbPatch('perros',pObj,'id=eq.'+d.pid);}
-      else{await dbPost('perros',pObj);}
+      if(d.pid){
+        // Al EDITAR: solo actualizar campos que el formulario maneja, NO sobreescribir pack_usados/pack_mes/paseador_principal_id
+        var pPatch={nombre:d.nombre,raza:d.raza,fecha_nacimiento:d.fecha_nacimiento,
+          tarifa:d.tarifa,modalidad_pago:d.modalidad_pago,chip:d.chip,alergias:d.alergias,
+          notas:d.notas,vet_nombre:d.vet_nombre,vet_telefono:d.vet_telefono};
+        // Solo actualizar pack_total si se definió un valor positivo en el form
+        if(d.modalidad_pago==='paquete'&&d.pack_total>0) pPatch.pack_total=d.pack_total;
+        await dbPatch('perros',pPatch,'id=eq.'+d.pid);
+      } else {
+        // Al CREAR: mandar todos los campos
+        var pObj={empresa_id:EMPRESA_ID,cliente_id:savedC.id,nombre:d.nombre,raza:d.raza,
+          fecha_nacimiento:d.fecha_nacimiento,tarifa:d.tarifa,modalidad_pago:d.modalidad_pago,
+          pack_total:d.pack_total,chip:d.chip,alergias:d.alergias,notas:d.notas,
+          vet_nombre:d.vet_nombre,vet_telefono:d.vet_telefono};
+        await dbPost('perros',pObj);
+      }
     }
     cerrar('c'); rClientes(); rDash(); toast(cid?'✅ Cliente actualizado':'✅ Cliente creado');
   } catch(e){toast('❌ Error: '+e.message);}
@@ -1241,7 +1304,7 @@ async function saveC(){
 }
 
 async function delC(id){
-  if(!confirm('¿Borrar cliente y sus mascotas?'))return;
+  if(!await confirmar('¿Borrar cliente y todas sus mascotas? Esta acción no se puede deshacer.'))return;
   await dbDelete('perros','cliente_id=eq.'+id);
   await dbDelete('clientes','id=eq.'+id);
   rClientes(); rDash(); toast('🗑️ Eliminado');
@@ -1364,7 +1427,7 @@ async function saveW(){
 async function delW(id){
   var w=await dbGet('usuarios','id=eq.'+id);
   if(w.length&&w[0].es_pucho){toast('⚠️ No puedes eliminar a Pucho');return;}
-  if(!confirm('¿Borrar paseador?'))return;
+  if(!await confirmar('¿Desactivar este paseador?'))return;
   await dbPatch('usuarios',{activo:false},'id=eq.'+id);
   rPaseadores(); toast('🗑️ Eliminado');
 }
@@ -1449,6 +1512,13 @@ async function savePs(){
     var wid=document.getElementById('psWal').value;
     var fecha=document.getElementById('psFecha').value;
     if(!pid||!wid||!fecha){toast('⚠️ Completa todos los campos');return;}
+    // ── Verificar paseo duplicado ──
+    var dup=await dbGet('paseos','empresa_id=eq.'+EMPRESA_ID+'&perro_id=eq.'+pid+'&fecha=eq.'+fecha+'&estado=neq.cancelado');
+    if(dup.length){
+      var pNom=document.getElementById('psPerro').options[document.getElementById('psPerro').selectedIndex].text;
+      var ok=await confirmarDup('⚠️ '+pNom+' ya tiene un paseo registrado el '+fmtF(fecha)+'.\n\n¿Registrar de todas formas? (Solo si fue un paseo doble real)');
+      if(!ok)return;
+    }
     var estado=document.getElementById('psEst').value;
     var tc=+document.getElementById('psTc').value||0;
     var tw=+document.getElementById('psTw').value||0;
@@ -1474,7 +1544,7 @@ async function savePs(){
   } catch(e){toast('❌ Error: '+e.message);}
 }
 async function delPs(id){
-  if(!confirm('¿Eliminar paseo?'))return;
+  if(!await confirmar('¿Eliminar este paseo?'))return;
   try {
     // Si el paseo era "realizado" y el perro tiene paquete, restar pack_usados
     var paseosDel=await dbGet('paseos','id=eq.'+id+'&select=perro_id,estado,es_extra');
@@ -1485,7 +1555,8 @@ async function delPs(id){
       }
     }
     await dbDelete('paseos','id=eq.'+id);
-    rPaseos(); rDash(); toast('🗑️ Eliminado');
+    if(me&&me.rol==='paseador'){rMiHist();}else{rPaseos();rDash();}
+    toast('🗑️ Eliminado');
   } catch(e){toast('❌ Error: '+e.message);}
 }
 
@@ -1513,6 +1584,12 @@ async function marcar(){
     var perros=await dbGet('perros','id=eq.'+pid);
     if(!perros.length)return;
     var p=perros[0];
+    // ── Verificar paseo duplicado ──
+    var dupM=await dbGet('paseos','perro_id=eq.'+pid+'&fecha=eq.'+fecha+'&estado=neq.cancelado');
+    if(dupM.length){
+      var ok=await confirmarDup('⚠️ '+p.nombre+' ya tiene un paseo registrado el '+fmtF(fecha)+'.\n\n¿Registrar de todas formas? (Solo si fue un paseo doble real)');
+      if(!ok)return;
+    }
     var estado=document.getElementById('mpEst').value;
     var walker=await dbGet('usuarios','id=eq.'+me.id+'&select=es_pucho,es_admin');
     var esDuenoEnEstaEmpresa=walker.length&&(walker[0].es_pucho||walker[0].es_admin)&&empId===me.empresa_id;
@@ -2228,9 +2305,16 @@ async function rMiHist(){
     list.innerHTML=acumHeader+(todosLosPaseos.length?todosLosPaseos.map(function(p){
       var dog=todosLosPerros.find(function(x){return x.id===p.perro_id;})||{nombre:'—'};
       var gan=p.estado==='realizado'?p.tarifa_paseador:0;
-      return'<div class="hist-item"><div class="hist-top"><div class="hist-perro">🐕 '+dog.nombre+'</div>'+bdg(p.estado)+'</div>'+
-        '<div style="font-size:.72rem;color:var(--mu)">'+fmtF(p.fecha)+(gan?' · <span style="font-family:monospace;font-weight:600;color:var(--g)">'+fmt(gan)+'</span>':'')+'</div>'+
-        (p.observaciones?'<div style="font-size:.78rem;color:var(--mu);margin-top:3px">💬 '+p.observaciones+'</div>':'')+
+      return'<div class="hist-item" style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">'+
+        '<div style="flex:1;min-width:0">'+
+          '<div class="hist-top"><div class="hist-perro">🐕 '+dog.nombre+'</div>'+bdg(p.estado)+'</div>'+
+          '<div style="font-size:.72rem;color:var(--mu)">'+fmtF(p.fecha)+(gan?' · <span style="font-family:monospace;font-weight:600;color:var(--g)">'+fmt(gan)+'</span>':'')+'</div>'+
+          (p.observaciones?'<div style="font-size:.78rem;color:var(--mu);margin-top:3px">💬 '+p.observaciones+'</div>':'')+
+        '</div>'+
+        '<div style="display:flex;gap:4px;flex-shrink:0;margin-top:2px">'+
+          '<button class="btn btn-o btn-xs" data-act="eps" data-id="'+p.id+'">✏️</button>'+
+          '<button class="btn btn-r btn-xs" data-act="dps" data-id="'+p.id+'">🗑️</button>'+
+        '</div>'+
       '</div>';
     }).join(''):'<div class="empty"><div class="empty-ico">📋</div><p>Sin historial</p></div>');
   } catch(e){list.innerHTML='<div class="empty"><p>Error: '+e.message+'</p></div>';}
@@ -2689,30 +2773,26 @@ document.getElementById('btnSaveEps').addEventListener('click',async function(){
   if(!pid)return;
   try {
     var wid=document.getElementById('eps-wal').value;
-    var wObj=await dbGet('usuarios','id=eq.'+wid+'&select=es_pucho');
-    var esPucho=wObj.length&&wObj[0].es_pucho&&EMPRESA_ID==='ddb83b48-e599-449f-abc3-1a2f1d3a1138';
     await dbPatch('paseos',{
       paseador_id:wid,
       fecha:document.getElementById('eps-fecha').value,
       estado:document.getElementById('eps-est').value,
       tarifa_cliente:+document.getElementById('eps-tc').value,
-      tarifa_paseador:esPucho?0:+document.getElementById('eps-tw').value,
+      tarifa_paseador:+document.getElementById('eps-tw').value,
       observaciones:document.getElementById('eps-obs').value.trim()
     },'id=eq.'+pid);
-    cerrar('eps'); rPaseos(); rDash(); toast('✅ Paseo actualizado');
+    cerrar('eps'); if(me&&me.rol==='paseador'){rMiHist();}else{rPaseos();rDash();} toast('✅ Paseo actualizado');
   } catch(e){toast('❌ Error: '+e.message);}
 });
 
 // ══ MARCAR PAGADO CLIENTE ══
 async function marcarPagado(cid,mes){
-  if(!confirm('¿Marcar como pagado a este cliente?'))return;
   await dbPatch('clientes',{pagado_mes:mes},'id=eq.'+cid);
   rLiq(); toast('✅ Marcado como pagado');
 }
 
 // ══ MARCAR PAGADO PASEADOR ══
 async function marcarPagadoW(wid,mes){
-  if(!confirm('¿Marcar como pagado a este paseador?'))return;
   await dbPatch('usuarios',{pagado_mes:mes},'id=eq.'+wid);
   rLiq(); toast('✅ Liquidación marcada como pagada');
 }

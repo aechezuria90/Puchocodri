@@ -1,7 +1,7 @@
 {
   "name": "Puchocodri",
   "short_name": "Puchocodri",
-  "description": "Educación canina con respeto",
+  "description": "Gestión de paseos caninos",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -9,14 +9,16 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://raw.githubusercontent.com/googlesamples/web-fundamentals/gh-pages/fundamentals/push-notifications/demos/notification-examples/images/icon.png",
+      "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "https://raw.githubusercontent.com/googlesamples/web-fundamentals/gh-pages/fundamentals/push-notifications/demos/notification-examples/images/icon.png",
+      "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
