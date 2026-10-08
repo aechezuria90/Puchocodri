@@ -1305,9 +1305,29 @@ async function saveC(){
 
 async function delC(id){
   if(!await confirmar('¿Borrar cliente y todas sus mascotas? Esta acción no se puede deshacer.'))return;
-  await dbDelete('perros','cliente_id=eq.'+id);
-  await dbDelete('clientes','id=eq.'+id);
-  rClientes(); rDash(); toast('🗑️ Eliminado');
+  try {
+    // 1. Obtener los perros del cliente
+    var perrosDelCliente=await dbGet('perros','cliente_id=eq.'+id+'&select=id');
+    var pids=perrosDelCliente.map(function(p){return p.id;});
+    // 2. Borrar paseos de esos perros (FK constraint: paseos → perros)
+    if(pids.length){
+      await dbDelete('paseos','perro_id=in.('+pids.join(',')+')');
+    }
+    // 3. Borrar asignaciones paseador-perro
+    if(pids.length){
+      try{await dbDelete('perro_paseadores','perro_id=in.('+pids.join(',')+')');}catch(e2){}
+    }
+    // 4. Borrar solicitudes del cliente
+    try{await dbDelete('solicitudes','cliente_id=eq.'+id);}catch(e2){}
+    // 5. Borrar perros
+    await dbDelete('perros','cliente_id=eq.'+id);
+    // 6. Borrar cliente
+    await dbDelete('clientes','id=eq.'+id);
+    rClientes(); rDash(); toast('🗑️ Cliente eliminado');
+  } catch(e){
+    toast('❌ Error al eliminar: '+e.message);
+    console.error('delC error:',e);
+  }
 }
 
 // ══ ASIGNAR ══
