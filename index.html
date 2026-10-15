@@ -1643,7 +1643,7 @@ document.getElementById('btnCambiarClaveC2').addEventListener('click',async func
 document.getElementById('btnCerrarMes').addEventListener('click',async function(){
   var mes=document.getElementById('liqMes').value;
   if(!mes){toast('⚠️ Selecciona un mes');return;}
-  await dbPatch('clientes',{mes_notif:mes,pagado_mes:null},'empresa_id=eq.'+EMPRESA_ID);
+  await dbPatch('clientes',{mes_notif:mes},'empresa_id=eq.'+EMPRESA_ID);
   toast('📬 Cobros notificados a todos los clientes');
 });
 
@@ -2057,13 +2057,15 @@ async function rLiq(){
   document.getElementById('liqClientes').innerHTML=ce.length?ce.map(function(e){
     var c=clientes.find(function(x){return x.id===e[0];})||{nombre:'—',apellido:''};
     var cObj=clientes.find(function(x){return x.id===e[0];});
-    var pagado=cObj&&cObj.pagado_mes===mes;
+    var pagadoMeses=(cObj&&cObj.pagado_mes)?cObj.pagado_mes.split(','):[];
+    var pagado=pagadoMeses.indexOf(mes)>=0;
     return'<div class="liq-row"><div><div class="liq-name">'+c.nombre+' '+c.apellido+'</div><div class="liq-cnt">'+e[1].n+' paseos</div></div><div style="display:flex;align-items:center;gap:6px"><div class="liq-amt">'+fmt(e[1].t)+'</div>'+(pagado?'<span class="bdg bdg-g">✓ Pagado</span>':'<button class="btn btn-g btn-xs" data-act="marcar-pagado" data-id="'+e[0]+'" data-mes="'+mes+'">Marcar pagado</button>')+'</div></div>';
   }).join(''):'<div class="empty" style="padding:14px"><p>Sin datos</p></div>';
   document.getElementById('liqWalkers').innerHTML=we.length?we.map(function(e){
     var w=walkers.find(function(x){return x.id===e[0];})||{nombre:'—'};
     var wObj=walkers.find(function(x){return x.id===e[0];});
-    var pagadoW=wObj&&wObj.pagado_mes===mes;
+    var pagadoWMeses=(wObj&&wObj.pagado_mes)?wObj.pagado_mes.split(','):[];
+    var pagadoW=pagadoWMeses.indexOf(mes)>=0;
     var wNombre=w?w.nombre:'—';
     return'<div class="liq-row"><div><div class="liq-name">'+wNombre+'</div><div class="liq-cnt">'+e[1].n+' paseos</div></div><div style="display:flex;align-items:center;gap:6px"><div class="liq-amt" style="color:var(--tx)">'+fmt(e[1].t)+'</div>'+(pagadoW?'<span class="bdg bdg-g">✓ Pagado</span>':'<button class="btn btn-warn btn-xs" data-act="marcar-pagado-w" data-id="'+e[0]+'" data-mes="'+mes+'">Marcar pagado</button>')+'</div></div>';
   }).join(''):'<div class="empty" style="padding:14px"><p>Sin datos</p></div>';
@@ -2735,14 +2737,20 @@ document.getElementById('btnSaveEps').addEventListener('click',async function(){
 // ══ MARCAR PAGADO CLIENTE ══
 async function marcarPagado(cid,mes){
   if(!await confirmar('¿Marcar como pagado a este cliente?','Marcar pagado','Cancelar'))return;
-  await dbPatch('clientes',{pagado_mes:mes},'id=eq.'+cid);
+  var r=await dbGet('clientes','id=eq.'+cid+'&select=pagado_mes');
+  var mesesActuales=(r.length&&r[0].pagado_mes)?r[0].pagado_mes.split(','):[];
+  if(mesesActuales.indexOf(mes)<0) mesesActuales.push(mes);
+  await dbPatch('clientes',{pagado_mes:mesesActuales.join(',')},'id=eq.'+cid);
   rLiq(); toast('✅ Marcado como pagado');
 }
 
 // ══ MARCAR PAGADO PASEADOR ══
 async function marcarPagadoW(wid,mes){
   if(!await confirmar('¿Marcar como pagado a este paseador?','Marcar pagado','Cancelar'))return;
-  await dbPatch('usuarios',{pagado_mes:mes},'id=eq.'+wid);
+  var r=await dbGet('usuarios','id=eq.'+wid+'&select=pagado_mes');
+  var mesesActuales=(r.length&&r[0].pagado_mes)?r[0].pagado_mes.split(','):[];
+  if(mesesActuales.indexOf(mes)<0) mesesActuales.push(mes);
+  await dbPatch('usuarios',{pagado_mes:mesesActuales.join(',')},'id=eq.'+wid);
   rLiq(); toast('✅ Liquidación marcada como pagada');
 }
 
@@ -2823,7 +2831,8 @@ async function rMiSaldoMes(mes){
     allPaseos.sort(function(a,b){return a.fecha.localeCompare(b.fecha);});
     var total=allPaseos.reduce(function(s,p){return s+p.tarifa_cliente;},0);
     var clienteDB=await dbGet('clientes','id=eq.'+me.id);
-    var notif=clienteDB[0]&&clienteDB[0].pagado_mes===mes;
+    var pagadosMes=(clienteDB[0]&&clienteDB[0].mes_notif)?clienteDB[0].mes_notif:'';
+    var notif=clienteDB[0]&&clienteDB[0].mes_notif===mes&&((clienteDB[0].pagado_mes||'').split(',').indexOf(mes)<0);
     var sEl=document.getElementById('saldoBox');
     sEl.innerHTML='<div class="saldo-box'+(notif?' pendiente':'')+'">'+
       '<div class="saldo-lbl">'+mlbl(mes)+'</div>'+
@@ -3312,7 +3321,7 @@ async function actualizarBadgeSol(){
       var cliData=await dbGet('clientes','id=eq.'+me.id+'&select=mes_notif,pagado_mes');
       var bnSaldo=document.getElementById('bnSaldo');
       if(bnSaldo){
-        var tieneCobro=cliData.length&&cliData[0].mes_notif===mes&&cliData[0].pagado_mes!==mes;
+        var tieneCobro=cliData.length&&cliData[0].mes_notif===mes&&((cliData[0].pagado_mes||'').split(',').indexOf(mes)<0);
         if(tieneCobro){bnSaldo.classList.add('bn-badge');bnSaldo.setAttribute('data-count','$');}
         else{bnSaldo.classList.remove('bn-badge');bnSaldo.removeAttribute('data-count');}
       }
