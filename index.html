@@ -102,6 +102,9 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
 .sec-div-lbl{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin-bottom:10px}
 .dog-block{background:var(--bg);border-radius:var(--r);padding:12px;margin-bottom:10px;border:1.5px solid var(--bd)}
 .dog-block-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.chk-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.chk-item{display:flex;align-items:center;gap:6px;font-size:.85rem;cursor:pointer;padding:4px 0}
+.chk-item input[type=checkbox]{width:16px;height:16px;accent-color:var(--gr);cursor:pointer}
 
 /* LIQ */
 .liq-row{display:flex;justify-content:space-between;align-items:center;padding:10px 13px;border-bottom:1px solid var(--bd)}
@@ -467,18 +470,18 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
     <input type="hidden" id="cId">
     <div class="sec-div-lbl">👤 Datos del cliente</div>
     <div class="fld"><div class="row2">
-      <div><label>Nombre</label><input type="text" id="cNom" placeholder="María"></div>
-      <div><label>Apellido</label><input type="text" id="cApe" placeholder="González"></div>
+      <div><label>Nombre <span style="color:var(--rd)">*</span></label><input type="text" id="cNom" placeholder="María"></div>
+      <div><label>Apellido <span style="color:var(--rd)">*</span></label><input type="text" id="cApe" placeholder="González"></div>
     </div></div>
     <div class="fld"><label>RUT</label><input type="text" id="cRut" placeholder="12.345.678-9"></div>
     <div class="fld"><div class="row2">
-      <div><label>Teléfono 1</label><input type="tel" id="cTel1"></div>
+      <div><label>Celular <span style="color:var(--rd)">*</span></label><input type="tel" id="cTel1" placeholder="+56 9 1234 5678"></div>
       <div><label>Teléfono 2</label><input type="tel" id="cTel2"></div>
     </div></div>
-    <div class="fld"><label>Email (acceso)</label><input type="email" id="cEmail"></div>
+    <div class="fld"><label>Email <span style="color:var(--rd)">*</span></label><input type="email" id="cEmail" placeholder="cliente@email.com"></div>
     <div class="fld"><label>Contraseña cliente</label><input type="text" id="cPass" placeholder="cliente123"></div>
-    <div class="fld"><label>Dirección</label><input type="text" id="cDir"></div>
-    <div class="fld"><label>Comuna</label><input type="text" id="cCom"></div>
+    <div class="fld"><label>Dirección <span style="color:var(--rd)">*</span></label><input type="text" id="cDir" placeholder="Av. Ejemplo 123, Depto 45"></div>
+    <div class="fld"><label>Comuna <span style="color:var(--rd)">*</span></label><input type="text" id="cCom" placeholder="Providencia"></div>
     <div class="fld"><label>Tipo de pago</label>
       <select id="cPago"><option value="fin_de_mes">Fin de mes</option><option value="paquete">Paquete</option></select>
     </div>
@@ -506,7 +509,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
       <button type="button" class="btn btn-r btn-xs" data-rm>Quitar</button>
     </div>
     <div class="fld"><div class="row2">
-      <div><label>Nombre</label><input type="text" class="dn" placeholder="Rocky"></div>
+      <div><label>Nombre <span style="color:var(--rd)">*</span></label><input type="text" class="dn" placeholder="Rocky"></div>
       <div><label>Raza</label><input type="text" class="dr" placeholder="Labrador"></div>
     </div></div>
     <div class="fld"><div class="row2">
@@ -542,8 +545,23 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
         <button type="button" class="opt-btn dalrg-no on">✅ No</button>
       </div>
     </div>
-    <div class="fld dalrg-det" style="display:none"><label>Describir alergias</label><textarea class="dalrg-txt"></textarea></div>
+    <div class="fld dalrg-det" style="display:none"><label>Describir alergias <span style="color:var(--rd)">*</span></label><textarea class="dalrg-txt" placeholder="Ej: pollo, trigo..."></textarea></div>
+    <div class="fld"><label>¿Es reactivo? <small style="opacity:.6">(marca todo lo que aplique)</small></label>
+      <div class="chk-grid">
+        <label class="chk-item"><input type="checkbox" class="dreac-machos"> 🐕 Perros machos</label>
+        <label class="chk-item"><input type="checkbox" class="dreac-hembras"> 🐩 Perras hembras</label>
+        <label class="chk-item"><input type="checkbox" class="dreac-ninos"> 👶 Niños</label>
+        <label class="chk-item"><input type="checkbox" class="dreac-bicicletas"> 🚴 Bicicletas</label>
+        <label class="chk-item"><input type="checkbox" class="dreac-desconocidos"> 👤 Desconocidos</label>
+        <label class="chk-item"><input type="checkbox" class="dreac-vehiculos"> 🚗 Vehículos</label>
+      </div>
+    </div>
     <div class="fld"><label>Notas / comportamiento</label><textarea class="dnotas" placeholder="Tímida con extraños..."></textarea></div>
+    <div class="sec-div-lbl" style="margin:10px 0 8px">🚨 Contacto de emergencia</div>
+    <div class="fld"><div class="row2">
+      <div><label>Nombre contacto <span style="color:var(--rd)">*</span></label><input type="text" class="demnom" placeholder="Ana González"></div>
+      <div><label>Teléfono contacto <span style="color:var(--rd)">*</span></label><input type="tel" class="demtel" placeholder="+56 9 8765 4321"></div>
+    </div></div>
     <div class="sec-div-lbl" style="margin:10px 0 8px">🏥 Veterinario</div>
     <div class="fld"><div class="row2">
       <div><label>Nombre vet.</label><input type="text" class="dvetnom"></div>
@@ -1185,6 +1203,14 @@ function addDogBlock(data){
     block.querySelector('.dvettel').value=data.vet_telefono||'';
     if(data.chip){block.querySelector('.dchip-si').classList.add('on');block.querySelector('.dchip-no').classList.remove('on');}
     if(data.alergias){block.querySelector('.dalrg-si').classList.add('on');block.querySelector('.dalrg-no').classList.remove('on');block.querySelector('.dalrg-det').style.display='block';block.querySelector('.dalrg-txt').value=data.alergias||'';}
+    if(data.reactivo_machos)block.querySelector('.dreac-machos').checked=true;
+    if(data.reactivo_hembras)block.querySelector('.dreac-hembras').checked=true;
+    if(data.reactivo_ninos)block.querySelector('.dreac-ninos').checked=true;
+    if(data.reactivo_bicicletas)block.querySelector('.dreac-bicicletas').checked=true;
+    if(data.reactivo_desconocidos)block.querySelector('.dreac-desconocidos').checked=true;
+    if(data.reactivo_vehiculos)block.querySelector('.dreac-vehiculos').checked=true;
+    block.querySelector('.demnom').value=data.contacto_emergencia_nombre||'';
+    block.querySelector('.demtel').value=data.contacto_emergencia_telefono||'';
     if(data.modalidad_pago==='paquete'){block.querySelector('.dog-pack').classList.add('on');block.querySelector('.dog-mes').classList.remove('on');block.querySelector('.dog-pack-det').style.display='block';block.querySelector('.dpacktotal').value=data.pack_total||'';}
     block.dataset.pid=data.id||'';
   }
@@ -1206,6 +1232,14 @@ function readDogs(){
       pack_total:+b.querySelector('.dpacktotal').value||0,
       chip:b.querySelector('.dchip-si').classList.contains('on'),
       alergias:b.querySelector('.dalrg-si').classList.contains('on')?b.querySelector('.dalrg-txt').value.trim():null,
+      reactivo_machos:b.querySelector('.dreac-machos').checked,
+      reactivo_hembras:b.querySelector('.dreac-hembras').checked,
+      reactivo_ninos:b.querySelector('.dreac-ninos').checked,
+      reactivo_bicicletas:b.querySelector('.dreac-bicicletas').checked,
+      reactivo_desconocidos:b.querySelector('.dreac-desconocidos').checked,
+      reactivo_vehiculos:b.querySelector('.dreac-vehiculos').checked,
+      contacto_emergencia_nombre:b.querySelector('.demnom').value.trim(),
+      contacto_emergencia_telefono:b.querySelector('.demtel').value.trim(),
       notas:b.querySelector('.dnotas').value.trim(),
       vet_nombre:b.querySelector('.dvetnom').value.trim(),
       vet_telefono:b.querySelector('.dvettel').value.trim()
@@ -1254,10 +1288,22 @@ function abrirC(cid){
 async function saveC(){
   var nom=document.getElementById('cNom').value.trim();
   var ape=document.getElementById('cApe').value.trim();
-  if(!nom||!ape){toast('⚠️ Nombre y apellido obligatorios');return;}
+  var tel1=document.getElementById('cTel1').value.trim();
+  var email=document.getElementById('cEmail').value.trim();
+  var dir=document.getElementById('cDir').value.trim();
+  var com=document.getElementById('cCom').value.trim();
+  if(!nom){toast('⚠️ El nombre es obligatorio');return;}
+  if(!ape){toast('⚠️ El apellido es obligatorio');return;}
+  if(!tel1){toast('⚠️ El celular es obligatorio');return;}
+  if(!email){toast('⚠️ El email es obligatorio');return;}
+  if(!dir){toast('⚠️ La dirección es obligatoria');return;}
+  if(!com){toast('⚠️ La comuna es obligatoria');return;}
   var dogs=readDogs();
   if(!dogs.length){toast('⚠️ Agrega al menos una mascota');return;}
-  for(var i=0;i<dogs.length;i++){if(!dogs[i].nombre){toast('⚠️ Todas las mascotas necesitan nombre');return;}}
+  for(var i=0;i<dogs.length;i++){
+    if(!dogs[i].nombre){toast('⚠️ Todas las mascotas necesitan nombre');return;}
+    if(!dogs[i].contacto_emergencia_nombre||!dogs[i].contacto_emergencia_telefono){toast('⚠️ Contacto de emergencia obligatorio en todas las mascotas');return;}
+  }
   document.getElementById('btnSaveCTxt').textContent='Guardando...';
   document.getElementById('btnSaveCSpinner').style.display='inline-block';
   try {
@@ -1287,7 +1333,12 @@ async function saveC(){
       var pObj={empresa_id:EMPRESA_ID,cliente_id:savedC.id,nombre:d.nombre,raza:d.raza,
         fecha_nacimiento:d.fecha_nacimiento,tarifa:d.tarifa,modalidad_pago:d.modalidad_pago,
         pack_total:d.pack_total,chip:d.chip,alergias:d.alergias,notas:d.notas,
-        vet_nombre:d.vet_nombre,vet_telefono:d.vet_telefono};
+        vet_nombre:d.vet_nombre,vet_telefono:d.vet_telefono,
+        reactivo_machos:d.reactivo_machos,reactivo_hembras:d.reactivo_hembras,
+        reactivo_ninos:d.reactivo_ninos,reactivo_bicicletas:d.reactivo_bicicletas,
+        reactivo_desconocidos:d.reactivo_desconocidos,reactivo_vehiculos:d.reactivo_vehiculos,
+        contacto_emergencia_nombre:d.contacto_emergencia_nombre||null,
+        contacto_emergencia_telefono:d.contacto_emergencia_telefono||null};
       if(d.pid){await dbPatch('perros',pObj,'id=eq.'+d.pid);}
       else{await dbPost('perros',pObj);}
     }
