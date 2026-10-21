@@ -102,9 +102,6 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
 .sec-div-lbl{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin-bottom:10px}
 .dog-block{background:var(--bg);border-radius:var(--r);padding:12px;margin-bottom:10px;border:1.5px solid var(--bd)}
 .dog-block-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.chk-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
-.chk-item{display:flex;align-items:center;gap:6px;font-size:.85rem;cursor:pointer;padding:4px 0}
-.chk-item input[type=checkbox]{width:16px;height:16px;accent-color:var(--gr);cursor:pointer}
 
 /* LIQ */
 .liq-row{display:flex;justify-content:space-between;align-items:center;padding:10px 13px;border-bottom:1px solid var(--bd)}
@@ -470,18 +467,18 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
     <input type="hidden" id="cId">
     <div class="sec-div-lbl">👤 Datos del cliente</div>
     <div class="fld"><div class="row2">
-      <div><label>Nombre <span style="color:var(--rd)">*</span></label><input type="text" id="cNom" placeholder="María"></div>
-      <div><label>Apellido <span style="color:var(--rd)">*</span></label><input type="text" id="cApe" placeholder="González"></div>
+      <div><label>Nombre</label><input type="text" id="cNom" placeholder="María"></div>
+      <div><label>Apellido</label><input type="text" id="cApe" placeholder="González"></div>
     </div></div>
     <div class="fld"><label>RUT</label><input type="text" id="cRut" placeholder="12.345.678-9"></div>
     <div class="fld"><div class="row2">
-      <div><label>Celular <span style="color:var(--rd)">*</span></label><input type="tel" id="cTel1" placeholder="+56 9 1234 5678"></div>
+      <div><label>Teléfono 1</label><input type="tel" id="cTel1"></div>
       <div><label>Teléfono 2</label><input type="tel" id="cTel2"></div>
     </div></div>
-    <div class="fld"><label>Email <span style="color:var(--rd)">*</span></label><input type="email" id="cEmail" placeholder="cliente@email.com"></div>
+    <div class="fld"><label>Email (acceso)</label><input type="email" id="cEmail"></div>
     <div class="fld"><label>Contraseña cliente</label><input type="text" id="cPass" placeholder="cliente123"></div>
-    <div class="fld"><label>Dirección <span style="color:var(--rd)">*</span></label><input type="text" id="cDir" placeholder="Av. Ejemplo 123, Depto 45"></div>
-    <div class="fld"><label>Comuna <span style="color:var(--rd)">*</span></label><input type="text" id="cCom" placeholder="Providencia"></div>
+    <div class="fld"><label>Dirección</label><input type="text" id="cDir"></div>
+    <div class="fld"><label>Comuna</label><input type="text" id="cCom"></div>
     <div class="fld"><label>Tipo de pago</label>
       <select id="cPago"><option value="fin_de_mes">Fin de mes</option><option value="paquete">Paquete</option></select>
     </div>
@@ -509,7 +506,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
       <button type="button" class="btn btn-r btn-xs" data-rm>Quitar</button>
     </div>
     <div class="fld"><div class="row2">
-      <div><label>Nombre <span style="color:var(--rd)">*</span></label><input type="text" class="dn" placeholder="Rocky"></div>
+      <div><label>Nombre</label><input type="text" class="dn" placeholder="Rocky"></div>
       <div><label>Raza</label><input type="text" class="dr" placeholder="Labrador"></div>
     </div></div>
     <div class="fld"><div class="row2">
@@ -545,23 +542,8 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
         <button type="button" class="opt-btn dalrg-no on">✅ No</button>
       </div>
     </div>
-    <div class="fld dalrg-det" style="display:none"><label>Describir alergias <span style="color:var(--rd)">*</span></label><textarea class="dalrg-txt" placeholder="Ej: pollo, trigo..."></textarea></div>
-    <div class="fld"><label>¿Es reactivo? <small style="opacity:.6">(marca todo lo que aplique)</small></label>
-      <div class="chk-grid">
-        <label class="chk-item"><input type="checkbox" class="dreac-machos"> 🐕 Perros machos</label>
-        <label class="chk-item"><input type="checkbox" class="dreac-hembras"> 🐩 Perras hembras</label>
-        <label class="chk-item"><input type="checkbox" class="dreac-ninos"> 👶 Niños</label>
-        <label class="chk-item"><input type="checkbox" class="dreac-bicicletas"> 🚴 Bicicletas</label>
-        <label class="chk-item"><input type="checkbox" class="dreac-desconocidos"> 👤 Desconocidos</label>
-        <label class="chk-item"><input type="checkbox" class="dreac-vehiculos"> 🚗 Vehículos</label>
-      </div>
-    </div>
+    <div class="fld dalrg-det" style="display:none"><label>Describir alergias</label><textarea class="dalrg-txt"></textarea></div>
     <div class="fld"><label>Notas / comportamiento</label><textarea class="dnotas" placeholder="Tímida con extraños..."></textarea></div>
-    <div class="sec-div-lbl" style="margin:10px 0 8px">🚨 Contacto de emergencia</div>
-    <div class="fld"><div class="row2">
-      <div><label>Nombre contacto <span style="color:var(--rd)">*</span></label><input type="text" class="demnom" placeholder="Ana González"></div>
-      <div><label>Teléfono contacto <span style="color:var(--rd)">*</span></label><input type="tel" class="demtel" placeholder="+56 9 8765 4321"></div>
-    </div></div>
     <div class="sec-div-lbl" style="margin:10px 0 8px">🏥 Veterinario</div>
     <div class="fld"><div class="row2">
       <div><label>Nombre vet.</label><input type="text" class="dvetnom"></div>
@@ -909,6 +891,34 @@ var SUPA_URL = 'https://dmaifogoxzwyiunqvrbf.supabase.co';
 var SUPA_KEY = 'sb_publishable_nXmYsUIGAhYJ13vs9JXXRQ_iRWxc46P';
 var EMPRESA_ID = 'ddb83b48-e599-449f-abc3-1a2f1d3a1138';
 
+// ══ SEGURIDAD: PBKDF2-SHA256 ══
+async function hashPass(password) {
+  var enc = new TextEncoder();
+  var keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']);
+  var salt = crypto.getRandomValues(new Uint8Array(16));
+  var bits = await crypto.subtle.deriveBits({name:'PBKDF2', hash:'SHA-256', salt:salt, iterations:260000}, keyMaterial, 256);
+  var saltB64 = btoa(String.fromCharCode(...salt));
+  var hashB64 = btoa(String.fromCharCode(...new Uint8Array(bits)));
+  return 'pbkdf2:sha256:260000$'+saltB64+'$'+hashB64;
+}
+
+async function verifyPass(password, stored) {
+  if (!stored) return false;
+  var parts = stored.split('$');
+  if (parts.length !== 3 || !parts[0].startsWith('pbkdf2:sha256:')) {
+    // Fallback legacy: contraseña en texto plano (período de migración)
+    return password === stored;
+  }
+  var rounds = parseInt(parts[0].split(':')[2]);
+  var salt = Uint8Array.from(atob(parts[1]), function(c){return c.charCodeAt(0);});
+  var storedHash = atob(parts[2]);
+  var enc = new TextEncoder();
+  var keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']);
+  var bits = await crypto.subtle.deriveBits({name:'PBKDF2', hash:'SHA-256', salt:salt, iterations:rounds}, keyMaterial, 256);
+  var computed = btoa(String.fromCharCode(...new Uint8Array(bits)));
+  return computed === storedHash;
+}
+
 // ══ API ══
 async function db(table, method, body, filters) {
   var url = SUPA_URL + '/rest/v1/' + table;
@@ -1038,10 +1048,11 @@ async function doLogin() {
   errEl.style.display='none';
   if(!email||!pass){errEl.textContent='Ingresa email y contraseña';errEl.style.display='block';return;}
   try {
-    // Check all usuarios with this email/pass (any company)
-    var users = await dbGet('usuarios', 'email=eq.'+email+'&password_hash=eq.'+pass+'&activo=eq.true');
-    if(users.length) {
-      var user = users[0];
+    // Buscar usuario por email y verificar contraseña en cliente (PBKDF2 o plaintext legacy)
+    var allUsers = await dbGet('usuarios', 'email=eq.'+email+'&activo=eq.true');
+    var user = null;
+    for(var u of allUsers){ if(await verifyPass(pass, u.password_hash)){ user = u; break; } }
+    if(user) {
       // Check if user has multi-company access
       var multiEmpresas = await dbGet('usuario_empresas', 'usuario_id=eq.'+user.id);
       // Determine active company
@@ -1081,11 +1092,13 @@ async function doLogin() {
         ir('misperros');
       }
     } else {
-      // Check clientes across all companies
-      var clientes = await dbGet('clientes', 'email=eq.'+email+'&password_hash=eq.'+pass);
-      if(clientes.length) {
-        me = {tipo:'cliente', ...clientes[0], activeEmpresaId: clientes[0].empresa_id};
-        EMPRESA_ID = clientes[0].empresa_id;
+      // Buscar clientes por email y verificar contraseña en cliente (PBKDF2 o plaintext legacy)
+      var allClientes = await dbGet('clientes', 'email=eq.'+email);
+      var clienteMatch = null;
+      for(var c of allClientes){ if(await verifyPass(pass, c.password_hash)){ clienteMatch = c; break; } }
+      if(clienteMatch) {
+        me = {tipo:'cliente', ...clienteMatch, activeEmpresaId: clienteMatch.empresa_id};
+        EMPRESA_ID = clienteMatch.empresa_id;
         var empresas = await dbGet('empresas', 'id=eq.'+EMPRESA_ID+'&select=nombre');
         var empNombre = empresas.length ? empresas[0].nombre : 'Puchocodri';
         document.getElementById('login').style.display='none';
@@ -1203,14 +1216,6 @@ function addDogBlock(data){
     block.querySelector('.dvettel').value=data.vet_telefono||'';
     if(data.chip){block.querySelector('.dchip-si').classList.add('on');block.querySelector('.dchip-no').classList.remove('on');}
     if(data.alergias){block.querySelector('.dalrg-si').classList.add('on');block.querySelector('.dalrg-no').classList.remove('on');block.querySelector('.dalrg-det').style.display='block';block.querySelector('.dalrg-txt').value=data.alergias||'';}
-    if(data.reactivo_machos)block.querySelector('.dreac-machos').checked=true;
-    if(data.reactivo_hembras)block.querySelector('.dreac-hembras').checked=true;
-    if(data.reactivo_ninos)block.querySelector('.dreac-ninos').checked=true;
-    if(data.reactivo_bicicletas)block.querySelector('.dreac-bicicletas').checked=true;
-    if(data.reactivo_desconocidos)block.querySelector('.dreac-desconocidos').checked=true;
-    if(data.reactivo_vehiculos)block.querySelector('.dreac-vehiculos').checked=true;
-    block.querySelector('.demnom').value=data.contacto_emergencia_nombre||'';
-    block.querySelector('.demtel').value=data.contacto_emergencia_telefono||'';
     if(data.modalidad_pago==='paquete'){block.querySelector('.dog-pack').classList.add('on');block.querySelector('.dog-mes').classList.remove('on');block.querySelector('.dog-pack-det').style.display='block';block.querySelector('.dpacktotal').value=data.pack_total||'';}
     block.dataset.pid=data.id||'';
   }
@@ -1232,14 +1237,6 @@ function readDogs(){
       pack_total:+b.querySelector('.dpacktotal').value||0,
       chip:b.querySelector('.dchip-si').classList.contains('on'),
       alergias:b.querySelector('.dalrg-si').classList.contains('on')?b.querySelector('.dalrg-txt').value.trim():null,
-      reactivo_machos:b.querySelector('.dreac-machos').checked,
-      reactivo_hembras:b.querySelector('.dreac-hembras').checked,
-      reactivo_ninos:b.querySelector('.dreac-ninos').checked,
-      reactivo_bicicletas:b.querySelector('.dreac-bicicletas').checked,
-      reactivo_desconocidos:b.querySelector('.dreac-desconocidos').checked,
-      reactivo_vehiculos:b.querySelector('.dreac-vehiculos').checked,
-      contacto_emergencia_nombre:b.querySelector('.demnom').value.trim(),
-      contacto_emergencia_telefono:b.querySelector('.demtel').value.trim(),
       notas:b.querySelector('.dnotas').value.trim(),
       vet_nombre:b.querySelector('.dvetnom').value.trim(),
       vet_telefono:b.querySelector('.dvettel').value.trim()
@@ -1288,37 +1285,31 @@ function abrirC(cid){
 async function saveC(){
   var nom=document.getElementById('cNom').value.trim();
   var ape=document.getElementById('cApe').value.trim();
-  var tel1=document.getElementById('cTel1').value.trim();
-  var email=document.getElementById('cEmail').value.trim();
-  var dir=document.getElementById('cDir').value.trim();
-  var com=document.getElementById('cCom').value.trim();
-  if(!nom){toast('⚠️ El nombre es obligatorio');return;}
-  if(!ape){toast('⚠️ El apellido es obligatorio');return;}
-  if(!tel1){toast('⚠️ El celular es obligatorio');return;}
-  if(!email){toast('⚠️ El email es obligatorio');return;}
-  if(!dir){toast('⚠️ La dirección es obligatoria');return;}
-  if(!com){toast('⚠️ La comuna es obligatoria');return;}
+  if(!nom||!ape){toast('⚠️ Nombre y apellido obligatorios');return;}
   var dogs=readDogs();
   if(!dogs.length){toast('⚠️ Agrega al menos una mascota');return;}
-  for(var i=0;i<dogs.length;i++){
-    if(!dogs[i].nombre){toast('⚠️ Todas las mascotas necesitan nombre');return;}
-    if(!dogs[i].contacto_emergencia_nombre||!dogs[i].contacto_emergencia_telefono){toast('⚠️ Contacto de emergencia obligatorio en todas las mascotas');return;}
-  }
+  for(var i=0;i<dogs.length;i++){if(!dogs[i].nombre){toast('⚠️ Todas las mascotas necesitan nombre');return;}}
   document.getElementById('btnSaveCTxt').textContent='Guardando...';
   document.getElementById('btnSaveCSpinner').style.display='inline-block';
   try {
     var cid=document.getElementById('cId').value;
+    var passInput=document.getElementById('cPass').value.trim();
+    // Solo hashear si hay nueva contraseña (o es cliente nuevo con default)
+    var passHash=null;
+    if(passInput||!cid){
+      passHash=await hashPass(passInput||'cliente123');
+    }
     var cObj={
       empresa_id:EMPRESA_ID,nombre:nom,apellido:ape,
       rut:document.getElementById('cRut').value.trim(),
       telefono1:document.getElementById('cTel1').value.trim(),
       telefono2:document.getElementById('cTel2').value.trim(),
       email:document.getElementById('cEmail').value.trim(),
-      password_hash:document.getElementById('cPass').value.trim()||'cliente123',
       direccion:document.getElementById('cDir').value.trim(),
       comuna:document.getElementById('cCom').value.trim(),
       tipo_pago:document.getElementById('cPago').value
     };
+    if(passHash) cObj.password_hash=passHash;
     var savedC;
     if(cid){
       await dbPatch('clientes',cObj,'id=eq.'+cid);
@@ -1333,12 +1324,7 @@ async function saveC(){
       var pObj={empresa_id:EMPRESA_ID,cliente_id:savedC.id,nombre:d.nombre,raza:d.raza,
         fecha_nacimiento:d.fecha_nacimiento,tarifa:d.tarifa,modalidad_pago:d.modalidad_pago,
         pack_total:d.pack_total,chip:d.chip,alergias:d.alergias,notas:d.notas,
-        vet_nombre:d.vet_nombre,vet_telefono:d.vet_telefono,
-        reactivo_machos:d.reactivo_machos,reactivo_hembras:d.reactivo_hembras,
-        reactivo_ninos:d.reactivo_ninos,reactivo_bicicletas:d.reactivo_bicicletas,
-        reactivo_desconocidos:d.reactivo_desconocidos,reactivo_vehiculos:d.reactivo_vehiculos,
-        contacto_emergencia_nombre:d.contacto_emergencia_nombre||null,
-        contacto_emergencia_telefono:d.contacto_emergencia_telefono||null};
+        vet_nombre:d.vet_nombre,vet_telefono:d.vet_telefono};
       if(d.pid){await dbPatch('perros',pObj,'id=eq.'+d.pid);}
       else{await dbPost('perros',pObj);}
     }
@@ -1434,10 +1420,14 @@ async function saveW(){
   var e=document.getElementById('wE').value.trim();
   if(!n||!e){toast('⚠️ Nombre y email obligatorios');return;}
   try {
+    var wPassInput=document.getElementById('wP').value;
+    var wId=document.getElementById('wId').value;
+    // Solo hashear si hay nueva contraseña (o es paseador nuevo con default)
+    var wPassHash=null;
+    if(wPassInput||!wId){ wPassHash=await hashPass(wPassInput||'pass123'); }
     var obj={empresa_id:EMPRESA_ID,nombre:n,email:e,
       apellido:document.getElementById('wApe').value.trim(),
       telefono:document.getElementById('wT').value.trim(),
-      password_hash:document.getElementById('wP').value||'pass123',
       tarifa_por_servicio:+document.getElementById('wTa').value||6000,
       rut:document.getElementById('wRut').value.trim(),
       fecha_nacimiento:document.getElementById('wFnac').value||null,
@@ -1454,7 +1444,8 @@ async function saveW(){
       foto_perfil_url:document.getElementById('wFotoUrl').value.trim(),
       notas_admin:document.getElementById('wNotas').value.trim(),
       rol:'paseador',es_admin:false,es_pucho:false,activo:true};
-    var id=document.getElementById('wId').value;
+    if(wPassHash) obj.password_hash=wPassHash;
+    var id=wId;
     if(id){
       await dbPatch('usuarios',obj,'id=eq.'+id);
       toast('✅ Paseador actualizado');
@@ -1656,11 +1647,12 @@ document.getElementById('btnCambiarClave').addEventListener('click',async functi
   var act=document.getElementById('claveActual').value;
   var nva=document.getElementById('claveNueva').value;
   var con=document.getElementById('claveConfirm').value;
-  if(me.password_hash!==act){toast('⚠️ Contraseña actual incorrecta');return;}
+  if(!await verifyPass(act, me.password_hash)){toast('⚠️ Contraseña actual incorrecta');return;}
   if(nva.length<6){toast('⚠️ Mínimo 6 caracteres');return;}
   if(nva!==con){toast('⚠️ Las contraseñas no coinciden');return;}
-  await dbPatch('usuarios',{password_hash:nva},'id=eq.'+me.id);
-  me.password_hash=nva;
+  var hashed=await hashPass(nva);
+  await dbPatch('usuarios',{password_hash:hashed},'id=eq.'+me.id);
+  me.password_hash=hashed;
   document.getElementById('claveActual').value='';document.getElementById('claveNueva').value='';document.getElementById('claveConfirm').value='';
   toast('✅ Contraseña actualizada');
 });
@@ -1670,11 +1662,12 @@ document.getElementById('btnCambiarClaveC').addEventListener('click',async funct
   var act=document.getElementById('claveCActual').value;
   var nva=document.getElementById('claveCNueva').value;
   var con=document.getElementById('claveCConfirm').value;
-  if(me.password_hash!==act){toast('⚠️ Contraseña actual incorrecta');return;}
+  if(!await verifyPass(act, me.password_hash)){toast('⚠️ Contraseña actual incorrecta');return;}
   if(nva.length<6){toast('⚠️ Mínimo 6 caracteres');return;}
   if(nva!==con){toast('⚠️ Las contraseñas no coinciden');return;}
-  await dbPatch('clientes',{password_hash:nva,pass_cambiada:true},'id=eq.'+me.id);
-  me.password_hash=nva;me.pass_cambiada=true;
+  var hashed=await hashPass(nva);
+  await dbPatch('clientes',{password_hash:hashed,pass_cambiada:true},'id=eq.'+me.id);
+  me.password_hash=hashed;me.pass_cambiada=true;
   document.getElementById('claveCActual').value='';document.getElementById('claveCNueva').value='';document.getElementById('claveCConfirm').value='';
   toast('✅ Contraseña actualizada');
 });
@@ -1682,11 +1675,12 @@ document.getElementById('btnCambiarClaveC2').addEventListener('click',async func
   var act=document.getElementById('claveCActual').value;
   var nva=document.getElementById('claveCNueva').value;
   var con=document.getElementById('claveCConfirm').value;
-  if(me.password_hash!==act){toast('⚠️ Contraseña actual incorrecta');return;}
+  if(!await verifyPass(act, me.password_hash)){toast('⚠️ Contraseña actual incorrecta');return;}
   if(nva.length<6){toast('⚠️ Mínimo 6 caracteres');return;}
   if(nva!==con){toast('⚠️ Las contraseñas no coinciden');return;}
-  await dbPatch('clientes',{password_hash:nva,pass_cambiada:true},'id=eq.'+me.id);
-  me.password_hash=nva;me.pass_cambiada=true;
+  var hashed=await hashPass(nva);
+  await dbPatch('clientes',{password_hash:hashed,pass_cambiada:true},'id=eq.'+me.id);
+  me.password_hash=hashed;me.pass_cambiada=true;
   toast('✅ Contraseña actualizada');
 });
 
@@ -1958,7 +1952,6 @@ async function rClientes(){
         '<div class="card-hdr"><div>'+
           '<div style="font-weight:700;font-size:.9rem">'+c.nombre+' '+c.apellido+'</div>'+
           '<div style="font-size:.73rem;color:var(--mu);margin-top:1px">'+(c.rut||'')+(c.telefono1?' · '+c.telefono1:'')+' · '+c.email+'</div>'+
-          '<div style="font-size:.72rem;margin-top:2px">🔑 <span style="font-family:monospace;color:var(--tx)">'+c.email+' / '+(c.pass_cambiada?'••••••• (privada)':(c.password_hash||'cliente123'))+'</span></div>'+
         '</div>'+
         '<div style="display:flex;gap:5px">'+bp+
           '<button class="btn btn-o btn-xs" data-act="ec" data-id="'+c.id+'">✏️</button>'+
@@ -2016,7 +2009,6 @@ async function rPaseadores(){
               (!isPucho?fmt(w.tarifa_por_servicio||0)+'/servicio · ':'')+
               n+' perro'+(n!==1?'s':'')+
             '</div>'+
-            (!w.es_admin?'<div style="font-size:.72rem;color:var(--mu);margin-top:1px">🔑 <span style="font-family:monospace">'+w.password_hash+'</span></div>':'')+
             (w.contacto_emergencia_nombre?'<div style="font-size:.73rem;color:var(--mu);margin-top:2px">🚨 '+w.contacto_emergencia_nombre+' · '+w.contacto_emergencia_telefono+'</div>':'')+
             (w.sistema_salud?'<div style="font-size:.73rem;color:var(--mu);margin-top:1px">🏥 '+w.sistema_salud+'</div>':'')+
             (w.alergias_paseador?'<div style="font-size:.73rem;color:var(--warn);margin-top:1px">⚠️ '+w.alergias_paseador+'</div>':'')+
@@ -3004,12 +2996,13 @@ document.getElementById('btnCambiarClaveAdmin').addEventListener('click',async f
   var act=document.getElementById('adminClaveActual').value;
   var nva=document.getElementById('adminClaveNueva').value;
   var con=document.getElementById('adminClaveConfirm').value;
-  if(me.password_hash!==act){toast('⚠️ Contraseña actual incorrecta');return;}
+  if(!await verifyPass(act, me.password_hash)){toast('⚠️ Contraseña actual incorrecta');return;}
   if(nva.length<6){toast('⚠️ Mínimo 6 caracteres');return;}
   if(nva!==con){toast('⚠️ Las contraseñas no coinciden');return;}
   try {
-    await dbPatch('usuarios',{password_hash:nva},'id=eq.'+me.id);
-    me.password_hash=nva;
+    var hashed=await hashPass(nva);
+    await dbPatch('usuarios',{password_hash:hashed},'id=eq.'+me.id);
+    me.password_hash=hashed;
     document.getElementById('adminClaveActual').value='';
     document.getElementById('adminClaveNueva').value='';
     document.getElementById('adminClaveConfirm').value='';
