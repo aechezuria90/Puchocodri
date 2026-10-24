@@ -1265,7 +1265,7 @@ function abrirC(cid){
       document.getElementById('cTel1').value=c.telefono1||'';
       document.getElementById('cTel2').value=c.telefono2||'';
       document.getElementById('cEmail').value=c.email||'';
-      document.getElementById('cPass').value=c.password_hash||'';
+      document.getElementById('cPass').value='';
       document.getElementById('cDir').value=c.direccion||'';
       document.getElementById('cCom').value=c.comuna||'';
       document.getElementById('cPago').value=c.tipo_pago||'fin_de_mes';
@@ -1385,7 +1385,7 @@ function abrirW(id){
       document.getElementById('wApe').value=w.apellido||'';
       document.getElementById('wT').value=w.telefono||'';
       document.getElementById('wE').value=w.email||'';
-      document.getElementById('wP').value=w.password_hash||'';
+      document.getElementById('wP').value='';
       document.getElementById('wTa').value=w.tarifa_por_servicio||6000;
       document.getElementById('wRut').value=w.rut||'';
       document.getElementById('wFnac').value=w.fecha_nacimiento||'';
@@ -1568,6 +1568,11 @@ async function savePs(){
         }
       }
     }
+    var dup=await dbGet('paseos','empresa_id=eq.'+EMPRESA_ID+'&perro_id=eq.'+pid+'&fecha=eq.'+fecha+'&estado=neq.cancelado');
+    if(dup.length){
+      var perroNom=(await dbGet('perros','id=eq.'+pid+'&select=nombre'))[0]?.nombre||'este perro';
+      if(!await confirmarDup('Ya existe un paseo para '+perroNom+' el '+fmtF(fecha)+'. ¿Registrar de todas formas?'))return;
+    }
     await dbPost('paseos',{empresa_id:EMPRESA_ID,perro_id:pid,paseador_id:wid,fecha:fecha,
       estado:estado,observaciones:document.getElementById('psObs').value.trim(),
       tarifa_cliente:tc,tarifa_paseador:tw,es_extra:esExtra});
@@ -1633,6 +1638,12 @@ async function marcar(){
       } else {
         esExtra=true;
       }
+    }
+    var dupM=await dbGet('paseos','empresa_id=eq.'+empId+'&perro_id=eq.'+pid+'&fecha=eq.'+fecha+'&estado=neq.cancelado');
+    if(dupM.length){
+      var perrosNomM=await dbGet('perros','id=eq.'+pid+'&select=nombre');
+      var nomM=perrosNomM.length?perrosNomM[0].nombre:'este perro';
+      if(!await confirmarDup('Ya registraste un paseo de '+nomM+' el '+fmtF(fecha)+'. ¿Registrar otro?'))return;
     }
     await dbPost('paseos',{empresa_id:empId,perro_id:pid,paseador_id:me.id,
       fecha:fecha,estado:estado,observaciones:document.getElementById('mpObs').value.trim(),
@@ -2325,9 +2336,16 @@ async function rMiHist(){
       var dog=todosLosPerros.find(function(x){return x.id===p.perro_id;})||{nombre:'—'};
       var esMiEmpresaYPucho=me.es_pucho&&p.empresa_id===me.empresa_id;
       var gan=p.estado==='realizado'?(esMiEmpresaYPucho?p.tarifa_cliente:p.tarifa_paseador):0;
-      return'<div class="hist-item"><div class="hist-top"><div class="hist-perro">🐕 '+dog.nombre+'</div>'+bdg(p.estado)+'</div>'+
-        '<div style="font-size:.72rem;color:var(--mu)">'+fmtF(p.fecha)+(gan?' · <span style="font-family:monospace;font-weight:600;color:var(--g)">'+fmt(gan)+'</span>':'')+'</div>'+
-        (p.observaciones?'<div style="font-size:.78rem;color:var(--mu);margin-top:3px">💬 '+p.observaciones+'</div>':'')+
+      return'<div class="hist-item" style="display:flex;align-items:flex-start;justify-content:space-between">'+
+        '<div style="flex:1">'+
+          '<div class="hist-top"><div class="hist-perro">🐕 '+dog.nombre+'</div>'+bdg(p.estado)+'</div>'+
+          '<div style="font-size:.72rem;color:var(--mu)">'+fmtF(p.fecha)+(gan?' · <span style="font-family:monospace;font-weight:600;color:var(--g)">'+fmt(gan)+'</span>':'')+'</div>'+
+          (p.observaciones?'<div style="font-size:.78rem;color:var(--mu);margin-top:3px">💬 '+p.observaciones+'</div>':'')+
+        '</div>'+
+        '<div class="li-actions" style="flex-shrink:0;margin-left:7px">'+
+          '<button class="btn btn-o btn-xs" data-act="eps" data-id="'+p.id+'">✏️</button>'+
+          '<button class="btn btn-r btn-xs" data-act="dps" data-id="'+p.id+'">🗑️</button>'+
+        '</div>'+
       '</div>';
     }).join(''):'<div class="empty"><div class="empty-ico">📋</div><p>Sin historial</p></div>');
   } catch(e){list.innerHTML='<div class="empty"><p>Error: '+e.message+'</p></div>';}
