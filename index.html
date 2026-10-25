@@ -891,32 +891,22 @@ var SUPA_URL = 'https://dmaifogoxzwyiunqvrbf.supabase.co';
 var SUPA_KEY = 'sb_publishable_nXmYsUIGAhYJ13vs9JXXRQ_iRWxc46P';
 var EMPRESA_ID = 'ddb83b48-e599-449f-abc3-1a2f1d3a1138';
 
-// ══ SEGURIDAD: PBKDF2-SHA256 ══
+// ══ SEGURIDAD: SHA-256 ══
 async function hashPass(password) {
   var enc = new TextEncoder();
-  var keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']);
-  var salt = crypto.getRandomValues(new Uint8Array(16));
-  var bits = await crypto.subtle.deriveBits({name:'PBKDF2', hash:'SHA-256', salt:salt, iterations:260000}, keyMaterial, 256);
-  var saltB64 = btoa(String.fromCharCode(...salt));
-  var hashB64 = btoa(String.fromCharCode(...new Uint8Array(bits)));
-  return 'pbkdf2:sha256:260000$'+saltB64+'$'+hashB64;
+  var bits = await crypto.subtle.digest('SHA-256', enc.encode(password));
+  return 'sha256:'+btoa(String.fromCharCode(...new Uint8Array(bits)));
 }
 
 async function verifyPass(password, stored) {
   if (!stored) return false;
-  var parts = stored.split('$');
-  if (parts.length !== 3 || !parts[0].startsWith('pbkdf2:sha256:')) {
-    // Fallback legacy: contraseña en texto plano (período de migración)
-    return password === stored;
+  // SHA-256 format
+  if (stored.startsWith('sha256:')) {
+    var computed = await hashPass(password);
+    return computed === stored;
   }
-  var rounds = parseInt(parts[0].split(':')[2]);
-  var salt = Uint8Array.from(atob(parts[1]), function(c){return c.charCodeAt(0);});
-  var storedHash = parts[2];
-  var enc = new TextEncoder();
-  var keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']);
-  var bits = await crypto.subtle.deriveBits({name:'PBKDF2', hash:'SHA-256', salt:salt, iterations:rounds}, keyMaterial, 256);
-  var computed = btoa(String.fromCharCode(...new Uint8Array(bits)));
-  return computed === storedHash;
+  // Fallback legacy: contraseña en texto plano
+  return password === stored;
 }
 
 // ══ API ══
