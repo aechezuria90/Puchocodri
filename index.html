@@ -1052,8 +1052,8 @@ async function doLogin() {
     var allUsers = await dbGet('usuarios', 'email=eq.'+email+'&activo=eq.true');
     var dbHash = allUsers[0]?allUsers[0].password_hash:'ninguno';
     var testVerify = allUsers[0]?await verifyPass(pass, dbHash):false;
-    errEl.textContent='DEBUG: '+allUsers.length+' usuarios | pass="'+pass+'" | hash='+dbHash.substring(0,20)+' | verify='+testVerify;errEl.style.display='block';
-    await new Promise(r=>setTimeout(r,5000));
+    errEl.innerHTML='<b>DEBUG:</b><br>usuarios: '+allUsers.length+'<br>pass: "'+pass+'"<br>hash: '+dbHash.substring(0,25)+'<br>verify: '+testVerify;errEl.style.display='block';
+    if(!testVerify){return;}
     var user = null;
     for(var u of allUsers){ if(await verifyPass(pass, u.password_hash)){ user = u; break; } }
     if(user) {
