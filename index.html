@@ -911,7 +911,7 @@ async function verifyPass(password, stored) {
   }
   var rounds = parseInt(parts[0].split(':')[2]);
   var salt = Uint8Array.from(atob(parts[1]), function(c){return c.charCodeAt(0);});
-  var storedHash = atob(parts[2]);
+  var storedHash = parts[2];
   var enc = new TextEncoder();
   var keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']);
   var bits = await crypto.subtle.deriveBits({name:'PBKDF2', hash:'SHA-256', salt:salt, iterations:rounds}, keyMaterial, 256);
@@ -1050,10 +1050,6 @@ async function doLogin() {
   try {
     // Buscar usuario por email y verificar contraseña en cliente (PBKDF2 o plaintext legacy)
     var allUsers = await dbGet('usuarios', 'email=eq.'+email+'&activo=eq.true');
-    var dbHash = allUsers[0]?allUsers[0].password_hash:'ninguno';
-    var testVerify = allUsers[0]?await verifyPass(pass, dbHash):false;
-    errEl.innerHTML='<b>DEBUG:</b><br>usuarios: '+allUsers.length+'<br>pass: "'+pass+'"<br>hash: '+dbHash.substring(0,25)+'<br>verify: '+testVerify;errEl.style.display='block';
-    if(!testVerify){return;}
     var user = null;
     for(var u of allUsers){ if(await verifyPass(pass, u.password_hash)){ user = u; break; } }
     if(user) {
